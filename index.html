@@ -705,8 +705,12 @@ function cancelSelectMode(si){
 function rerenderProcPanel(si){
   const panel=document.querySelector('.proc-panel');
   if(panel){
-    const scrollTop=document.querySelector('.proc-list') ? document.querySelector('.proc-list').scrollTop : 0;
-    panel.outerHTML=renderSiteProcPanel(si);
+    const scrollTop=document.querySelector('.proc-list')?document.querySelector('.proc-list').scrollTop:0;
+    const newHtml=renderSiteProcPanel(si);
+    const tmp=document.createElement('div');
+    tmp.innerHTML=newHtml;
+    const newPanel=tmp.firstElementChild;
+    panel.parentNode.replaceChild(newPanel,panel);
     attachProcDrag();
     const newList=document.querySelector('.proc-list');
     if(newList)newList.scrollTop=scrollTop;
