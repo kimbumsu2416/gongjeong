@@ -1034,6 +1034,7 @@ async function startupLoad(){
       migrateOrReset(p);
       if(p.sites){
         Object.assign(S,p);
+        S.tab='all'; // 항상 통합에서 시작
         S.sites.forEach(s=>{
           if(!s.memo)s.memo='';
           if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
@@ -1072,6 +1073,7 @@ if(saved_url&&saved_key){
       const p=JSON.parse(localData);
       if(p&&p.sites){
         Object.assign(S,p);
+        S.tab='all'; // 항상 통합에서 시작
         S.sites.forEach(s=>{
           if(!s.memo)s.memo='';
           if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
