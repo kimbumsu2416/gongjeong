@@ -640,8 +640,13 @@ function attachEvents(){
   document.querySelectorAll('.dc').forEach(el=>{
     el.addEventListener('mousedown',e=>{S.dragging=true;paint(e.currentTarget);});
     el.addEventListener('mouseover',e=>{if(S.dragging)paint(e.currentTarget);});
-    el.addEventListener('touchstart',e=>{S.dragging=true;paint(e.currentTarget);},{passive:true});
-    el.addEventListener('touchmove',e=>{const t=e.touches[0];const hit=document.elementFromPoint(t.clientX,t.clientY);if(hit&&hit.classList.contains('dc'))paint(hit);},{passive:true});
+    el.addEventListener('touchstart',e=>{S.dragging=true;paint(e.currentTarget);e.preventDefault();},{passive:false});
+    el.addEventListener('touchmove',e=>{
+      e.preventDefault();
+      const t=e.touches[0];
+      const hit=document.elementFromPoint(t.clientX,t.clientY);
+      if(hit&&hit.classList.contains('dc'))paint(hit);
+    },{passive:false});
   });
   document.addEventListener('mouseup',()=>{S.dragging=false;});
   document.addEventListener('touchend',()=>{S.dragging=false;});
@@ -826,7 +831,21 @@ function updateTabName(si,val){
   const btn=document.getElementById('tab-'+si);
   if(btn)btn.textContent=val||`현장 ${si+1}`;
 }
-function setPaint(c){S.paintColor=c;renderAll();}
+function setPaint(c){
+  S.paintColor=c;
+  // 색상 피커만 업데이트 (전체 렌더 X)
+  document.querySelectorAll('.swatch').forEach(el=>{
+    const onclick=el.getAttribute('onclick')||'';
+    const match=onclick.match(/setPaint\('([^']*)'\)/);
+    if(match){
+      el.classList.toggle('on', match[1]===c);
+    }
+  });
+  // 지우개 스와치
+  document.querySelectorAll('.swatch-eraser').forEach(el=>{
+    el.classList.toggle('on', c==='');
+  });
+}
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;renderAll();}
 function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('현장명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 현장명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
 function deleteSite(si){if(!confirm(`"${S.sites[si].name}" 현장을 삭제하시겠어요?`))return;S.sites.splice(si,1);persist();setTab('all');}
