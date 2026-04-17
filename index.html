@@ -515,26 +515,34 @@ function renderThemePicker(){
 function renderSiteProcPanel(si){
   const s=S.sites[si];
   const sc=SITE_COLORS[si%SITE_COLORS.length];
-  const allSelected=s.selectedProcs&&s.selectedProcs.length===s.procs.length;
   const anySelected=s.selectedProcs&&s.selectedProcs.length>0;
+  const allSelected=s.selectedProcs&&s.selectedProcs.length===s.procs.length;
+
+  let btnHtml='';
+  if(s.selectMode){
+    btnHtml+=`<button onclick="toggleSelectAll(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #b0b8c8;background:transparent;color:#666;cursor:pointer;font-family:inherit">전체 선택</button>`;
+    if(anySelected){
+      btnHtml+=`<button onclick="deleteSelected(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit">선택 삭제 (${s.selectedProcs.length})</button>`;
+    } else {
+      btnHtml+=`<button style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#bbb;cursor:default;font-family:inherit">선택 삭제</button>`;
+    }
+    btnHtml+=`<button onclick="cancelSelectMode(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#888;cursor:pointer;font-family:inherit">취소</button>`;
+  } else {
+    btnHtml+=`<button onclick="enterSelectMode(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#aaa;cursor:pointer;font-family:inherit">선택 삭제</button>`;
+    btnHtml+=`<button onclick="deleteAllProcs(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit">전체 삭제</button>`;
+  }
+
   let h=`<div class="proc-panel" style="border-left:3px solid ${sc}">
     <div class="proc-panel-title" style="display:flex;align-items:center;justify-content:space-between">
       <span>공정 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 현장만의 공정을 관리해요</span></span>
-      <div style="display:flex;gap:5px">
-        ${s.selectMode
-          ? `<button onclick="toggleSelectAll(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #b0b8c8;background:transparent;color:#666;cursor:pointer;font-family:inherit">전체 선택</button>
-             <button onclick="${anySelected?`deleteSelected(${si})`:'alert(\'공정을 선택해주세요\')'}" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid ${anySelected?'#e8cece':'#dde3ee'};background:transparent;color:${anySelected?'#c00':'#bbb'};cursor:pointer;font-family:inherit">선택 삭제${anySelected?` (${s.selectedProcs.length})`:''}</button>
-             <button onclick="cancelSelectMode(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#888;cursor:pointer;font-family:inherit">취소</button>`
-          : `<button onclick="enterSelectMode(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#aaa;cursor:pointer;font-family:inherit">선택 삭제</button>
-             <button onclick="deleteAllProcs(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit">전체 삭제</button>`
-        }
-      </div>
+      <div style="display:flex;gap:5px">${btnHtml}</div>
     </div>
     <div class="proc-list" id="proc-list-${si}">`;
   s.procs.forEach((p,i)=>{
     const isSelected=s.selectedProcs&&s.selectedProcs.includes(i);
+    const chk=s.selectMode?`<input type="checkbox" style="flex-shrink:0;cursor:pointer;margin-right:2px" ${isSelected?'checked':''} onchange="toggleProcSelect(${si},${i},this.checked)">`:''
     h+=`<div class="proc-row" draggable="true" data-si="${si}" data-pi="${i}" style="${isSelected?'background:#fff0f0':''}">
-      ${s.selectMode?`<input type="checkbox" style="flex-shrink:0;cursor:pointer" ${isSelected?'checked':''} onchange="toggleProcSelect(${si},${i},this.checked)">`:''}
+      ${chk}
       <span class="proc-drag">&#8597;</span>
       <span class="proc-idx">${i+1}</span>
       <input class="proc-name-input" value="${esc(p)}" placeholder="공정명"
@@ -661,29 +669,6 @@ function paint(el){
 }
 
 // ── 현장별 공정 관리 ──────────────────────
-function enterSelectMode(si){
-  S.sites[si].selectMode=true;
-  S.sites[si].selectedProcs=[];
-  renderAll();
-}
-
-function cancelSelectMode(si){
-  S.sites[si].selectMode=false;
-  S.sites[si].selectedProcs=[];
-  renderAll();
-}
-
-function toggleSelectAll(si){
-  const s=S.sites[si];
-  if(!s.selectedProcs)s.selectedProcs=[];
-  if(s.selectedProcs.length===s.procs.length){
-    s.selectedProcs=[];
-  } else {
-    s.selectedProcs=s.procs.map((_,i)=>i);
-  }
-  renderAll();
-}
-
 function toggleProcSelect(si,pi,checked){
   if(!S.sites[si].selectedProcs)S.sites[si].selectedProcs=[];
   if(checked){
@@ -691,7 +676,7 @@ function toggleProcSelect(si,pi,checked){
   } else {
     S.sites[si].selectedProcs=S.sites[si].selectedProcs.filter(i=>i!==pi);
   }
-  renderAll();
+  rerenderProcPanel(si);
 }
 
 function toggleSelectAll(si){
@@ -702,8 +687,43 @@ function toggleSelectAll(si){
   } else {
     s.selectedProcs=s.procs.map((_,i)=>i);
   }
-  renderAll();
+  rerenderProcPanel(si);
 }
+
+function enterSelectMode(si){
+  S.sites[si].selectMode=true;
+  S.sites[si].selectedProcs=[];
+  rerenderProcPanel(si);
+}
+
+function cancelSelectMode(si){
+  S.sites[si].selectMode=false;
+  S.sites[si].selectedProcs=[];
+  rerenderProcPanel(si);
+}
+
+function rerenderProcPanel(si){
+  const panel=document.querySelector('.proc-panel');
+  if(panel){
+    const scrollTop=document.querySelector('.proc-list') ? document.querySelector('.proc-list').scrollTop : 0;
+    panel.outerHTML=renderSiteProcPanel(si);
+    attachProcDrag();
+    const newList=document.querySelector('.proc-list');
+    if(newList)newList.scrollTop=scrollTop;
+  } else {
+    renderAll();
+  }
+}
+function toggleProcSelect(si,pi,checked){
+  if(!S.sites[si].selectedProcs)S.sites[si].selectedProcs=[];
+  if(checked){
+    if(!S.sites[si].selectedProcs.includes(pi))S.sites[si].selectedProcs.push(pi);
+  } else {
+    S.sites[si].selectedProcs=S.sites[si].selectedProcs.filter(i=>i!==pi);
+  }
+  rerenderProcPanel(si);
+}
+
 
 function deleteSelected(si){
   const s=S.sites[si];
