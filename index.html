@@ -188,8 +188,8 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
     <span id="sync-text" style="flex:1">연결 중...</span>
   </div>
   <div class="nav">
-    <button onclick="goToSettings()" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#aaa;cursor:pointer;font-family:inherit">로그인하기</button>
-    <button onclick="openAdd()">+ 항목 추가</button>
+    <button onclick="goToSettings()" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#aaa;cursor:pointer;font-family:inherit" id="login-btn">로그인하기</button>
+    <button onclick="openAdd()">+ 프로젝트 추가</button>
     <button onclick="manualSave()" id="save-btn" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #538135;background:transparent;color:#538135;cursor:pointer;font-family:inherit">저장하기</button>
     <button class="btn-print" onclick="window.print()">인쇄 / PDF</button>
     <button class="btn-accent" onclick="doExport()">엑셀 내보내기</button>
@@ -208,7 +208,7 @@ let SUPABASE_KEY='';
 const SITE_COLORS=["#2E75B6","#C00000","#538135","#7030A0","#E46C0A","#00868A","#C45911","#0070C0","#6B2C91","#375623"];
 const PAINT_SWATCHES=["#2E75B6","#C00000","#538135","#7030A0","#E46C0A","#F4C742","#00868A","#E88DBB","#8B5E3C","#1ABC9C"];
 const DOW_KR=["월","화","수","목","금","토","일"];
-const DEFAULT_PROCS=["철거","설비","전기","에어컨","스프링클러","목공","경량","도장","도배","필름","타일/바닥","샷시","간판","블라인드","가구","청소"];
+const DEFAULT_PROCS=["작업 1","작업 2","작업 3","작업 4","작업 5"];
 const THEMES=[
   {key:"white",label:"화이트",bg:"#FFFFFF",tblBg:"#FFFFFF",stripe:"#F7F9FC",weBg:"#F0F0F0",procBg:"#F4F6FA",procStripe:"#EEF1F7",border:"#C8D0DE",hdrBg:"#EEF2F7",stat:"#F5F7FA"},
   {key:"warm",label:"웜그레이",bg:"#F5F2EE",tblBg:"#FDFCFB",stripe:"#F0ECE6",weBg:"#E8E4DF",procBg:"#EDE9E4",procStripe:"#E5E0DA",border:"#C8BFB5",hdrBg:"#EAE5DE",stat:"#EDE8E2"},
@@ -232,10 +232,10 @@ let S={
   paintColor:PAINT_SWATCHES[0],dragging:false,
   themeKey:"cool",
   sites:[
-    {name:"항목 1",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",cells:{}},
-    {name:"항목 2",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",cells:{}},
-    {name:"항목 3",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",cells:{}},
-    {name:"항목 4",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",cells:{}},
+    {name:"프로젝트 1",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"프로젝트 2",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"프로젝트 3",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"프로젝트 4",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
   ]
 };
 
@@ -365,12 +365,30 @@ function renderAll(){
   document.querySelectorAll('.tbl-wrap').forEach((el,i)=>{
     if(scrollMap[i])el.scrollLeft=scrollMap[i];
   });
+  // 로그인/로그아웃 버튼 업데이트
+  const loginBtn=document.getElementById('login-btn');
+  if(loginBtn){
+    if(SUPABASE_URL&&SUPABASE_KEY){
+      loginBtn.textContent='로그아웃';
+      loginBtn.style.color='#c00';
+      loginBtn.style.borderColor='#e8cece';
+    } else {
+      loginBtn.textContent='로그인하기';
+      loginBtn.style.color='#aaa';
+      loginBtn.style.borderColor='#ccc';
+    }
+  }
 }
 
 function setTab(newTab){
   if(newTab===S.tab)return;
   const goRight=tabIndex(newTab)>tabIndex(S.tab);
-  S.tab=newTab;renderTabs();
+  S.tab=newTab;
+  // 프로젝트 탭이면 해당 색상으로 자동 설정
+  if(newTab!=='all'){
+    S.paintColor=SITE_COLORS[parseInt(newTab)%SITE_COLORS.length];
+  }
+  renderTabs();
   const page=document.getElementById('page');
   page.classList.add(goRight?'flip-out-left':'flip-out-right');
   setTimeout(()=>{
@@ -414,14 +432,14 @@ function renderMain(){
     const activeDays=new Set();
     S.sites.forEach(s=>Object.keys(s.cells).forEach(k=>{if(s.cells[k]){const p=k.split('_');if(parseInt(p[2])===S.year&&parseInt(p[3])===S.month)activeDays.add(p[4]);}}));
     h+=`<div class="stats">
-      <div class="stat"><div class="stat-n">${S.sites.length}</div><div class="stat-l">진행 항목</div></div>
-      <div class="stat"><div class="stat-n">${totalFilled}</div><div class="stat-l">일정 기록</div></div>
-      <div class="stat"><div class="stat-n">${activeDays.size}일</div><div class="stat-l">일정 있는 날</div></div>
+      <div class="stat"><div class="stat-n">${S.sites.length}</div><div class="stat-l">진행 프로젝트</div></div>
+      <div class="stat"><div class="stat-n">${totalFilled}</div><div class="stat-l">작업 기록</div></div>
+      <div class="stat"><div class="stat-n">${activeDays.size}일</div><div class="stat-l">작업 있는 날</div></div>
       <div class="stat"><div class="stat-n">${days}일</div><div class="stat-l">${m}월 전체</div></div>
     </div>`;
     h+=renderThemePicker();
     h+=renderDateSummary(y,m,days);
-    h+=`<div class="notice">통합 시트는 읽기 전용입니다. 일정 입력은 각 항목 탭에서 해주세요.</div>`;
+    h+=`<div class="notice">통합 시트는 읽기 전용입니다. 작업 입력은 각 프로젝트 탭에서 해주세요.</div>`;
     h+=S.sites.length===0?`<div class="empty-hint">현장을 추가해 주세요</div>`:renderAllTable(y,m,days,cw);
   } else {
     const si=parseInt(S.tab),s=S.sites[si],sc=SITE_COLORS[si%SITE_COLORS.length],pct=calcProgress(si);
@@ -431,8 +449,8 @@ function renderMain(){
     </div>`;
     h+=`<div class="meta-grid">
       <div class="meta-card full" style="border-left:3px solid ${sc}">
-        <div class="meta-label">항목명</div>
-        <input class="meta-input" style="font-size:14px" value="${esc(s.name)}" placeholder="항목명" onchange="updateMeta(${si},'name',this.value)" oninput="updateTabName(${si},this.value)">
+        <div class="meta-label">프로젝트명</div>
+        <input class="meta-input" style="font-size:14px" value="${esc(s.name)}" placeholder="프로젝트명" onchange="updateMeta(${si},'name',this.value)" oninput="updateTabName(${si},this.value)">
       </div>
       <div class="meta-card"><div class="meta-label">장소 / 주소</div><input class="meta-input" value="${esc(s.addr)}" placeholder="입력 (선택사항)" onchange="updateMeta(${si},'addr',this.value)"></div>
       <div class="meta-card"><div class="meta-label">비밀번호</div><input class="meta-input" value="${esc(s.pw)}" placeholder="없음" onchange="updateMeta(${si},'pw',this.value)"></div>
@@ -440,8 +458,8 @@ function renderMain(){
       <div class="meta-card full"><div class="meta-label">메모 / 특이사항</div><textarea class="meta-textarea" placeholder="관련 메모, 주의사항, 요청사항 등을 자유롭게 입력하세요" onchange="updateMeta(${si},'memo',this.value)">${esc(s.memo||'')}</textarea></div>
     </div>`;
     h+=renderSiteProcPanel(si);
-    h+=renderColorPicker()+renderSiteTable(si,y,m,days,cw);
-    h+=`<div style="margin-top:10px;text-align:right"><button class="btn-danger" onclick="deleteSite(${si})">항목 삭제</button></div>`;
+    h+=renderColorPicker(si)+renderSiteTable(si,y,m,days,cw);
+    h+=`<div style="margin-top:10px;text-align:right"><button class="btn-danger" onclick="deleteSite(${si})">프로젝트 삭제</button></div>`;
   }
   return h+`</div>`;
 }
@@ -541,7 +559,7 @@ function renderSiteProcPanel(si){
 
   let h=`<div class="proc-panel" style="border-left:3px solid ${sc}">
     <div class="proc-panel-title" style="display:flex;align-items:center;justify-content:space-between">
-      <span>항목 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 항목만의 일정을 관리해요</span></span>
+      <span>작업 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 프로젝트만의 작업을 관리해요</span></span>
       <div style="display:flex;gap:5px">${btnHtml}</div>
     </div>
     <div class="proc-list" id="proc-list-${si}">`;
@@ -552,7 +570,7 @@ function renderSiteProcPanel(si){
       ${chk}
       <span class="proc-drag">&#8597;</span>
       <span class="proc-idx">${i+1}</span>
-      <input class="proc-name-input" value="${esc(p)}" placeholder="일정명"
+      <input class="proc-name-input" value="${esc(p)}" placeholder="작업명"
         onchange="renameSiteProc(${si},${i},this.value)"
         oninput="renameSiteProc(${si},${i},this.value,true)">
       <button class="proc-move" onclick="moveSiteProc(${si},${i},-1)">&#8593;</button>
@@ -562,7 +580,7 @@ function renderSiteProcPanel(si){
   });
   h+=`</div>
     <div class="proc-add-row">
-      <input class="proc-add-input" id="proc-add-${si}" placeholder="새 일정명 입력 (Enter)"
+      <input class="proc-add-input" id="proc-add-${si}" placeholder="새 작업 입력 (Enter)"
         value="${esc(s.newProcName||'')}"
         oninput="S.sites[${si}].newProcName=this.value"
         onkeydown="if(event.key==='Enter')addSiteProc(${si})">
@@ -573,10 +591,13 @@ function renderSiteProcPanel(si){
 }
 
 
-function renderColorPicker(){
-  let h=`<div class="picker-bar"><span class="picker-label">색상 선택 후 셀 클릭/드래그:</span>`;
-  PAINT_SWATCHES.forEach(c=>{h+=`<div class="swatch${S.paintColor===c?' on':''}" style="background:${c}" onclick="setPaint('${c}')"></div>`;});
-  h+=`<div class="swatch swatch-eraser${S.paintColor===''?' on':''}" onclick="setPaint('')">✕</div>`;
+function renderColorPicker(si){
+  const sc=SITE_COLORS[si%SITE_COLORS.length];
+  if(S.paintColor!==''&&S.paintColor!==sc)S.paintColor=sc;
+  let h=`<div class="picker-bar"><span class="picker-label">셀 클릭/드래그로 작업 입력:</span>`;
+  h+=`<div class="swatch${S.paintColor===sc?' on':''}" style="background:${sc}" onclick="setPaint('${sc}')"></div>`;
+  h+=`<div class="swatch swatch-eraser${S.paintColor===''?' on':''}" onclick="setPaint('')" title="지우기">✕</div>`;
+  h+=`<span style="font-size:11px;color:#aaa;margin-left:4px">클릭 색칠 / ✕ 지우기</span>`;
   return h+`</div>`;
 }
 
@@ -731,8 +752,8 @@ function toggleProcSelect(si,pi,checked){
 function deleteSelected(si){
   const s=S.sites[si];
   if(!s.selectedProcs||s.selectedProcs.length===0)return;
-  if(s.procs.length-s.selectedProcs.length<1){alert('일정은 최소 1개 이상 필요합니다.');return;}
-  if(!confirm(`선택한 ${s.selectedProcs.length}개 일정을 삭제할까요? 해당 일정의 기록도 모두 지워져요.`))return;
+  if(s.procs.length-s.selectedProcs.length<1){alert('작업은 최소 1개 이상 필요합니다.');return;}
+  if(!confirm(`선택한 ${s.selectedProcs.length}개 작업을 삭제할까요? 해당 작업의 기록도 모두 지워져요.`))return;
   const toDelete=new Set(s.selectedProcs);
   // 인덱스 높은 것부터 삭제
   const sorted=[...toDelete].sort((a,b)=>b-a);
@@ -753,7 +774,7 @@ function deleteSelected(si){
 }
 
 function deleteAllProcs(si){
-  if(!confirm('모든 일정 기록(색칠)을 삭제할까요? 항목 목록은 그대로 유지돼요.'))return;
+  if(!confirm('모든 작업 기록(색칠)을 삭제할까요? 작업 목록은 그대로 유지돼요.'))return;
   S.sites[si].cells={};
   S.sites[si].selectedProcs=[];
   persist();renderAll();
@@ -766,7 +787,7 @@ function renameSiteProc(si,pi,val,live){
 function addSiteProc(si){
   const name=(S.sites[si].newProcName||'').trim();
   if(!name){document.getElementById('proc-add-'+si).focus();return;}
-  if(S.sites[si].procs.includes(name)){alert('이미 있는 일정명입니다.');return;}
+  if(S.sites[si].procs.includes(name)){alert('이미 있는 작업명입니다.');return;}
   S.sites[si].procs.push(name);
   S.sites[si].newProcName='';
   persist();
@@ -778,7 +799,7 @@ function addSiteProc(si){
   },50);
 }
 function deleteSiteProc(si,pi){
-  if(S.sites[si].procs.length<=1){alert('일정은 최소 1개 이상 필요합니다.');return;}
+  if(S.sites[si].procs.length<=1){alert('작업은 최소 1개 이상 필요합니다.');return;}
   if(!confirm(`"${S.sites[si].procs[pi]}" 공정을 삭제하면 해당 공정의 모든 기록이 지워집니다.`))return;
   const cells=S.sites[si].cells;
   const nc={};
@@ -836,7 +857,7 @@ function attachProcDrag(){
 function setTheme(key){S.themeKey=key;persist();renderAll();}
 function updateTabName(si,val){
   const btn=document.getElementById('tab-'+si);
-  if(btn)btn.textContent=val||`항목 ${si+1}`;
+  if(btn)btn.textContent=val||`프로젝트 ${si+1}`;
 }
 function setPaint(c){
   S.paintColor=c;
@@ -850,7 +871,7 @@ function setPaint(c){
   });
 }
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;renderAll();}
-function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('항목명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 항목명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
+function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('프로젝트명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 프로젝트명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
 function deleteSite(si){if(!confirm(`"${S.sites[si].name}" 현장을 삭제하시겠어요?`))return;S.sites.splice(si,1);persist();setTab('all');}
 
 let addForm={name:"",addr:"",pw:"",key:""};
@@ -860,8 +881,8 @@ function openAdd(){
   document.getElementById('modal-area').innerHTML=`
   <div class="modal-overlay" onclick="if(event.target===this)closeAdd()">
     <div class="modal-box">
-      <div class="modal-title">새 항목 추가</div>
-      <div class="field"><label>항목명 *</label><input id="f-name" placeholder="예: 항목 ${next}" oninput="addForm.name=this.value" autofocus></div>
+      <div class="modal-title">새 프로젝트 추가</div>
+      <div class="field"><label>프로젝트명 *</label><input id="f-name" placeholder="예: 프로젝트 ${next}" oninput="addForm.name=this.value" autofocus></div>
       <div class="field"><label>장소 / 주소</label><input id="f-addr" placeholder="입력 (선택사항)" oninput="addForm.addr=this.value"></div>
       <div class="field"><label>비밀번호</label><input id="f-pw" placeholder="없음" oninput="addForm.pw=this.value"></div>
       <div class="field"><label>기타 1</label><input id="f-key" placeholder="없음" oninput="addForm.key=this.value"></div>
@@ -870,7 +891,7 @@ function openAdd(){
   </div>`;
 }
 function closeAdd(){document.getElementById('modal-area').innerHTML='';}
-function confirmAdd(){const name=addForm.name.trim()||`항목 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 항목명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
+function confirmAdd(){const name=addForm.name.trim()||`프로젝트 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 프로젝트명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
 
 function doExport(){
   const y=S.year,m=S.month,days=daysInMonth(y,m);
@@ -1024,9 +1045,9 @@ function renderOTabContent(tab){
       <div style="font-size:14px;font-weight:500;color:#222;margin-bottom:14px">주요 기능 안내</div>
       ${[
         ['📋','통합 시트','모든 현장을 한눈에 확인. 날짜 클릭 시 해당 일의 공정 현황 표시'],
-        ['🏗️','항목 관리','+ 항목 추가 버튼으로 현장 생성. 각 항목별 주소/메모 관리'],
-        ['🎨','공정 입력','색상 선택 후 셀 클릭 또는 드래그로 공정 일정 기록'],
-        ['⚙️','항목 목록','각 항목 탭에서 일정 추가/수정/삭제/순서 변경 가능'],
+        ['🏗️','프로젝트 관리','+ 프로젝트 추가 버튼으로 현장 생성. 각 프로젝트별 주소/메모 관리'],
+        ['🎨','공정 입력','색상 선택 후 셀 클릭 또는 드래그로 공정 작업 기록'],
+        ['⚙️','작업 목록','각 프로젝트 탭에서 작업 추가/수정/삭제/순서 변경 가능'],
         ['🗓️','월별 관리','← → 버튼으로 월 이동. 월별로 데이터가 독립 관리됨'],
         ['👥','팀 공유','같은 파일을 팀원에게 공유하면 실시간으로 함께 사용 가능'],
         ['🖨️','인쇄/저장','인쇄 버튼으로 A4 가로 출력 또는 PDF 저장'],
@@ -1083,22 +1104,54 @@ function manualSave(){
 }
 
 function goToSettings(){
-  if(confirm('설정 화면으로 돌아갈까요?')){
-    localStorage.removeItem('gj_sb_url');
-    localStorage.removeItem('gj_sb_key');
-    localStorage.removeItem('gj_local_only');
-    showOnboarding();
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    if(confirm('로그아웃 하시겠어요? 연결 정보가 삭제됩니다.')){
+      SUPABASE_URL='';
+      SUPABASE_KEY='';
+      localStorage.removeItem('gj_sb_url');
+      localStorage.removeItem('gj_sb_key');
+      localStorage.removeItem('gj_local_only');
+      localStorage.removeItem('gj_local_data');
+      // 상태 초기화
+      resetState();
+      showOnboarding();
+    }
+  } else {
+    if(confirm('설정 화면으로 돌아갈까요?')){
+      localStorage.removeItem('gj_sb_url');
+      localStorage.removeItem('gj_sb_key');
+      localStorage.removeItem('gj_local_only');
+      localStorage.removeItem('gj_local_data');
+      resetState();
+      showOnboarding();
+    }
   }
+}
+
+function resetState(){
+  S.year=new Date().getFullYear();
+  S.month=new Date().getMonth()+1;
+  S.tab='all';
+  S.paintColor=PAINT_SWATCHES[0];
+  S.themeKey='cool';
+  S.sites=[
+    {name:'프로젝트 1',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'프로젝트 2',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'프로젝트 3',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'프로젝트 4',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+  ];
 }
 
 function useLocalOnly(){
   localStorage.setItem('gj_local_only','1');
   localStorage.removeItem('gj_sb_url');
   localStorage.removeItem('gj_sb_key');
+  // 저장된 로컬 데이터 없으면 초기 상태로 시작
+  const localData=localStorage.getItem('gj_local_data');
+  if(!localData) resetState();
   showApp();
   renderAll();
-  setSyncStatus('ing','로컬 저장 모드');
-  setTimeout(()=>setSyncStatus('ok','내 기기에만 저장 중'),800);
+  setSyncStatus('ok','내 기기에만 저장 중');
 }
 
 async function connectSupabase(){
