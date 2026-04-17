@@ -266,7 +266,13 @@ async function dbSave(){
 
 function persist(){
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>dbSave(),800);
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    // Supabase 연결 모드 — 서버에 저장
+    saveTimer=setTimeout(()=>dbSave(),800);
+  } else {
+    // 로컬 모드 — localStorage에 저장
+    try{localStorage.setItem('gj_local_data',JSON.stringify(S));}catch(e){}
+  }
 }
 
 function setSyncStatus(type,msg){
@@ -1039,6 +1045,21 @@ if(saved_url&&saved_key){
   renderAll();
   startupLoad();
 } else if(local_only){
+  // 로컬 저장 데이터 불러오기
+  try{
+    const localData=localStorage.getItem('gj_local_data');
+    if(localData){
+      const p=JSON.parse(localData);
+      if(p&&p.sites){
+        Object.assign(S,p);
+        S.sites.forEach(s=>{
+          if(!s.memo)s.memo='';
+          if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
+          if(!s.newProcName)s.newProcName='';
+        });
+      }
+    }
+  }catch(e){}
   showApp();
   renderAll();
   setSyncStatus('ok','내 기기에만 저장 중');
