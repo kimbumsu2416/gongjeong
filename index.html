@@ -355,9 +355,16 @@ function applyTheme(){
 
 // ── 렌더 ──────────────────────────────────
 function renderAll(){
+  // 가로 스크롤 위치 저장
+  const scrollMap=[];
+  document.querySelectorAll('.tbl-wrap').forEach(el=>scrollMap.push(el.scrollLeft));
   renderTabs();
   document.getElementById('root').innerHTML=renderMain();
   attachEvents();attachProcDrag();applyTheme();
+  // 가로 스크롤 위치 복원
+  document.querySelectorAll('.tbl-wrap').forEach((el,i)=>{
+    if(scrollMap[i])el.scrollLeft=scrollMap[i];
+  });
 }
 
 function setTab(newTab){
@@ -833,17 +840,13 @@ function updateTabName(si,val){
 }
 function setPaint(c){
   S.paintColor=c;
-  // 색상 피커만 업데이트 (전체 렌더 X)
-  document.querySelectorAll('.swatch').forEach(el=>{
-    const onclick=el.getAttribute('onclick')||'';
-    const match=onclick.match(/setPaint\('([^']*)'\)/);
-    if(match){
-      el.classList.toggle('on', match[1]===c);
-    }
-  });
-  // 지우개 스와치
-  document.querySelectorAll('.swatch-eraser').forEach(el=>{
-    el.classList.toggle('on', c==='');
+  // 가로 스크롤 위치 저장
+  const tblWraps=document.querySelectorAll('.tbl-wrap');
+  const scrollPositions=[...tblWraps].map(el=>el.scrollLeft);
+  renderAll();
+  // 스크롤 위치 복원
+  document.querySelectorAll('.tbl-wrap').forEach((el,i)=>{
+    if(scrollPositions[i])el.scrollLeft=scrollPositions[i];
   });
 }
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;renderAll();}
