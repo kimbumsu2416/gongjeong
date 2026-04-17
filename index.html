@@ -515,11 +515,26 @@ function renderThemePicker(){
 function renderSiteProcPanel(si){
   const s=S.sites[si];
   const sc=SITE_COLORS[si%SITE_COLORS.length];
+  const allSelected=s.selectedProcs&&s.selectedProcs.length===s.procs.length;
+  const anySelected=s.selectedProcs&&s.selectedProcs.length>0;
   let h=`<div class="proc-panel" style="border-left:3px solid ${sc}">
-    <div class="proc-panel-title">공정 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 현장만의 공정을 관리해요</span></div>
+    <div class="proc-panel-title" style="display:flex;align-items:center;justify-content:space-between">
+      <span>공정 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 현장만의 공정을 관리해요</span></span>
+      <div style="display:flex;gap:5px">
+        ${s.selectMode
+          ? `<button onclick="toggleSelectAll(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #b0b8c8;background:transparent;color:#666;cursor:pointer;font-family:inherit">전체 선택</button>
+             <button onclick="${anySelected?`deleteSelected(${si})`:'alert(\'공정을 선택해주세요\')'}" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid ${anySelected?'#e8cece':'#dde3ee'};background:transparent;color:${anySelected?'#c00':'#bbb'};cursor:pointer;font-family:inherit">선택 삭제${anySelected?` (${s.selectedProcs.length})`:''}</button>
+             <button onclick="cancelSelectMode(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#888;cursor:pointer;font-family:inherit">취소</button>`
+          : `<button onclick="enterSelectMode(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#aaa;cursor:pointer;font-family:inherit">선택 삭제</button>
+             <button onclick="deleteAllProcs(${si})" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit">전체 삭제</button>`
+        }
+      </div>
+    </div>
     <div class="proc-list" id="proc-list-${si}">`;
   s.procs.forEach((p,i)=>{
-    h+=`<div class="proc-row" draggable="true" data-si="${si}" data-pi="${i}">
+    const isSelected=s.selectedProcs&&s.selectedProcs.includes(i);
+    h+=`<div class="proc-row" draggable="true" data-si="${si}" data-pi="${i}" style="${isSelected?'background:#fff0f0':''}">
+      ${s.selectMode?`<input type="checkbox" style="flex-shrink:0;cursor:pointer" ${isSelected?'checked':''} onchange="toggleProcSelect(${si},${i},this.checked)">`:''}
       <span class="proc-drag">&#8597;</span>
       <span class="proc-idx">${i+1}</span>
       <input class="proc-name-input" value="${esc(p)}" placeholder="공정명"
@@ -646,6 +661,81 @@ function paint(el){
 }
 
 // ── 현장별 공정 관리 ──────────────────────
+function enterSelectMode(si){
+  S.sites[si].selectMode=true;
+  S.sites[si].selectedProcs=[];
+  renderAll();
+}
+
+function cancelSelectMode(si){
+  S.sites[si].selectMode=false;
+  S.sites[si].selectedProcs=[];
+  renderAll();
+}
+
+function toggleSelectAll(si){
+  const s=S.sites[si];
+  if(!s.selectedProcs)s.selectedProcs=[];
+  if(s.selectedProcs.length===s.procs.length){
+    s.selectedProcs=[];
+  } else {
+    s.selectedProcs=s.procs.map((_,i)=>i);
+  }
+  renderAll();
+}
+
+function toggleProcSelect(si,pi,checked){
+  if(!S.sites[si].selectedProcs)S.sites[si].selectedProcs=[];
+  if(checked){
+    if(!S.sites[si].selectedProcs.includes(pi))S.sites[si].selectedProcs.push(pi);
+  } else {
+    S.sites[si].selectedProcs=S.sites[si].selectedProcs.filter(i=>i!==pi);
+  }
+  renderAll();
+}
+
+function toggleSelectAll(si){
+  const s=S.sites[si];
+  if(!s.selectedProcs)s.selectedProcs=[];
+  if(s.selectedProcs.length===s.procs.length){
+    s.selectedProcs=[];
+  } else {
+    s.selectedProcs=s.procs.map((_,i)=>i);
+  }
+  renderAll();
+}
+
+function deleteSelected(si){
+  const s=S.sites[si];
+  if(!s.selectedProcs||s.selectedProcs.length===0)return;
+  if(s.procs.length-s.selectedProcs.length<1){alert('공정은 최소 1개 이상 필요합니다.');return;}
+  if(!confirm(`선택한 ${s.selectedProcs.length}개 공정을 삭제할까요? 해당 공정의 기록도 모두 지워져요.`))return;
+  const toDelete=new Set(s.selectedProcs);
+  // 인덱스 높은 것부터 삭제
+  const sorted=[...toDelete].sort((a,b)=>b-a);
+  sorted.forEach(pi=>{
+    const cells=s.cells;
+    const nc={};
+    Object.entries(cells).forEach(([k,v])=>{
+      const p=k.split('_');const ci=parseInt(p[1]);
+      if(ci===pi)return;
+      if(ci>pi)nc[p[0]+'_'+(ci-1)+'_'+p[2]+'_'+p[3]+'_'+p[4]]=v;
+      else nc[k]=v;
+    });
+    s.cells=nc;
+    s.procs.splice(pi,1);
+  });
+  s.selectedProcs=[];
+  persist();renderAll();
+}
+
+function deleteAllProcs(si){
+  if(!confirm('모든 공정 기록(색칠)을 삭제할까요? 공정 목록은 그대로 유지돼요.'))return;
+  S.sites[si].cells={};
+  S.sites[si].selectedProcs=[];
+  persist();renderAll();
+}
+
 function renameSiteProc(si,pi,val,live){
   S.sites[si].procs[pi]=val;
   if(!live)persist();
@@ -741,7 +831,7 @@ function openAdd(){
   </div>`;
 }
 function closeAdd(){document.getElementById('modal-area').innerHTML='';}
-function confirmAdd(){const name=addForm.name.trim()||`현장 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 현장명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
+function confirmAdd(){const name=addForm.name.trim()||`현장 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 현장명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
 
 function doExport(){
   const y=S.year,m=S.month,days=daysInMonth(y,m);
