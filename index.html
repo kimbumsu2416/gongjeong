@@ -189,7 +189,7 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
   </div>
   <div class="nav">
     <button onclick="goToSettings()" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#aaa;cursor:pointer;font-family:inherit" id="login-btn">로그인하기</button>
-    <button onclick="openAdd()">+ 프로젝트 추가</button>
+    <button onclick="openAdd()">+ 작업 추가</button>
     <button onclick="manualSave()" id="save-btn" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #538135;background:transparent;color:#538135;cursor:pointer;font-family:inherit">저장하기</button>
     <button class="btn-print" onclick="window.print()">인쇄 / PDF</button>
     <button class="btn-accent" onclick="doExport()">엑셀 내보내기</button>
@@ -208,7 +208,7 @@ let SUPABASE_KEY='';
 const SITE_COLORS=["#2E75B6","#C00000","#538135","#7030A0","#E46C0A","#00868A","#C45911","#0070C0","#6B2C91","#375623"];
 const PAINT_SWATCHES=["#2E75B6","#C00000","#538135","#7030A0","#E46C0A","#F4C742","#00868A","#E88DBB","#8B5E3C","#1ABC9C"];
 const DOW_KR=["월","화","수","목","금","토","일"];
-const DEFAULT_PROCS=["작업 1","작업 2","작업 3","작업 4","작업 5"];
+const DEFAULT_PROCS=["","","","",""];
 const THEMES=[
   {key:"white",label:"화이트",bg:"#FFFFFF",tblBg:"#FFFFFF",stripe:"#F7F9FC",weBg:"#F0F0F0",procBg:"#F4F6FA",procStripe:"#EEF1F7",border:"#C8D0DE",hdrBg:"#EEF2F7",stat:"#F5F7FA"},
   {key:"warm",label:"웜그레이",bg:"#F5F2EE",tblBg:"#FDFCFB",stripe:"#F0ECE6",weBg:"#E8E4DF",procBg:"#EDE9E4",procStripe:"#E5E0DA",border:"#C8BFB5",hdrBg:"#EAE5DE",stat:"#EDE8E2"},
@@ -232,10 +232,10 @@ let S={
   paintColor:PAINT_SWATCHES[0],dragging:false,
   themeKey:"cool",
   sites:[
-    {name:"프로젝트 1",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
-    {name:"프로젝트 2",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
-    {name:"프로젝트 3",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
-    {name:"프로젝트 4",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"작업 1",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"작업 2",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"작업 3",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
+    {name:"작업 4",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
   ]
 };
 
@@ -413,10 +413,16 @@ function renderTabs(){
   document.getElementById('tabs-area').innerHTML=h;
 }
 
-function calcProgress(si){
-  const total=S.sites[si].procs.length*daysInMonth(S.year,S.month);
-  const filled=Object.values(S.sites[si].cells).filter(v=>v).length;
-  return total===0?0:Math.round(filled/total*100);
+function getTodayWork(si){
+  const today=new Date();
+  const y=today.getFullYear(),m=today.getMonth()+1,d=today.getDate();
+  // 현재 보고 있는 달이 이번 달인지 확인
+  if(S.year!==y||S.month!==m)return null;
+  const works=[];
+  S.sites[si].procs.forEach((proc,pi)=>{
+    if(proc&&S.sites[si].cells[ck(si,pi,d)])works.push(proc);
+  });
+  return {d,works};
 }
 
 function renderMain(){
@@ -432,20 +438,29 @@ function renderMain(){
     const activeDays=new Set();
     S.sites.forEach(s=>Object.keys(s.cells).forEach(k=>{if(s.cells[k]){const p=k.split('_');if(parseInt(p[2])===S.year&&parseInt(p[3])===S.month)activeDays.add(p[4]);}}));
     h+=`<div class="stats">
-      <div class="stat"><div class="stat-n">${S.sites.length}</div><div class="stat-l">진행 프로젝트</div></div>
+      <div class="stat"><div class="stat-n">${S.sites.length}</div><div class="stat-l">진행 작업</div></div>
       <div class="stat"><div class="stat-n">${totalFilled}</div><div class="stat-l">작업 기록</div></div>
       <div class="stat"><div class="stat-n">${activeDays.size}일</div><div class="stat-l">작업 있는 날</div></div>
       <div class="stat"><div class="stat-n">${days}일</div><div class="stat-l">${m}월 전체</div></div>
     </div>`;
     h+=renderThemePicker();
     h+=renderDateSummary(y,m,days);
-    h+=`<div class="notice">통합 시트는 읽기 전용입니다. 작업 입력은 각 프로젝트 탭에서 해주세요.</div>`;
+    h+=`<div class="notice">통합 시트는 읽기 전용입니다. 세부 작업 입력은 각 작업 탭에서 해주세요.</div>`;
     h+=S.sites.length===0?`<div class="empty-hint">현장을 추가해 주세요</div>`:renderAllTable(y,m,days,cw);
   } else {
-    const si=parseInt(S.tab),s=S.sites[si],sc=SITE_COLORS[si%SITE_COLORS.length],pct=calcProgress(si);
-    h+=`<div class="progress-wrap">
-      <div class="progress-label"><span>이번 달 공정 완료율</span><span class="progress-pct">${pct}%</span></div>
-      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    const si=parseInt(S.tab),s=S.sites[si],sc=SITE_COLORS[si%SITE_COLORS.length];
+    const today=getTodayWork(si);
+    const todayHtml=today
+      ? today.works.length>0
+        ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${today.works.map(w=>`<span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${sc}22;border:1px solid ${sc}66;color:${sc};font-weight:500">${esc(w)}</span>`).join('')}</div>`
+        : `<span style="font-size:12px;color:#aaa">오늘 등록된 작업이 없어요</span>`
+      : `<span style="font-size:12px;color:#aaa">이번 달이 아니에요</span>`;
+    h+=`<div class="progress-wrap" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex-shrink:0">
+        <div style="font-size:10px;color:#888;margin-bottom:2px">오늘 일정</div>
+        <div style="font-size:20px;font-weight:500;color:#222">${today?`${S.month}/${today.d}`:'-'}</div>
+      </div>
+      <div style="flex:1;padding-top:2px">${todayHtml}</div>
     </div>`;
     h+=`<div class="meta-grid">
       <div class="meta-card full" style="border-left:3px solid ${sc}">
@@ -454,12 +469,11 @@ function renderMain(){
       </div>
       <div class="meta-card"><div class="meta-label">장소 / 주소</div><input class="meta-input" value="${esc(s.addr)}" placeholder="입력 (선택사항)" onchange="updateMeta(${si},'addr',this.value)"></div>
       <div class="meta-card"><div class="meta-label">비밀번호</div><input class="meta-input" value="${esc(s.pw)}" placeholder="없음" onchange="updateMeta(${si},'pw',this.value)"></div>
-      <div class="meta-card"><div class="meta-label">기타 1</div><input class="meta-input" value="${esc(s.key)}" placeholder="없음" onchange="updateMeta(${si},'key',this.value)"></div>
       <div class="meta-card full"><div class="meta-label">메모 / 특이사항</div><textarea class="meta-textarea" placeholder="관련 메모, 주의사항, 요청사항 등을 자유롭게 입력하세요" onchange="updateMeta(${si},'memo',this.value)">${esc(s.memo||'')}</textarea></div>
     </div>`;
     h+=renderSiteProcPanel(si);
     h+=renderColorPicker(si)+renderSiteTable(si,y,m,days,cw);
-    h+=`<div style="margin-top:10px;text-align:right"><button class="btn-danger" onclick="deleteSite(${si})">프로젝트 삭제</button></div>`;
+    h+=`<div style="margin-top:10px;text-align:right"><button class="btn-danger" onclick="deleteSite(${si})">작업 삭제</button></div>`;
   }
   return h+`</div>`;
 }
@@ -559,7 +573,7 @@ function renderSiteProcPanel(si){
 
   let h=`<div class="proc-panel" style="border-left:3px solid ${sc}">
     <div class="proc-panel-title" style="display:flex;align-items:center;justify-content:space-between">
-      <span>작업 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 프로젝트만의 작업을 관리해요</span></span>
+      <span>작업 목록 <span style="font-size:10px;font-weight:400;color:#888">— 이 작업만의 세부 작업을 관리해요</span></span>
       <div style="display:flex;gap:5px">${btnHtml}</div>
     </div>
     <div class="proc-list" id="proc-list-${si}">`;
@@ -698,7 +712,6 @@ function paint(el){
     el.classList.remove('we','stripe');
   }
   persist();
-  if(S.tab!=='all'){const si2=parseInt(S.tab);const pct=calcProgress(si2);const bar=document.querySelector('.progress-bar-fill');const pEl=document.querySelector('.progress-pct');if(bar)bar.style.width=pct+'%';if(pEl)pEl.textContent=pct+'%';}
 }
 
 // ── 현장별 공정 관리 ──────────────────────
@@ -782,7 +795,16 @@ function deleteAllProcs(si){
 
 function renameSiteProc(si,pi,val,live){
   S.sites[si].procs[pi]=val;
+  // 테이블 공정명 실시간 업데이트
+  document.querySelectorAll(`.c-proc`).forEach((el,i)=>{
+    if(i===pi)el.textContent=val;
+  });
   if(!live)persist();
+  else{
+    // 입력 중에도 저장
+    clearTimeout(window._renameTimer);
+    window._renameTimer=setTimeout(()=>persist(),600);
+  }
 }
 function addSiteProc(si){
   const name=(S.sites[si].newProcName||'').trim();
@@ -857,7 +879,7 @@ function attachProcDrag(){
 function setTheme(key){S.themeKey=key;persist();renderAll();}
 function updateTabName(si,val){
   const btn=document.getElementById('tab-'+si);
-  if(btn)btn.textContent=val||`프로젝트 ${si+1}`;
+  if(btn)btn.textContent=val||`작업 ${si+1}`;
 }
 function setPaint(c){
   S.paintColor=c;
@@ -871,7 +893,7 @@ function setPaint(c){
   });
 }
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;renderAll();}
-function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('프로젝트명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 프로젝트명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
+function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('작업명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 작업명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
 function deleteSite(si){if(!confirm(`"${S.sites[si].name}" 현장을 삭제하시겠어요?`))return;S.sites.splice(si,1);persist();setTab('all');}
 
 let addForm={name:"",addr:"",pw:"",key:""};
@@ -881,17 +903,16 @@ function openAdd(){
   document.getElementById('modal-area').innerHTML=`
   <div class="modal-overlay" onclick="if(event.target===this)closeAdd()">
     <div class="modal-box">
-      <div class="modal-title">새 프로젝트 추가</div>
-      <div class="field"><label>프로젝트명 *</label><input id="f-name" placeholder="예: 프로젝트 ${next}" oninput="addForm.name=this.value" autofocus></div>
+      <div class="modal-title">새 작업 추가</div>
+      <div class="field"><label>작업명 *</label><input id="f-name" placeholder="예: 작업 ${next}" oninput="addForm.name=this.value" autofocus></div>
       <div class="field"><label>장소 / 주소</label><input id="f-addr" placeholder="입력 (선택사항)" oninput="addForm.addr=this.value"></div>
       <div class="field"><label>비밀번호</label><input id="f-pw" placeholder="없음" oninput="addForm.pw=this.value"></div>
-      <div class="field"><label>기타 1</label><input id="f-key" placeholder="없음" oninput="addForm.key=this.value"></div>
       <div class="modal-btns"><button onclick="closeAdd()">취소</button><button class="btn-accent" onclick="confirmAdd()">추가하기</button></div>
     </div>
   </div>`;
 }
 function closeAdd(){document.getElementById('modal-area').innerHTML='';}
-function confirmAdd(){const name=addForm.name.trim()||`프로젝트 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 프로젝트명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
+function confirmAdd(){const name=addForm.name.trim()||`작업 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 작업명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
 
 function doExport(){
   const y=S.year,m=S.month,days=daysInMonth(y,m);
@@ -1045,9 +1066,9 @@ function renderOTabContent(tab){
       <div style="font-size:14px;font-weight:500;color:#222;margin-bottom:14px">주요 기능 안내</div>
       ${[
         ['📋','통합 시트','모든 현장을 한눈에 확인. 날짜 클릭 시 해당 일의 공정 현황 표시'],
-        ['🏗️','프로젝트 관리','+ 프로젝트 추가 버튼으로 현장 생성. 각 프로젝트별 주소/메모 관리'],
+        ['🏗️','작업 관리','+ 작업 추가 버튼으로 현장 생성. 각 작업별 주소/메모 관리'],
         ['🎨','공정 입력','색상 선택 후 셀 클릭 또는 드래그로 공정 작업 기록'],
-        ['⚙️','작업 목록','각 프로젝트 탭에서 작업 추가/수정/삭제/순서 변경 가능'],
+        ['⚙️','작업 목록','각 작업 탭에서 작업 추가/수정/삭제/순서 변경 가능'],
         ['🗓️','월별 관리','← → 버튼으로 월 이동. 월별로 데이터가 독립 관리됨'],
         ['👥','팀 공유','같은 파일을 팀원에게 공유하면 실시간으로 함께 사용 가능'],
         ['🖨️','인쇄/저장','인쇄 버튼으로 A4 가로 출력 또는 PDF 저장'],
@@ -1135,10 +1156,10 @@ function resetState(){
   S.paintColor=PAINT_SWATCHES[0];
   S.themeKey='cool';
   S.sites=[
-    {name:'프로젝트 1',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
-    {name:'프로젝트 2',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
-    {name:'프로젝트 3',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
-    {name:'프로젝트 4',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'작업 1',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'작업 2',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'작업 3',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
+    {name:'작업 4',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
   ];
 }
 
