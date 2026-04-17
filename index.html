@@ -355,17 +355,20 @@ function applyTheme(){
 
 // ── 렌더 ──────────────────────────────────
 function renderAll(){
-  // 가로 스크롤 위치 저장
+  // 포커스된 입력창 값 보존
+  const focused=document.activeElement;
+  const focusedId=focused?focused.id:'';
+  const focusedValue=focused?focused.value:'';
+  const focusedClass=focused?focused.className:'';
+
   const scrollMap=[];
   document.querySelectorAll('.tbl-wrap').forEach(el=>scrollMap.push(el.scrollLeft));
   renderTabs();
   document.getElementById('root').innerHTML=renderMain();
   attachEvents();attachProcDrag();applyTheme();
-  // 가로 스크롤 위치 복원
   document.querySelectorAll('.tbl-wrap').forEach((el,i)=>{
     if(scrollMap[i])el.scrollLeft=scrollMap[i];
   });
-  // 로그인/로그아웃 버튼 업데이트
   const loginBtn=document.getElementById('login-btn');
   if(loginBtn){
     if(SUPABASE_URL&&SUPABASE_KEY){
@@ -377,6 +380,16 @@ function renderAll(){
       loginBtn.style.color='#aaa';
       loginBtn.style.borderColor='#ccc';
     }
+  }
+  // 포커스된 입력창 복원
+  if(focusedId){
+    const el=document.getElementById(focusedId);
+    if(el){el.focus();el.value=focusedValue;}
+  } else if(focusedClass&&focusedClass.includes('proc-name-input')){
+    // proc-name-input은 id가 없으므로 값으로 찾기
+    document.querySelectorAll('.proc-name-input').forEach(el=>{
+      if(el.value===focusedValue)el.focus();
+    });
   }
 }
 
@@ -796,15 +809,12 @@ function deleteAllProcs(si){
 function renameSiteProc(si,pi,val,live){
   S.sites[si].procs[pi]=val;
   // 테이블 공정명 실시간 업데이트
-  document.querySelectorAll(`.c-proc`).forEach((el,i)=>{
+  document.querySelectorAll('.c-proc').forEach((el,i)=>{
     if(i===pi)el.textContent=val;
   });
-  if(!live)persist();
-  else{
-    // 입력 중에도 저장
-    clearTimeout(window._renameTimer);
-    window._renameTimer=setTimeout(()=>persist(),600);
-  }
+  // 즉시 저장 (타이머 없이)
+  clearTimeout(window._renameTimer);
+  window._renameTimer=setTimeout(()=>persist(),500);
 }
 function addSiteProc(si){
   const name=(S.sites[si].newProcName||'').trim();
