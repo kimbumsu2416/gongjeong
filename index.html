@@ -703,20 +703,7 @@ function cancelSelectMode(si){
 }
 
 function rerenderProcPanel(si){
-  const panel=document.querySelector('.proc-panel');
-  if(panel){
-    const scrollTop=document.querySelector('.proc-list')?document.querySelector('.proc-list').scrollTop:0;
-    const newHtml=renderSiteProcPanel(si);
-    const tmp=document.createElement('div');
-    tmp.innerHTML=newHtml;
-    const newPanel=tmp.firstElementChild;
-    panel.parentNode.replaceChild(newPanel,panel);
-    attachProcDrag();
-    const newList=document.querySelector('.proc-list');
-    if(newList)newList.scrollTop=scrollTop;
-  } else {
-    renderAll();
-  }
+  renderAll();
 }
 function toggleProcSelect(si,pi,checked){
   if(!S.sites[si].selectedProcs)S.sites[si].selectedProcs=[];
@@ -770,7 +757,13 @@ function addSiteProc(si){
   if(S.sites[si].procs.includes(name)){alert('이미 있는 공정명입니다.');return;}
   S.sites[si].procs.push(name);
   S.sites[si].newProcName='';
-  persist();renderAll();
+  persist();
+  renderAll();
+  // 추가 후 입력칸에 포커스 유지
+  setTimeout(()=>{
+    const input=document.getElementById('proc-add-'+si);
+    if(input)input.focus();
+  },50);
 }
 function deleteSiteProc(si,pi){
   if(S.sites[si].procs.length<=1){alert('공정은 최소 1개 이상 필요합니다.');return;}
