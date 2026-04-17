@@ -1243,15 +1243,19 @@ async function startupLoad(){
       const p=rows[0].data;
       migrateOrReset(p);
       if(p.sites){
-        const currentTab=S.tab; // 현재 탭 보존
+        const currentTab=S.tab;
         Object.assign(S,p);
-        S.tab=currentTab; // 탭 복원 (덮어쓰지 않음)
+        S.tab=currentTab;
         S.sites.forEach(s=>{
           if(!s.memo)s.memo='';
           if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
           if(!s.newProcName)s.newProcName='';
+          if(!s.selectedProcs)s.selectedProcs=[];
         });
       }
+    } else {
+      // 서버 데이터가 비어있으면 초기 상태로 리셋
+      resetState();
       await dbSave();
     }
     setSyncStatus('ok','팀 공유 중 — 실시간 연동');
