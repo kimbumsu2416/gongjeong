@@ -190,6 +190,7 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
   <div class="nav">
     <button onclick="goToSettings()" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#aaa;cursor:pointer;font-family:inherit">로그인하기</button>
     <button onclick="openAdd()">+ 현장 추가</button>
+    <button onclick="manualSave()" id="save-btn" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #538135;background:transparent;color:#538135;cursor:pointer;font-family:inherit">저장하기</button>
     <button class="btn-print" onclick="window.print()">인쇄 / PDF</button>
     <button class="btn-accent" onclick="doExport()">엑셀 내보내기</button>
   </div>
@@ -924,6 +925,25 @@ create policy "anyone can update" on gongjeong for update using (true);`;
     const btn=document.querySelector('[onclick="copySql()"]');
     if(btn){btn.textContent='복사됨 ✓';btn.style.background='#538135';}
   });
+}
+
+function manualSave(){
+  const btn=document.getElementById('save-btn');
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    dbSave().then(()=>{
+      if(btn){btn.textContent='저장됨 ✓';btn.style.color='#538135';}
+      setTimeout(()=>{if(btn)btn.textContent='저장하기';},2000);
+    });
+  } else {
+    try{
+      localStorage.setItem('gj_local_data',JSON.stringify(S));
+      if(btn){btn.textContent='저장됨 ✓';btn.style.color='#538135';}
+      setTimeout(()=>{if(btn)btn.textContent='저장하기';},2000);
+    }catch(e){
+      if(btn){btn.textContent='저장 실패';btn.style.color='#c00';}
+      setTimeout(()=>{if(btn)btn.textContent='저장하기';},2000);
+    }
+  }
 }
 
 function goToSettings(){
