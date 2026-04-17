@@ -1150,8 +1150,9 @@ async function startupLoad(){
       const p=rows[0].data;
       migrateOrReset(p);
       if(p.sites){
+        const currentTab=S.tab; // 현재 탭 보존
         Object.assign(S,p);
-        S.tab='all'; // 항상 통합에서 시작
+        S.tab=currentTab; // 탭 복원 (덮어쓰지 않음)
         S.sites.forEach(s=>{
           if(!s.memo)s.memo='';
           if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
