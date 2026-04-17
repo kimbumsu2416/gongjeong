@@ -868,6 +868,12 @@ function renderOTabContent(tab){
         로그인 없이 사용하기 (내 기기에만 저장)
       </button>
       <div style="font-size:11px;color:#bbb;text-align:center;margin-top:6px">팀원과 공유하려면 위 Supabase 연결이 필요해요</div>
+      <div style="background:#fff8e8;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:#996600;line-height:1.7;border:1px solid #ffe4a0">
+        ⚠️ 로그인 없이 사용 시 주의사항<br>
+        • 브라우저 쿠키/캐시 삭제 시 데이터가 모두 사라져요<br>
+        • 다른 기기나 다른 브라우저에서는 데이터가 보이지 않아요<br>
+        • 중요한 업무 데이터는 Supabase 연결을 권장해요
+      </div>
     </div>`;
   } else {
     el.innerHTML=`
