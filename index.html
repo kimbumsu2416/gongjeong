@@ -531,13 +531,17 @@ function addCheck(si,val,inputEl){
   S.sites[si].checklist.push({text,checked:false});
   if(inputEl)inputEl.value='';
   persist();
-  // 체크리스트만 부분 업데이트
   const container=document.getElementById(`checklist-${si}`);
   if(container){
     const tmp=document.createElement('div');
     tmp.innerHTML=renderChecklist(si);
     container.outerHTML=tmp.innerHTML;
   }
+  // 추가 후 입력창 포커스 유지
+  setTimeout(()=>{
+    const input=document.getElementById(`check-add-${si}`);
+    if(input)input.focus();
+  },50);
 }
 
 function deleteCheck(si,i){
