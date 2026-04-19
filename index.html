@@ -27,8 +27,7 @@ button:active{transform:scale(0.97)}
 .btn-accent:hover{opacity:0.88;background:#1F3864}
 .btn-danger{color:#c00;border-color:#e8b0b0}
 .btn-danger:hover{background:#fff0f0}
-.btn-print{background:#2d6a4f;color:#fff;border-color:#2d6a4f}
-.btn-print:hover{opacity:0.88;background:#2d6a4f}
+
 .month-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .month-label{font-size:14px;font-weight:500;color:#222;min-width:70px}
 .month-btn{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -170,15 +169,6 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 @keyframes flipOutRight{0%{transform:rotateY(0) translateX(0);opacity:1}100%{transform:rotateY(16deg) translateX(5%) scale(0.97);opacity:0}}
 @keyframes flipInLeft{0%{transform:rotateY(16deg) translateX(5%) scale(0.97);opacity:0}100%{transform:rotateY(0) translateX(0);opacity:1}}
 @keyframes flipInRight{0%{transform:rotateY(-16deg) translateX(-5%) scale(0.97);opacity:0}100%{transform:rotateY(0) translateX(0);opacity:1}}
-@media print{
-  .nav,.tabs,.picker-bar,.proc-panel,.theme-section,.notice,.month-btn,.sync-bar{display:none!important}
-  .wrap{padding:0;max-width:none}
-  .hero{height:60px;margin-bottom:8px;border-radius:0}
-  table{font-size:9px}
-  th,td{height:20px!important}
-  .tbl-wrap{overflow:visible}
-  @page{size:A4 landscape;margin:8mm}
-}
 </style>
 </head>
 <body>
@@ -202,8 +192,6 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
     <button onclick="goToSettings()" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #ccc;background:transparent;color:#aaa;cursor:pointer;font-family:inherit" id="login-btn">로그인하기</button>
     <button onclick="openAdd()">+ 작업 추가</button>
     <button onclick="manualSave()" id="save-btn" style="font-size:12px;padding:5px 11px;border-radius:8px;border:0.5px solid #538135;background:transparent;color:#538135;cursor:pointer;font-family:inherit">저장하기</button>
-    <button class="btn-print" onclick="window.print()">인쇄 / PDF</button>
-    <button class="btn-accent" onclick="doExport()">엑셀 내보내기</button>
   </div>
   <div id="tabs-area"></div>
   <div class="page-container">
@@ -449,10 +437,16 @@ function getTodayWork(si){
   return {d,works};
 }
 
+let viewDay=null; // null이면 오늘
+
 function renderTodayAll(y,m){
   const today=new Date();
-  if(y!==today.getFullYear()||m!==today.getMonth()+1) return '';
-  const d=today.getDate();
+  const isThisMonth=(y===today.getFullYear()&&m===today.getMonth()+1);
+  const d=viewDay||(isThisMonth?today.getDate():1);
+  const days=daysInMonth(y,m);
+  const dw=['일','월','화','수','목','금','토'][new Date(y,m-1,d).getDay()];
+  const isToday=isThisMonth&&d===today.getDate();
+
   let hasAny=false;
   let rows='';
   S.sites.forEach((s,si)=>{
@@ -471,17 +465,45 @@ function renderTodayAll(y,m){
       </div>`;
     }
   });
+
   return `<div class="progress-wrap">
     <div style="display:flex;align-items:flex-start;gap:14px">
-      <div style="flex-shrink:0;border-right:2px solid #e0e4ed;padding-right:14px">
-        <div style="font-size:11px;color:#888;margin-bottom:4px">오늘 일정</div>
+      <div style="flex-shrink:0;border-right:2px solid #e0e4ed;padding-right:14px;min-width:64px">
+        <div style="font-size:11px;color:#888;margin-bottom:4px">${isToday?'오늘 일정':'일정 보기'}</div>
         <div style="font-size:22px;font-weight:500;color:#222;line-height:1">${m}/${d}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">${dw}요일</div>
+        <div style="display:flex;gap:4px;margin-top:8px">
+          <button onclick="shiftViewDay(-1)" style="width:24px;height:24px;padding:0;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#888;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">&#8592;</button>
+          ${isToday?'':'<button onclick="shiftViewDay(0)" style="font-size:9px;padding:2px 5px;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#888;cursor:pointer">오늘</button>'}
+          <button onclick="shiftViewDay(1)" style="width:24px;height:24px;padding:0;border-radius:4px;border:1px solid #dde3ee;background:transparent;color:#888;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">&#8594;</button>
+        </div>
       </div>
       <div style="flex:1;padding-top:2px">
-        ${hasAny?rows:`<div style="font-size:12px;color:#aaa;padding-top:6px">오늘 등록된 일정이 없어요</div>`}
+        ${hasAny?rows:`<div style="font-size:12px;color:#aaa;padding-top:6px">이 날 등록된 일정이 없어요</div>`}
       </div>
     </div>
   </div>`;
+}
+
+function shiftViewDay(dir){
+  const today=new Date();
+  const isThisMonth=(S.year===today.getFullYear()&&S.month===today.getMonth()+1);
+  const current=viewDay||(isThisMonth?today.getDate():1);
+  const days=daysInMonth(S.year,S.month);
+  if(dir===0){
+    viewDay=null; // 오늘로 리셋
+  } else {
+    const next=current+dir;
+    if(next<1||next>days)return;
+    viewDay=next;
+  }
+  // 일정 패널만 업데이트
+  const panel=document.querySelector('.progress-wrap');
+  if(panel){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=renderTodayAll(S.year,S.month);
+    panel.outerHTML=tmp.firstElementChild.outerHTML;
+  }
 }
 
 function getChecklist(si){
@@ -1020,7 +1042,7 @@ function setPaint(c){
     if(scrollPositions[i])el.scrollLeft=scrollPositions[i];
   });
 }
-function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;renderAll();}
+function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;viewDay=null;renderAll();}
 function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('작업명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 작업명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
 function deleteSite(si){if(!confirm(`"${S.sites[si].name}" 현장을 삭제하시겠어요?`))return;S.sites.splice(si,1);persist();setTab('all');}
 
@@ -1041,13 +1063,6 @@ function openAdd(){
 }
 function closeAdd(){document.getElementById('modal-area').innerHTML='';}
 function confirmAdd(){const name=addForm.name.trim()||`작업 ${S.sites.length+1}`;if(S.sites.find(s=>s.name===name)){alert('이미 있는 작업명입니다.');return;}S.sites.push({name,addr:addForm.addr,pw:addForm.pw,key:addForm.key,memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}});const nt=String(S.sites.length-1);closeAdd();persist();setTab(nt);}
-
-function doExport(){
-  const y=S.year,m=S.month,days=daysInMonth(y,m);
-  const rows=[['현장','공정',...Array.from({length:days},(_,i)=>`${m}/${i+1}(${DOW_KR[getDow(y,m,i+1)]}${isHol(y,m,i+1)?'*':''})`).join('\t')].join('\t')];
-  S.sites.forEach((s,si)=>{s.procs.forEach((proc,pi)=>{rows.push([pi===0?s.name:'',proc,...Array.from({length:days},(_,i)=>S.sites[si].cells[ck(si,pi,i+1)]?'●':'')].join('\t'));});if(s.memo)rows.push([s.name,'[메모]',s.memo].join('\t'));});
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));a.download=`공정표_${y}년_${m}월.csv`;a.click();
-}
 
 window.addEventListener('resize',()=>renderAll());
 
