@@ -438,6 +438,37 @@ function getTodayWork(si){
   return {d,works};
 }
 
+function renderTodayAll(y,m){
+  const today=new Date();
+  if(y!==today.getFullYear()||m!==today.getMonth()+1) return '';
+  const d=today.getDate();
+  let hasAny=false;
+  let rows='';
+  S.sites.forEach((s,si)=>{
+    const sc=SITE_COLORS[si%SITE_COLORS.length];
+    const works=[];
+    s.procs.forEach((proc,pi)=>{
+      if(proc&&s.cells[ck(si,pi,d)])works.push(proc);
+    });
+    if(works.length>0){
+      hasAny=true;
+      rows+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #eee;flex-wrap:wrap">
+        <span style="font-size:11px;font-weight:500;color:#fff;background:${sc};padding:2px 10px;border-radius:20px;flex-shrink:0">${esc(s.name)}</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${works.map(w=>`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${sc}22;border:1px solid ${sc}55;color:${sc}">${esc(w)}</span>`).join('')}
+        </div>
+      </div>`;
+    }
+  });
+  return `<div class="progress-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:500;color:#222">오늘 일정</span>
+      <span style="font-size:12px;color:#888">${m}월 ${d}일</span>
+    </div>
+    ${hasAny?rows:`<div style="font-size:12px;color:#aaa">오늘 등록된 일정이 없어요</div>`}
+  </div>`;
+}
+
 function renderMain(){
   const y=S.year,m=S.month,days=daysInMonth(y,m),cw=calcCellW();
   let totalFilled=0;S.sites.forEach(s=>Object.values(s.cells).forEach(c=>{if(c)totalFilled++;}));
@@ -457,24 +488,12 @@ function renderMain(){
       <div class="stat"><div class="stat-n">${days}일</div><div class="stat-l">${m}월 전체</div></div>
     </div>`;
     h+=renderThemePicker();
+    h+=renderTodayAll(y,m);
     h+=renderDateSummary(y,m,days);
     h+=`<div class="notice">통합 시트는 읽기 전용입니다. 세부 작업 입력은 각 작업 탭에서 해주세요.</div>`;
     h+=S.sites.length===0?`<div class="empty-hint">현장을 추가해 주세요</div>`:renderAllTable(y,m,days,cw);
   } else {
     const si=parseInt(S.tab),s=S.sites[si],sc=SITE_COLORS[si%SITE_COLORS.length];
-    const today=getTodayWork(si);
-    const todayHtml=today
-      ? today.works.length>0
-        ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${today.works.map(w=>`<span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${sc}22;border:1px solid ${sc}66;color:${sc};font-weight:500">${esc(w)}</span>`).join('')}</div>`
-        : `<span style="font-size:12px;color:#aaa">오늘 등록된 작업이 없어요</span>`
-      : `<span style="font-size:12px;color:#aaa">이번 달이 아니에요</span>`;
-    h+=`<div class="progress-wrap" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
-      <div style="flex-shrink:0">
-        <div style="font-size:10px;color:#888;margin-bottom:2px">오늘 일정</div>
-        <div style="font-size:20px;font-weight:500;color:#222">${today?`${S.month}/${today.d}`:'-'}</div>
-      </div>
-      <div style="flex:1;padding-top:2px">${todayHtml}</div>
-    </div>`;
     h+=`<div class="meta-grid">
       <div class="meta-card full" style="border-left:3px solid ${sc}">
         <div class="meta-label">프로젝트명</div>
