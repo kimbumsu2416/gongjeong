@@ -54,6 +54,17 @@ button:active{transform:scale(0.97)}
 .meta-input{font-size:13px;font-weight:500;color:#222;background:transparent;border:none;outline:none;width:100%;font-family:inherit}
 .meta-input:focus{border-bottom:1px solid #7a9cc8}
 .meta-textarea{font-size:12px;color:#222;background:transparent;border:none;outline:none;width:100%;font-family:inherit;resize:vertical;min-height:48px;line-height:1.5}
+.checklist-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #f0f0f0}
+.checklist-item:last-child{border-bottom:none}
+.checklist-cb{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:#538135}
+.checklist-text{flex:1;font-size:12px;color:#222;background:transparent;border:none;outline:none;font-family:inherit;line-height:1.5}
+.checklist-text:focus{border-bottom:1px solid #b0b8c8}
+.checklist-text.done{text-decoration:line-through;color:#aaa}
+.checklist-del{width:18px;height:18px;padding:0;font-size:12px;border:none;background:transparent;color:#ddd;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.checklist-del:hover{color:#c00;background:#fff0f0}
+.checklist-add{display:flex;gap:6px;align-items:center;margin-top:6px}
+.checklist-add-input{flex:1;font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid #dde3ee;background:transparent;color:#222;font-family:inherit;outline:none}
+.checklist-add-input:focus{border-color:#b0b8c8}
 .picker-bar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .picker-label{font-size:11px;color:#888;white-space:nowrap}
 .swatch{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:transform .1s}
@@ -296,7 +307,7 @@ function startPolling(){
         const localCount=S.sites.reduce((a,s)=>a+Object.keys(s.cells).length,0);
         if(remoteCount!==localCount||JSON.stringify(remote.sites)!==JSON.stringify(S.sites)){
           Object.assign(S,remote);
-          S.sites.forEach(s=>{if(!s.memo)s.memo='';});
+          S.sites.forEach(s=>{if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];});
           renderAll();
           setSyncStatus('ok','업데이트됨 — '+new Date().toLocaleTimeString('ko-KR'));
         }
@@ -469,6 +480,83 @@ function renderTodayAll(y,m){
   </div>`;
 }
 
+function getChecklist(si){
+  const s=S.sites[si];
+  if(!s.checklist||!Array.isArray(s.checklist))s.checklist=[];
+  return s.checklist;
+}
+
+function renderChecklist(si){
+  const list=getChecklist(si);
+  let h=`<div id="checklist-${si}">`;
+  if(list.length===0){
+    h+=`<div style="font-size:12px;color:#bbb;padding:4px 0">아래에서 항목을 추가해보세요</div>`;
+  } else {
+    list.forEach((item,i)=>{
+      h+=`<div class="checklist-item">
+        <input type="checkbox" class="checklist-cb" ${item.checked?'checked':''} onchange="toggleCheck(${si},${i},this.checked)">
+        <input type="text" class="checklist-text${item.checked?' done':''}" value="${esc(item.text)}"
+          oninput="updateCheckText(${si},${i},this.value)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();focusNextCheck(${si},${i})}">
+        <button class="checklist-del" onclick="deleteCheck(${si},${i})">✕</button>
+      </div>`;
+    });
+  }
+  h+=`<div class="checklist-add">
+    <input class="checklist-add-input" id="check-add-${si}" placeholder="+ 새 항목 추가 (Enter)"
+      onkeydown="if(event.key==='Enter')addCheck(${si},this.value,this)">
+    <button class="btn-accent" onclick="addCheck(${si},document.getElementById('check-add-${si}').value,document.getElementById('check-add-${si}'))">추가</button>
+  </div>`;
+  return h+`</div>`;
+}
+
+function toggleCheck(si,i,checked){
+  S.sites[si].checklist[i].checked=checked;
+  // 취소선만 토글 (전체 렌더 X)
+  const inputs=document.querySelectorAll(`#checklist-${si} .checklist-text`);
+  if(inputs[i])inputs[i].className='checklist-text'+(checked?' done':'');
+  persist();
+}
+
+function updateCheckText(si,i,val){
+  S.sites[si].checklist[i].text=val;
+  clearTimeout(window._checkTimer);
+  window._checkTimer=setTimeout(()=>persist(),500);
+}
+
+function addCheck(si,val,inputEl){
+  const text=(val||'').trim();
+  if(!text){if(inputEl)inputEl.focus();return;}
+  if(!S.sites[si].checklist)S.sites[si].checklist=[];
+  S.sites[si].checklist.push({text,checked:false});
+  if(inputEl)inputEl.value='';
+  persist();
+  // 체크리스트만 부분 업데이트
+  const container=document.getElementById(`checklist-${si}`);
+  if(container){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=renderChecklist(si);
+    container.outerHTML=tmp.innerHTML;
+  }
+}
+
+function deleteCheck(si,i){
+  S.sites[si].checklist.splice(i,1);
+  persist();
+  const container=document.getElementById(`checklist-${si}`);
+  if(container){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=renderChecklist(si);
+    container.outerHTML=tmp.innerHTML;
+  }
+}
+
+function focusNextCheck(si,i){
+  const inputs=document.querySelectorAll(`#checklist-${si} .checklist-text`);
+  if(inputs[i+1])inputs[i+1].focus();
+  else document.getElementById(`check-add-${si}`).focus();
+}
+
 function renderMain(){
   const y=S.year,m=S.month,days=daysInMonth(y,m),cw=calcCellW();
   let totalFilled=0;S.sites.forEach(s=>Object.values(s.cells).forEach(c=>{if(c)totalFilled++;}));
@@ -501,7 +589,10 @@ function renderMain(){
       </div>
       <div class="meta-card"><div class="meta-label">장소 / 주소</div><input class="meta-input" value="${esc(s.addr)}" placeholder="입력 (선택사항)" onchange="updateMeta(${si},'addr',this.value)"></div>
       <div class="meta-card"><div class="meta-label">비밀번호</div><input class="meta-input" value="${esc(s.pw)}" placeholder="없음" onchange="updateMeta(${si},'pw',this.value)"></div>
-      <div class="meta-card full"><div class="meta-label">메모 / 특이사항</div><textarea class="meta-textarea" placeholder="관련 메모, 주의사항, 요청사항 등을 자유롭게 입력하세요" onchange="updateMeta(${si},'memo',this.value)">${esc(s.memo||'')}</textarea></div>
+      <div class="meta-card full">
+        <div class="meta-label" style="margin-bottom:6px">메모 / 체크리스트</div>
+        ${renderChecklist(si)}
+      </div>
     </div>`;
     h+=renderSiteProcPanel(si);
     h+=renderColorPicker(si)+renderSiteTable(si,y,m,days,cw);
@@ -1276,7 +1367,7 @@ async function startupLoad(){
         Object.assign(S,p);
         S.tab=currentTab;
         S.sites.forEach(s=>{
-          if(!s.memo)s.memo='';
+          if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];
           if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
           if(!s.newProcName)s.newProcName='';
           if(!s.selectedProcs)s.selectedProcs=[];
@@ -1319,7 +1410,7 @@ if(saved_url&&saved_key){
         Object.assign(S,p);
         S.tab='all'; // 항상 통합에서 시작
         S.sites.forEach(s=>{
-          if(!s.memo)s.memo='';
+          if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];
           if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
           if(!s.newProcName)s.newProcName='';
         });
