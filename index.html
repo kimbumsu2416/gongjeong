@@ -681,16 +681,8 @@ function addGlobalCheck(val,inputEl){
   if(!text){if(inputEl)inputEl.focus();return;}
   if(!S.globalChecklist)S.globalChecklist=[];
   S.globalChecklist.push({text,checked:false});
-  if(inputEl)inputEl.value='';
   persist();
-  const container=document.getElementById('global-checklist');
-  if(container){
-    const tmp=document.createElement('div');
-    tmp.innerHTML=renderAllMemo();
-    const newEl=tmp.querySelector('#global-checklist');
-    if(newEl)container.outerHTML=newEl.outerHTML;
-    else renderAll();
-  }
+  renderAll();
   setTimeout(()=>{const el=document.getElementById('global-check-add');if(el)el.focus();},50);
 }
 
