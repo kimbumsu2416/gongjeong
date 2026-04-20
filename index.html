@@ -531,7 +531,9 @@ function renderChecklist(si){
   }
   h+=`<div class="checklist-add">
     <input class="checklist-add-input" id="check-add-${si}" placeholder="+ 새 항목 추가 (Enter)"
-      onkeydown="if(event.key==='Enter')addCheck(${si},this.value,this)">
+      value="${esc(s.newCheckItem||'')}"
+      oninput="S.sites[${si}].newCheckItem=this.value"
+      onkeydown="if(event.key==='Enter'&&!event.isComposing)addCheck(${si},this.value,this)">
     <button class="btn-accent" onclick="addCheck(${si},document.getElementById('check-add-${si}').value,document.getElementById('check-add-${si}'))">추가</button>
   </div>`;
   return h+`</div>`;
@@ -552,19 +554,13 @@ function updateCheckText(si,i,val){
 }
 
 function addCheck(si,val,inputEl){
-  const text=(val||'').trim();
+  const text=(S.sites[si].newCheckItem||'').trim();
   if(!text){if(inputEl)inputEl.focus();return;}
   if(!S.sites[si].checklist)S.sites[si].checklist=[];
   S.sites[si].checklist.push({text,checked:false});
-  if(inputEl)inputEl.value='';
+  S.sites[si].newCheckItem='';
   persist();
-  const container=document.getElementById(`checklist-${si}`);
-  if(container){
-    const tmp=document.createElement('div');
-    tmp.innerHTML=renderChecklist(si);
-    container.outerHTML=tmp.innerHTML;
-  }
-  // 추가 후 입력창 포커스 유지
+  renderAll();
   setTimeout(()=>{
     const input=document.getElementById(`check-add-${si}`);
     if(input)input.focus();
@@ -656,7 +652,9 @@ function renderAllMemo(){
   h+=`</div>
     <div class="checklist-add" style="margin-top:8px">
       <input class="checklist-add-input" id="global-check-add" placeholder="+ 새 항목 추가 (Enter)"
-        onkeydown="if(event.key==='Enter')addGlobalCheck(this.value,this)">
+        value="${esc(S.globalNewItem||'')}"
+        oninput="S.globalNewItem=this.value"
+        onkeydown="if(event.key==='Enter'&&!event.isComposing)addGlobalCheck(this.value,this)">
       <button class="btn-accent" onclick="addGlobalCheck(document.getElementById('global-check-add').value,document.getElementById('global-check-add'))">추가</button>
     </div>
   </div>`;
@@ -677,10 +675,11 @@ function updateGlobalCheckText(i,val){
 }
 
 function addGlobalCheck(val,inputEl){
-  const text=(val||'').trim();
+  const text=(S.globalNewItem||'').trim();
   if(!text){if(inputEl)inputEl.focus();return;}
   if(!S.globalChecklist)S.globalChecklist=[];
   S.globalChecklist.push({text,checked:false});
+  S.globalNewItem='';
   persist();
   renderAll();
   setTimeout(()=>{const el=document.getElementById('global-check-add');if(el)el.focus();},50);
@@ -815,7 +814,7 @@ function renderSiteProcPanel(si){
       <input class="proc-add-input" id="proc-add-${si}" placeholder="새 작업 입력 (Enter)"
         value="${esc(s.newProcName||'')}"
         oninput="S.sites[${si}].newProcName=this.value"
-        onkeydown="if(event.key==='Enter')addSiteProc(${si})">
+        onkeydown="if(event.key==='Enter'&&!event.isComposing)addSiteProc(${si})">
       <button class="btn-accent" onclick="addSiteProc(${si})">+ 추가</button>
     </div>
   </div>`;
