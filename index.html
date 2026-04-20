@@ -230,6 +230,7 @@ let S={
   year:2026,month:4,tab:"all",
   paintColor:PAINT_SWATCHES[0],dragging:false,
   themeKey:"cool",
+  globalChecklist:[],
   sites:[
     {name:"작업 1",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
     {name:"작업 2",addr:"",pw:"",key:"",memo:"",procs:[...DEFAULT_PROCS],newProcName:"",selectedProcs:[],cells:{}},
@@ -635,36 +636,74 @@ function renderMain(){
 let selectedDay=null;
 
 function renderAllMemo(){
-  const hasContent=S.sites.some(s=>(s.checklist&&s.checklist.length>0)||(s.memo&&s.memo.trim()));
-  if(!hasContent)return '';
+  if(!S.globalChecklist)S.globalChecklist=[];
   let h=`<div style="background:var(--color-background-primary);border-radius:12px;border:1px solid #c8d0de;padding:14px 16px;margin-bottom:12px">
-    <div style="font-size:13px;font-weight:500;color:#222;margin-bottom:12px">메모 / 체크리스트</div>`;
-  S.sites.forEach((s,si)=>{
-    const sc=SITE_COLORS[si%SITE_COLORS.length];
-    const hasCheck=s.checklist&&s.checklist.length>0;
-    const hasMemo=s.memo&&s.memo.trim();
-    if(!hasCheck&&!hasMemo)return;
-    h+=`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid #eee">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <span style="font-size:11px;font-weight:500;color:#fff;background:${sc};padding:2px 10px;border-radius:20px">${esc(s.name)}</span>
+    <div style="font-size:13px;font-weight:500;color:#222;margin-bottom:10px">메모 / 체크리스트</div>
+    <div id="global-checklist">`;
+  if(S.globalChecklist.length===0){
+    h+=`<div style="font-size:12px;color:#bbb;padding:4px 0">아래에서 항목을 추가해보세요</div>`;
+  } else {
+    S.globalChecklist.forEach((item,i)=>{
+      h+=`<div class="checklist-item">
+        <input type="checkbox" class="checklist-cb" ${item.checked?'checked':''} onchange="toggleGlobalCheck(${i},this.checked)">
+        <input type="text" class="checklist-text${item.checked?' done':''}" value="${esc(item.text)}"
+          oninput="updateGlobalCheckText(${i},this.value)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();focusNextGlobalCheck(${i})}">
+        <button class="checklist-del" onclick="deleteGlobalCheck(${i})">✕</button>
       </div>`;
-    if(hasCheck){
-      h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
-      s.checklist.forEach(item=>{
-        h+=`<div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:14px">${item.checked?'☑':'☐'}</span>
-          <span style="font-size:12px;color:#444;${item.checked?'text-decoration:line-through;color:#bbb':''}">${esc(item.text)}</span>
-        </div>`;
-      });
-      h+=`</div>`;
-    }
-    if(hasMemo){
-      h+=`<div style="font-size:12px;color:#666;margin-top:${hasCheck?'8px':'0'};line-height:1.7;white-space:pre-wrap">${esc(s.memo)}</div>`;
-    }
-    h+=`</div>`;
-  });
-  h+=`</div>`;
+    });
+  }
+  h+=`</div>
+    <div class="checklist-add" style="margin-top:8px">
+      <input class="checklist-add-input" id="global-check-add" placeholder="+ 새 항목 추가 (Enter)"
+        onkeydown="if(event.key==='Enter')addGlobalCheck(this.value,this)">
+      <button class="btn-accent" onclick="addGlobalCheck(document.getElementById('global-check-add').value,document.getElementById('global-check-add'))">추가</button>
+    </div>
+  </div>`;
   return h;
+}
+
+function toggleGlobalCheck(i,checked){
+  S.globalChecklist[i].checked=checked;
+  const inputs=document.querySelectorAll('#global-checklist .checklist-text');
+  if(inputs[i])inputs[i].className='checklist-text'+(checked?' done':'');
+  persist();
+}
+
+function updateGlobalCheckText(i,val){
+  S.globalChecklist[i].text=val;
+  clearTimeout(window._gCheckTimer);
+  window._gCheckTimer=setTimeout(()=>persist(),500);
+}
+
+function addGlobalCheck(val,inputEl){
+  const text=(val||'').trim();
+  if(!text){if(inputEl)inputEl.focus();return;}
+  if(!S.globalChecklist)S.globalChecklist=[];
+  S.globalChecklist.push({text,checked:false});
+  if(inputEl)inputEl.value='';
+  persist();
+  const container=document.getElementById('global-checklist');
+  if(container){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=renderAllMemo();
+    const newEl=tmp.querySelector('#global-checklist');
+    if(newEl)container.outerHTML=newEl.outerHTML;
+    else renderAll();
+  }
+  setTimeout(()=>{const el=document.getElementById('global-check-add');if(el)el.focus();},50);
+}
+
+function deleteGlobalCheck(i){
+  S.globalChecklist.splice(i,1);
+  persist();
+  renderAll();
+}
+
+function focusNextGlobalCheck(i){
+  const inputs=document.querySelectorAll('#global-checklist .checklist-text');
+  if(inputs[i+1])inputs[i+1].focus();
+  else{const el=document.getElementById('global-check-add');if(el)el.focus();}
 }
 
 function renderDateSummary(y,m,days){
@@ -1332,6 +1371,7 @@ function resetState(){
   S.tab='all';
   S.paintColor=PAINT_SWATCHES[0];
   S.themeKey='cool';
+  S.globalChecklist=[];
   S.sites=[
     {name:'작업 1',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
     {name:'작업 2',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
