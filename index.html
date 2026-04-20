@@ -382,14 +382,18 @@ function renderAll(){
     }
   }
   // 포커스된 입력창 복원
-  if(focusedId){
+  // proc-add, check-add 입력창은 복원 제외 (이미 S에서 값 관리)
+  const skipRestore=focusedId&&(focusedId.startsWith('proc-add')||focusedId.startsWith('check-add')||focusedId==='global-check-add');
+  if(!skipRestore&&focusedId){
     const el=document.getElementById(focusedId);
     if(el){el.focus();el.value=focusedValue;}
-  } else if(focusedClass&&focusedClass.includes('proc-name-input')){
-    // proc-name-input은 id가 없으므로 값으로 찾기
+  } else if(!skipRestore&&focusedClass&&focusedClass.includes('proc-name-input')){
     document.querySelectorAll('.proc-name-input').forEach(el=>{
       if(el.value===focusedValue)el.focus();
     });
+  } else if(focusedId){
+    const el=document.getElementById(focusedId);
+    if(el)el.focus();
   }
 }
 
