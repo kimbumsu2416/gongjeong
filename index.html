@@ -608,6 +608,7 @@ function renderMain(){
     h+=renderThemePicker();
     h+=renderTodayAll(y,m);
     h+=renderDateSummary(y,m,days);
+    h+=renderAllMemo();
     h+=`<div class="notice">통합 시트는 읽기 전용입니다. 세부 작업 입력은 각 작업 탭에서 해주세요.</div>`;
     h+=S.sites.length===0?`<div class="empty-hint">현장을 추가해 주세요</div>`:renderAllTable(y,m,days,cw);
   } else {
@@ -632,6 +633,39 @@ function renderMain(){
 }
 
 let selectedDay=null;
+
+function renderAllMemo(){
+  const hasContent=S.sites.some(s=>(s.checklist&&s.checklist.length>0)||(s.memo&&s.memo.trim()));
+  if(!hasContent)return '';
+  let h=`<div style="background:var(--color-background-primary);border-radius:12px;border:1px solid #c8d0de;padding:14px 16px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:500;color:#222;margin-bottom:12px">메모 / 체크리스트</div>`;
+  S.sites.forEach((s,si)=>{
+    const sc=SITE_COLORS[si%SITE_COLORS.length];
+    const hasCheck=s.checklist&&s.checklist.length>0;
+    const hasMemo=s.memo&&s.memo.trim();
+    if(!hasCheck&&!hasMemo)return;
+    h+=`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid #eee">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;font-weight:500;color:#fff;background:${sc};padding:2px 10px;border-radius:20px">${esc(s.name)}</span>
+      </div>`;
+    if(hasCheck){
+      h+=`<div style="display:flex;flex-direction:column;gap:4px">`;
+      s.checklist.forEach(item=>{
+        h+=`<div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px">${item.checked?'☑':'☐'}</span>
+          <span style="font-size:12px;color:#444;${item.checked?'text-decoration:line-through;color:#bbb':''}">${esc(item.text)}</span>
+        </div>`;
+      });
+      h+=`</div>`;
+    }
+    if(hasMemo){
+      h+=`<div style="font-size:12px;color:#666;margin-top:${hasCheck?'8px':'0'};line-height:1.7;white-space:pre-wrap">${esc(s.memo)}</div>`;
+    }
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
 
 function renderDateSummary(y,m,days){
   if(S.sites.length===0)return'';
