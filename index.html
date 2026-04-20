@@ -514,6 +514,7 @@ function getChecklist(si){
 }
 
 function renderChecklist(si){
+  const s=S.sites[si];
   const list=getChecklist(si);
   let h=`<div id="checklist-${si}">`;
   if(list.length===0){
