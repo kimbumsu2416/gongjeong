@@ -297,7 +297,9 @@ function startPolling(){
         const remoteCount=remote.sites.reduce((a,s)=>a+Object.keys(s.cells).length,0);
         const localCount=S.sites.reduce((a,s)=>a+Object.keys(s.cells).length,0);
         if(remoteCount!==localCount||JSON.stringify(remote.sites)!==JSON.stringify(S.sites)){
+          const currentTab=S.tab;
           Object.assign(S,remote);
+          S.tab=currentTab;
           S.sites.forEach(s=>{if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];});
           renderAll();
           setSyncStatus('ok','업데이트됨 — '+new Date().toLocaleTimeString('ko-KR'));
@@ -312,7 +314,7 @@ function daysInMonth(y,m){return new Date(y,m,0).getDate()}
 function getDow(y,m,d){let w=new Date(y,m-1,d).getDay();return w===0?6:w-1}
 function isWe(y,m,d){return getDow(y,m,d)>=5}
 function ck(si,pi,d){return si+"_"+pi+"_"+S.year+"_"+S.month+"_"+d}
-function tabIndex(t){return t==="all"?-1:t==="contacts"?-0.5:parseInt(t)}
+function tabIndex(t){return t==="all"?-2:t==="contacts"?-1:parseInt(t)}
 function calcCellW(){
   const total=document.getElementById('wrap')?document.getElementById('wrap').offsetWidth:900;
   return Math.min(48,Math.max(24,Math.floor((total-200-16)/daysInMonth(S.year,S.month))));
