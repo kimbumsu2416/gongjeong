@@ -363,10 +363,14 @@ function renderAll(){
   const focusedValue=focused?focused.value:'';
   const focusedClass=focused?focused.className:'';
 
-  // 연락처/메타 입력창 포커스 중이면 렌더 스킵
-  const isContactInput=focused&&focused.closest&&focused.closest('.proc-panel')&&
-    focused.tagName==='INPUT'&&focused.placeholder&&
-    ['역할/공정','이름','전화번호','메모'].some(p=>focused.placeholder.includes(p));
+  // 입력 중이면 렌더 스킵
+  const isTyping=focused&&(focused.tagName==='INPUT'||focused.tagName==='TEXTAREA'||focused.tagName==='SELECT');
+  // 연락처 탭이거나 proc-panel 안 연락처 입력창이면 스킵
+  const isContactInput=isTyping&&(
+    S.tab==='contacts'||
+    (focused.closest&&focused.closest('.proc-panel')&&
+      ['역할/공정','이름','전화번호','메모'].some(p=>(focused.placeholder||'').includes(p)))
+  );
   if(isContactInput)return;
 
   const scrollMap=[];
