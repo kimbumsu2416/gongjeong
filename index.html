@@ -355,6 +355,12 @@ function applyTheme(){
 
 // ── 렌더 ──────────────────────────────────
 function renderAll(){
+  // 연락처 입력창 포커스 중이면 렌더 스킵
+  const activeEl=document.activeElement;
+  if(activeEl&&activeEl.closest&&activeEl.closest('.proc-panel')&&activeEl.tagName==='INPUT'&&activeEl.placeholder&&
+    ['역할/공정','이름','전화번호','메모'].some(p=>activeEl.placeholder.includes(p))){
+    return;
+  }
   // 포커스된 입력창 값 보존
   const focused=document.activeElement;
   const focusedId=focused?focused.id:'';
@@ -457,10 +463,10 @@ function renderSiteContacts(si){
     h+=`<div style="margin-bottom:8px">`;
     s.contacts.forEach((c,i)=>{
       h+=`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid #f0f0f0">
-        <input style="font-size:12px;font-weight:500;color:#222;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:80px;background:transparent;font-family:inherit" value="${esc(c.role)}" placeholder="역할/공정" oninput="S.sites[${si}].contacts[${i}].role=this.value" onchange="persist()">
-        <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:70px;background:transparent;font-family:inherit" value="${esc(c.name)}" placeholder="이름" oninput="S.sites[${si}].contacts[${i}].name=this.value" onchange="persist()">
-        <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:110px;background:transparent;font-family:inherit" value="${esc(c.phone)}" placeholder="전화번호" oninput="S.sites[${si}].contacts[${i}].phone=this.value" onchange="persist()">
-        <input style="font-size:12px;color:#888;border:none;border-bottom:1px solid #e8ecf0;outline:none;flex:1;background:transparent;font-family:inherit" value="${esc(c.memo)}" placeholder="메모" oninput="S.sites[${si}].contacts[${i}].memo=this.value" onchange="persist()">
+        <input style="font-size:12px;font-weight:500;color:#222;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:80px;background:transparent;font-family:inherit" value="${esc(c.role)}" placeholder="역할/공정" oninput="S.sites[${si}].contacts[${i}].role=this.value" onblur="persist()">
+        <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:70px;background:transparent;font-family:inherit" value="${esc(c.name)}" placeholder="이름" oninput="S.sites[${si}].contacts[${i}].name=this.value" onblur="persist()">
+        <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:110px;background:transparent;font-family:inherit" value="${esc(c.phone)}" placeholder="전화번호" oninput="S.sites[${si}].contacts[${i}].phone=this.value" onblur="persist()">
+        <input style="font-size:12px;color:#888;border:none;border-bottom:1px solid #e8ecf0;outline:none;flex:1;background:transparent;font-family:inherit" value="${esc(c.memo)}" placeholder="메모" oninput="S.sites[${si}].contacts[${i}].memo=this.value" onblur="persist()">
         <button onclick="deleteSiteContact(${si},${i})" style="font-size:10px;padding:1px 6px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit;flex-shrink:0">✕</button>
       </div>`;
     });
