@@ -298,8 +298,10 @@ function startPolling(){
         const localCount=S.sites.reduce((a,s)=>a+Object.keys(s.cells).length,0);
         if(remoteCount!==localCount||JSON.stringify(remote.sites)!==JSON.stringify(S.sites)){
           const currentTab=S.tab;
+          const sy=S.scheduleYear,sm=S.scheduleMonth,smode=S.scheduleMode;
           Object.assign(S,remote);
           S.tab=currentTab;
+          if(sy)S.scheduleYear=sy;if(sm)S.scheduleMonth=sm;if(smode)S.scheduleMode=smode;
           S.sites.forEach(s=>{if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];});
           renderAll();
           setSyncStatus('ok','업데이트됨 — '+new Date().toLocaleTimeString('ko-KR'));
@@ -314,7 +316,7 @@ function daysInMonth(y,m){return new Date(y,m,0).getDate()}
 function getDow(y,m,d){let w=new Date(y,m-1,d).getDay();return w===0?6:w-1}
 function isWe(y,m,d){return getDow(y,m,d)>=5}
 function ck(si,pi,d){return si+"_"+pi+"_"+S.year+"_"+S.month+"_"+d}
-function tabIndex(t){return t==="all"?-2:t==="contacts"?-1:parseInt(t)}
+function tabIndex(t){return t==="all"?-3:t==="schedule"?-2:t==="contacts"?-1:parseInt(t)}
 function calcCellW(){
   const total=document.getElementById('wrap')?document.getElementById('wrap').offsetWidth:900;
   return Math.min(48,Math.max(24,Math.floor((total-200-16)/daysInMonth(S.year,S.month))));
@@ -369,7 +371,7 @@ function renderAll(){
   const isTyping=focused&&(focused.tagName==='INPUT'||focused.tagName==='TEXTAREA'||focused.tagName==='SELECT');
   // 연락처 탭이거나 proc-panel 안 연락처 입력창이면 스킵
   const isContactInput=isTyping&&(
-    S.tab==='contacts'||
+    S.tab==='contacts'||S.tab==='schedule'||
     (focused.closest&&focused.closest('.proc-panel')&&
       ['역할/공정','이름','전화번호','메모'].some(p=>(focused.placeholder||'').includes(p)))
   );
@@ -435,6 +437,7 @@ function renderTabs(){
   const allOn=S.tab==='all';
   const contactsOn=S.tab==='contacts';
   h+=`<button class="tab-btn${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'background:#1F3864;color:#fff;border-color:#1F3864':'border-color:#1F3864;color:#1F3864'}">통합</button>`;
+  h+=`<button class="tab-btn${S.tab==='schedule'?' on':''}" onclick="setTab('schedule')" style="${S.tab==='schedule'?'background:#3B82F6;color:#fff;border-color:#3B82F6':'border-color:#3B82F6;color:#3B82F6'}">일정</button>`;
   h+=`<button class="tab-btn${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'background:#5a5a7a;color:#fff;border-color:#5a5a7a':'border-color:#5a5a7a;color:#5a5a7a'}">연락처</button>`;
   S.sites.forEach((s,i)=>{
     const on=S.tab===String(i);
@@ -738,17 +741,427 @@ function focusNextCheck(si,i){
   else document.getElementById(`check-add-${si}`).focus();
 }
 
+// ── 일정 탭 (타임트리 스타일) ─────────────────
+const SCH_COLORS=['#3B82F6','#EF4444','#22C55E','#A855F7','#F97316','#EAB308','#14B8A6','#EC4899','#6366F1','#84CC16'];
+const SCH_COLOR_LABELS=['파랑','빨강','초록','보라','주황','노랑','청록','분홍','인디고','라임'];
+
+function getScheduleData(){
+  if(!S.scheduleData)S.scheduleData={events:[],persons:[]};
+  if(!S.scheduleData.events)S.scheduleData.events=[];
+  if(!S.scheduleData.persons)S.scheduleData.persons=[];
+  return S.scheduleData;
+}
+
+function getPersonColor(pi){return SCH_COLORS[pi%SCH_COLORS.length];}
+
+// 날짜 비교 유틸
+function dateStr(y,m,d){return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function parseDateStr(s){const[y,m,d]=s.split('-').map(Number);return{y,m,d};}
+function dateToNum(s){return parseInt(s.replace(/-/g,''));}
+
+// 해당 날짜에 걸리는 이벤트 반환 (다중일 지원)
+function getEventsForDate(y,m,d){
+  const sd=getScheduleData();
+  const dk=dateStr(y,m,d);
+  const dn=dateToNum(dk);
+  return sd.events.filter(ev=>{
+    const s=dateToNum(ev.startDate);
+    const e=dateToNum(ev.endDate||ev.startDate);
+    return dn>=s&&dn<=e;
+  });
+}
+
+// 이벤트가 해당 날짜의 시작인지
+function isEventStart(ev,y,m,d){return ev.startDate===dateStr(y,m,d);}
+
+// 이벤트가 해당 날짜의 끝인지
+function isEventEnd(ev,y,m,d){return (ev.endDate||ev.startDate)===dateStr(y,m,d);}
+
+function renderScheduleTab(){
+  if(!S.scheduleYear){S.scheduleYear=S.year;S.scheduleMonth=S.month;}
+  if(!S.scheduleSelectedDay)S.scheduleSelectedDay=null;
+  if(!S.scheduleFilter)S.scheduleFilter=[]; // 빈 배열 = 전체 보기
+  const sd=getScheduleData();
+  const y=S.scheduleYear, m=S.scheduleMonth;
+  const days=daysInMonth(y,m);
+  const firstDow=getDow(y,m,1);
+  const today=new Date(); const ty=today.getFullYear(),tm=today.getMonth()+1,td=today.getDate();
+  const DOW_LABEL=['월','화','수','목','금','토','일'];
+  const persons=sd.persons||[];
+
+  let h=`<div style="background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)">`;
+
+  // ── 헤더: 월 이동 + 오늘 버튼
+  h+=`<div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 16px;display:flex;align-items:center;gap:10px">
+    <button onclick="changeScheduleMonth(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:#555;font-family:inherit">&#8249;</button>
+    <span style="font-size:20px;font-weight:700;color:#1e293b;min-width:100px;text-align:center">${y}년 ${m}월</span>
+    <button onclick="changeScheduleMonth(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:#555;font-family:inherit">&#8250;</button>
+    <button onclick="goToToday()" style="font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid #e2e8f0;background:#f8fafc;color:#555;cursor:pointer;font-family:inherit;margin-left:4px">오늘</button>
+  </div>`;
+
+  // ── 추가 버튼 겸 필터 영역
+  // 윗줄: 공통 + 사람별 일정 추가 버튼
+  h+=`<div style="padding:10px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <button onclick="openAddEvent(null,undefined)" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:#3B82F6;color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;flex-shrink:0">
+      <span>+</span><span>📅 공통 일정</span>
+    </button>`;
+  persons.forEach((p,i)=>{
+    const c=getPersonColor(i);
+    h+=`<button onclick="openAddEvent(null,${i})" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:${c};color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;flex-shrink:0">
+      <span>+</span><span>👤 ${esc(p.name)}</span>
+    </button>`;
+  });
+  h+=`<input id="new-person-input" placeholder="＋ 멤버 추가" style="font-size:11px;padding:5px 10px;border-radius:20px;border:1.5px dashed #c8d0de;background:transparent;color:#888;outline:none;width:90px;font-family:inherit"
+    onkeydown="if(event.key==='Enter'&&!event.isComposing)addSchedulePerson()">
+  </div>`;
+  // 아랫줄: 필터
+  h+=`<div style="padding:6px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <span style="font-size:10px;color:#94a3b8;margin-right:2px">필터</span>
+    <div onclick="S.scheduleFilter=[];renderAll()" style="padding:3px 10px;border-radius:20px;border:1.5px solid ${S.scheduleFilter.length===0?'#3B82F6':'#e2e8f0'};background:${S.scheduleFilter.length===0?'#EFF6FF':'transparent'};cursor:pointer;font-size:10px;color:${S.scheduleFilter.length===0?'#3B82F6':'#94a3b8'};font-weight:${S.scheduleFilter.length===0?'600':'400'}">전체</div>
+    <div onclick="toggleSchFilterCommon()" style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid ${S.scheduleFilterCommon===false?'#e2e8f0':'#3B82F6'};background:${S.scheduleFilterCommon===false?'transparent':'#EFF6FF'};cursor:pointer;font-size:10px;color:${S.scheduleFilterCommon===false?'#94a3b8':'#3B82F6'};font-weight:600">
+      <div style="width:7px;height:7px;border-radius:50%;background:#3B82F6"></div>공통
+    </div>`;
+  persons.forEach((p,i)=>{
+    const c=getPersonColor(i);
+    const on=S.scheduleFilter.includes(i);
+    h+=`<div onclick="toggleSchFilter(${i})" style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid ${on?c:'#e2e8f0'};background:${on?c+'18':'transparent'};cursor:pointer;font-size:10px;color:${on?c:'#94a3b8'};font-weight:${on?'600':'400'}">
+      <div style="width:7px;height:7px;border-radius:50%;background:${c}"></div>${esc(p.name)}
+      <span onclick="event.stopPropagation();deleteSchedulePerson(${i})" style="margin-left:1px;color:#ccc;font-size:10px;cursor:pointer">×</span>
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // ── 달력 요일 헤더
+  h+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);background:#f8fafc;border-bottom:1px solid #e2e8f0">`;
+  DOW_LABEL.forEach((d,i)=>{
+    h+=`<div style="text-align:center;font-size:13px;font-weight:600;padding:8px 0;color:${i===6?'#EF4444':i===5?'#F97316':'#64748b'}">${d}</div>`;
+  });
+  h+=`</div>`;
+
+  // ── 달력 셀
+  h+=`<div style="display:grid;grid-template-columns:repeat(7,1fr)">`;
+
+  // 빈 셀
+  for(let i=0;i<firstDow;i++){
+    h+=`<div style="min-height:120px;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:#fafafa"></div>`;
+  }
+
+  let dow=firstDow;
+  for(let d=1;d<=days;d++){
+    const isToday=(y===ty&&m===tm&&d===td);
+    const isSel=S.scheduleSelectedDay===d;
+    const hol=isHol(y,m,d);
+    const isWknd=dow>=5;
+    const holN=holName(y,m,d);
+    const cellBg=isSel?'#EFF6FF':isToday?'#f0fdf4':isWknd||hol?'#fef9f9':'#fff';
+    const borderColor=isSel?'#3B82F6':'#f1f5f9';
+
+    // 이 날에 걸리는 이벤트 (필터 적용)
+    let evs=getEventsForDate(y,m,d);
+    if(S.scheduleFilter&&S.scheduleFilter.length>0||S.scheduleFilterCommon===false){
+      evs=evs.filter(ev=>{
+        if(ev.personIdx===undefined) return S.scheduleFilterCommon!==false;
+        return S.scheduleFilter.length===0||S.scheduleFilter.includes(ev.personIdx);
+      });
+    }
+    // 공통 이벤트도 별도로 분류
+    const evsSorted=evs.sort((a,b)=>dateToNum(a.startDate)-dateToNum(b.startDate));
+
+    h+=`<div style="min-height:120px;border-right:1px solid ${borderColor};border-bottom:1px solid ${borderColor};background:${cellBg};cursor:pointer;position:relative;padding:3px 2px 2px"
+      onclick="selectSchDay(${d})">
+      <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;margin:0 auto 3px;font-size:14px;font-weight:${isToday?'700':'500'};
+        background:${isToday?'#22C55E':'transparent'};color:${isToday?'#fff':hol||dow===6?'#EF4444':dow===5?'#F97316':'#374151'}">
+        ${d}${isToday?'':''}</div>`;
+
+    if(holN) h+=`<div style="font-size:10px;color:#EF4444;text-align:center;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px">${holN}</div>`;
+
+    // 이벤트 바 렌더
+    evsSorted.slice(0,3).forEach(ev=>{
+      const c=ev.color||'#3B82F6';
+      const isStart=isEventStart(ev,y,m,d);
+      const isEnd=isEventEnd(ev,y,m,d);
+      const isSingleDay=isStart&&isEnd;
+      const rLeft=isStart?'3px':'0';
+      const rRight=isEnd?'3px':'0';
+      const showTitle=isStart||(dow===0); // 시작이거나 주의 첫날
+      h+=`<div style="background:${c};color:#fff;font-size:11px;padding:3px ${showTitle?'5px':'0'};margin:1px 1px;
+        border-radius:${rLeft} ${rRight} ${rRight} ${rLeft};
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6;
+        ${!isStart&&dow!==0?'margin-left:-2px':''}">
+        ${showTitle?esc(ev.title):'&nbsp;'}
+        ${ev.allDay===false&&ev.startTime&&isStart?`<span style="opacity:0.8;font-size:8px"> ${esc(ev.startTime)}</span>`:''}
+      </div>`;
+    });
+    if(evsSorted.length>3) h+=`<div style="font-size:10px;color:#94a3b8;text-align:right;padding-right:4px">+${evsSorted.length-3}개</div>`;
+
+    h+=`</div>`;
+    dow++;
+    if(dow===7&&d<days) dow=0;
+  }
+  // 마지막 빈 셀
+  if(dow>0&&dow<7){
+    for(let i=dow;i<7;i++) h+=`<div style="min-height:120px;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:#fafafa"></div>`;
+  }
+  h+=`</div>`;
+
+  // ── 선택된 날짜 이벤트 패널
+  if(S.scheduleSelectedDay){
+    const d=S.scheduleSelectedDay;
+    let dayEvs=getEventsForDate(y,m,d);
+    if(S.scheduleFilter&&S.scheduleFilter.length>0) dayEvs=dayEvs.filter(ev=>ev.personIdx===undefined?true:S.scheduleFilter.includes(ev.personIdx));
+    const DOW_KR2=['월','화','수','목','금','토','일'];
+    const dw=getDow(y,m,d);
+    const holN2=holName(y,m,d);
+    h+=`<div style="border-top:2px solid #e2e8f0;padding:14px 16px;background:#f8fafc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:16px;font-weight:700;color:#1e293b">${m}월 ${d}일 (${DOW_KR2[dw]}${holN2?' · '+holN2:''})</div>
+        <button onclick="openAddEvent(${d})" style="font-size:11px;padding:4px 12px;border-radius:20px;background:#3B82F6;color:#fff;border:none;cursor:pointer;font-family:inherit">+ 추가</button>
+      </div>`;
+    if(dayEvs.length===0){
+      h+=`<div style="font-size:12px;color:#94a3b8;padding:8px 0;text-align:center">이 날 등록된 일정이 없어요</div>`;
+    } else {
+      dayEvs.forEach((ev,i)=>{
+        const evIdx=getScheduleData().events.indexOf(ev);
+        const c=ev.color||'#3B82F6';
+        const sd2=getScheduleData();
+        const person=ev.personIdx!==undefined?sd2.persons[ev.personIdx]:null;
+        const timeStr=ev.allDay!==false?'종일':`${ev.startTime||''}${ev.endTime?' ~ '+ev.endTime:''}`;
+        h+=`<div style="display:flex;gap:10px;padding:10px 12px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:6px;align-items:flex-start">
+          <div style="width:4px;min-height:40px;border-radius:2px;background:${c};flex-shrink:0;margin-top:2px"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">${esc(ev.title)}</div>
+            <div style="font-size:12px;color:#94a3b8;display:flex;gap:8px;flex-wrap:wrap">
+              <span>🕐 ${timeStr}</span>
+              ${person?`<span>👤 ${esc(person.name)}</span>`:'<span style="color:#3B82F6">📅 공통</span>'}
+              ${ev.memo?`<span>📝 ${esc(ev.memo)}</span>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button onclick="openEditEvent(${evIdx})" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid #e2e8f0;background:transparent;color:#555;cursor:pointer;font-family:inherit">수정</button>
+            <button onclick="deleteSchEvent(${evIdx})" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid #fecaca;background:transparent;color:#EF4444;cursor:pointer;font-family:inherit">삭제</button>
+          </div>
+        </div>`;
+      });
+    }
+    h+=`</div>`;
+  }
+
+  h+=`</div>`;
+  return h;
+}
+
+function toggleSchFilter(i){
+  if(!S.scheduleFilter)S.scheduleFilter=[];
+  const idx=S.scheduleFilter.indexOf(i);
+  if(idx>=0) S.scheduleFilter.splice(idx,1);
+  else S.scheduleFilter.push(i);
+  renderAll();
+}
+
+function selectSchDay(d){
+  S.scheduleSelectedDay=(S.scheduleSelectedDay===d?null:d);
+  renderAll();
+}
+
+function goToToday(){
+  const t=new Date();
+  S.scheduleYear=t.getFullYear();
+  S.scheduleMonth=t.getMonth()+1;
+  S.scheduleSelectedDay=t.getDate();
+  renderAll();
+}
+
+function changeScheduleMonth(d){
+  if(!S.scheduleYear){S.scheduleYear=S.year;S.scheduleMonth=S.month;}
+  S.scheduleMonth+=d;
+  if(S.scheduleMonth>12){S.scheduleMonth=1;S.scheduleYear++;}
+  if(S.scheduleMonth<1){S.scheduleMonth=12;S.scheduleYear--;}
+  S.scheduleSelectedDay=null;
+  renderAll();
+}
+
+function addSchedulePerson(){
+  const input=document.getElementById('new-person-input');
+  if(!input)return;
+  const name=input.value.trim();
+  if(!name){input.focus();return;}
+  const sd=getScheduleData();
+  sd.persons.push({name});
+  persist();renderAll();
+}
+
+function deleteSchedulePerson(pi){
+  const sd=getScheduleData();
+  if(!confirm(`"${sd.persons[pi].name}" 일정 분류를 삭제할까요? 해당 분류의 일정도 모두 삭제돼요.`))return;
+  sd.events=sd.events.filter(ev=>ev.personIdx!==pi).map(ev=>{
+    if(ev.personIdx!==undefined&&ev.personIdx>pi) ev.personIdx--;
+    return ev;
+  });
+  sd.persons.splice(pi,1);
+  if(S.scheduleFilter)S.scheduleFilter=S.scheduleFilter.filter(i=>i!==pi).map(i=>i>pi?i-1:i);
+  persist();renderAll();
+}
+
+function toggleSchFilterCommon(){
+  if(S.scheduleFilterCommon===false) S.scheduleFilterCommon=true;
+  else S.scheduleFilterCommon=false;
+  renderAll();
+}
+
+function deleteSchEvent(idx){
+  if(!confirm('이 일정을 삭제할까요?'))return;
+  getScheduleData().events.splice(idx,1);
+  persist();renderAll();
+}
+
+// ── 일정 추가/수정 모달
+function openAddEvent(prefillDay,prefillPersonIdx){
+  const y=S.scheduleYear||S.year, m=S.scheduleMonth||S.month;
+  const sd=getScheduleData();
+  const defDate=prefillDay?dateStr(y,m,prefillDay):dateStr(y,m,1);
+  _schEditIdx=null;
+  const defColor=prefillPersonIdx!==undefined?getPersonColor(prefillPersonIdx):SCH_COLORS[0];
+  _schForm={title:'',startDate:defDate,endDate:defDate,allDay:true,startTime:'09:00',endTime:'10:00',color:defColor,personIdx:prefillPersonIdx!==undefined?prefillPersonIdx:'',memo:''};
+  renderSchModal(sd);
+}
+
+function openEditEvent(idx){
+  const sd=getScheduleData();
+  const ev=sd.events[idx];
+  _schEditIdx=idx;
+  _schForm={...ev};
+  if(_schForm.allDay===undefined)_schForm.allDay=true;
+  renderSchModal(sd);
+}
+
+let _schEditIdx=null;
+let _schForm={};
+
+function renderSchModal(sd){
+  const persons=sd.persons||[];
+  const colorSwatches=SCH_COLORS.map((c,i)=>`
+    <div onclick="_schForm.color='${c}';document.querySelectorAll('.sch-clr').forEach(el=>{el.style.outline=el.dataset.c==='${c}'?'2.5px solid #333':'none';el.style.outlineOffset='2px';});document.getElementById('sch-color-preview').style.background='${c}'"
+      class="sch-clr" data-c="${c}"
+      style="width:22px;height:22px;border-radius:5px;background:${c};cursor:pointer;flex-shrink:0;outline:${_schForm.color===c?'2.5px solid #333':'none'};outline-offset:2px"></div>`).join('');
+
+  document.getElementById('modal-area').innerHTML=`
+  <div class="modal-overlay" onclick="if(event.target===this)closeSchModal()">
+    <div class="modal-box" style="max-width:400px;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div id="sch-color-preview" style="width:14px;height:14px;border-radius:50%;background:${_schForm.color};flex-shrink:0"></div>
+        <div style="font-size:14px;font-weight:600;color:#1e293b">${_schEditIdx===null?'일정 추가':'일정 수정'}</div>
+      </div>
+
+      <div class="field">
+        <label>제목 *</label>
+        <input id="sch-title" value="${esc(_schForm.title)}" placeholder="일정 제목" oninput="_schForm.title=this.value" autofocus style="width:100%;font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit">
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">시작일</label>
+          <input type="date" id="sch-sdate" value="${_schForm.startDate}" oninput="_schForm.startDate=this.value;if(_schForm.endDate<_schForm.startDate){_schForm.endDate=_schForm.startDate;document.getElementById('sch-edate').value=_schForm.startDate}"
+            style="width:100%;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">종료일</label>
+          <input type="date" id="sch-edate" value="${_schForm.endDate||_schForm.startDate}" oninput="_schForm.endDate=this.value"
+            style="width:100%;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit">
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:#444">
+          <input type="checkbox" id="sch-allday" ${_schForm.allDay!==false?'checked':''} onchange="_schForm.allDay=this.checked;document.getElementById('sch-time-row').style.display=this.checked?'none':'flex'" style="accent-color:#3B82F6">
+          종일 일정
+        </label>
+      </div>
+
+      <div id="sch-time-row" style="display:${_schForm.allDay!==false?'none':'flex'};gap:8px;margin-bottom:10px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">시작 시간</label>
+          <input type="time" id="sch-stime" value="${_schForm.startTime||'09:00'}" oninput="_schForm.startTime=this.value"
+            style="width:100%;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">종료 시간</label>
+          <input type="time" id="sch-etime" value="${_schForm.endTime||'10:00'}" oninput="_schForm.endTime=this.value"
+            style="width:100%;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit">
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#888;display:block;margin-bottom:5px">색상</label>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">${colorSwatches}</div>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">분류 (누구 일정?)</label>
+        <select id="sch-person" onchange="_schForm.personIdx=this.value===''?undefined:parseInt(this.value)"
+          style="width:100%;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit;background:#fff">
+          <option value="" ${_schForm.personIdx===undefined||_schForm.personIdx===''?'selected':''}>📅 공통 일정</option>
+          ${persons.map((p,i)=>`<option value="${i}" ${_schForm.personIdx===i?'selected':''}>👤 ${esc(p.name)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">메모</label>
+        <textarea id="sch-memo" placeholder="메모 (선택사항)" oninput="_schForm.memo=this.value"
+          style="width:100%;font-size:12px;padding:7px 10px;border-radius:8px;border:1px solid #c8d0de;outline:none;font-family:inherit;resize:vertical;min-height:52px;line-height:1.5">${esc(_schForm.memo||'')}</textarea>
+      </div>
+
+      <div class="modal-btns">
+        <button onclick="closeSchModal()">취소</button>
+        <button class="btn-accent" onclick="saveSchEvent()">
+          ${_schEditIdx===null?'추가하기':'저장하기'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{const el=document.getElementById('sch-title');if(el)el.focus();},50);
+}
+
+function saveSchEvent(){
+  const title=_schForm.title.trim();
+  if(!title){alert('제목을 입력해주세요.');return;}
+  const sd=getScheduleData();
+  const ev={
+    title,
+    startDate:_schForm.startDate,
+    endDate:_schForm.endDate||_schForm.startDate,
+    allDay:_schForm.allDay!==false,
+    startTime:_schForm.allDay!==false?undefined:(_schForm.startTime||undefined),
+    endTime:_schForm.allDay!==false?undefined:(_schForm.endTime||undefined),
+    color:_schForm.color||SCH_COLORS[0],
+    personIdx:_schForm.personIdx===''||_schForm.personIdx===undefined?undefined:parseInt(_schForm.personIdx),
+    memo:_schForm.memo||''
+  };
+  if(_schEditIdx===null) sd.events.push(ev);
+  else sd.events[_schEditIdx]=ev;
+  persist();
+  closeSchModal();
+  renderAll();
+}
+
+function closeSchModal(){document.getElementById('modal-area').innerHTML='';}
+
+// 하위 호환
+function closeScheduleModal(){closeSchModal();}
+
+
 function renderMain(){
   const y=S.year,m=S.month,days=daysInMonth(y,m),cw=calcCellW();
   let totalFilled=0;S.sites.forEach(s=>Object.values(s.cells).forEach(c=>{if(c)totalFilled++;}));
   let h=`<div>`;
-  h+=`<div class="month-bar">
+  h+=`<div class="month-bar" ${S.tab==='schedule'||S.tab==='contacts'?'style="display:none"':''}>
     <button class="month-btn" onclick="changeMonth(-1)">&#8592;</button>
     <span class="month-label">${y}년 ${m}월</span>
     <button class="month-btn" onclick="changeMonth(1)">&#8594;</button>
   </div>`;
   if(S.tab==="contacts"){
     h+=renderContactsTab();
+  } else if(S.tab==="schedule"){
+    h+=renderScheduleTab();
   } else if(S.tab==="all"){
     const activeDays=new Set();
     S.sites.forEach(s=>Object.keys(s.cells).forEach(k=>{if(s.cells[k]){const p=k.split('_');if(parseInt(p[2])===S.year&&parseInt(p[3])===S.month)activeDays.add(p[4]);}}));
