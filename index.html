@@ -811,8 +811,11 @@ function renderScheduleTab(){
       <span>+</span><span>👤 ${esc(p.name)}</span>
     </button>`;
   });
-  h+=`<input id="new-person-input" placeholder="＋ 멤버 추가" style="font-size:11px;padding:5px 10px;border-radius:20px;border:1.5px dashed #c8d0de;background:transparent;color:#888;outline:none;width:90px;font-family:inherit"
-    onkeydown="if(event.key==='Enter'&&!event.isComposing)addSchedulePerson()">
+  h+=`<div style="display:flex;align-items:center;gap:4px;background:#f8fafc;border-radius:20px;border:1.5px dashed #c8d0de;padding:2px 4px 2px 10px">
+    <input id="new-person-input" placeholder="멤버 이름" style="font-size:11px;padding:3px 0;border:none;background:transparent;color:#555;outline:none;width:70px;font-family:inherit"
+      onkeydown="if(event.key==='Enter'&&!event.isComposing)addSchedulePerson()">
+    <button onclick="addSchedulePerson()" style="font-size:11px;padding:3px 9px;border-radius:16px;background:#5a5a7a;color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0">추가</button>
+  </div>
   </div>`;
   // 아랫줄: 필터
   h+=`<div style="padding:6px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
