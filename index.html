@@ -472,7 +472,8 @@ function renderSiteContacts(si){
       h+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid #f0f0f0">
         <span style="font-size:11px;padding:1px 7px;border-radius:20px;background:${sc}22;border:1px solid ${sc}55;color:${sc};flex-shrink:0">${esc(c.role||'기타')}</span>
         <span style="font-size:12px;font-weight:500;color:#222;width:60px">${esc(c.name)}</span>
-        <span style="font-size:12px;color:#555;flex:1">${esc(c.phone||'-')}</span>
+        <span style="font-size:12px;color:#555;width:100px">${esc(c.phone||'-')}</span>
+        ${c.car?`<span style="font-size:11px;color:#666;background:#f0f4ff;border-radius:4px;padding:1px 6px;flex-shrink:0">${esc(c.car)}</span>`:''}
         <button onclick="removeSiteContact(${si},${i})" style="font-size:10px;padding:1px 6px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit">✕</button>
       </div>`;
     });
@@ -485,7 +486,9 @@ function renderSiteContacts(si){
   } else {
     const selRole=s._selRole||'';
     const selIdx=s._selIdx||'';
-    const selPhone=selIdx!==''&&S.globalContacts[parseInt(selIdx)]?S.globalContacts[parseInt(selIdx)].phone||'':''
+    const selContact=selIdx!==''&&S.globalContacts[parseInt(selIdx)]?S.globalContacts[parseInt(selIdx)]:null;
+    const selPhone=selContact?selContact.phone||'':'';
+    const selCar=selContact?selContact.car||'':'';
     const namesForRole=selRole?(S.globalContacts||[]).map((c,i)=>({...c,i})).filter(c=>(c.role||'기타')===selRole):[];
 
     h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">
@@ -497,7 +500,8 @@ function renderSiteContacts(si){
         <option value="">이름 선택</option>
         ${namesForRole.map(c=>`<option value="${c.i}" ${String(selIdx)===String(c.i)?'selected':''}>${esc(c.name)}</option>`).join('')}
       </select>
-      <input style="font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid #e0e4ed;background:#f8f9fc;color:#555;width:120px;outline:none;font-family:inherit" placeholder="전화번호" value="${esc(selPhone)}" readonly>
+      <input style="font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid #e0e4ed;background:#f8f9fc;color:#555;width:110px;outline:none;font-family:inherit" placeholder="전화번호" value="${esc(selPhone)}" readonly>
+      <input style="font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid #e0e4ed;background:#f8f9fc;color:#555;width:90px;outline:none;font-family:inherit" placeholder="차량번호" value="${esc(selCar)}" readonly>
       <button class="btn-accent" onclick="addSiteContactFromSel(${si})" ${!selIdx?'disabled style="opacity:0.4"':''}>+ 추가</button>
     </div>`;
   }
