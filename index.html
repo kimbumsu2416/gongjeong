@@ -1673,7 +1673,25 @@ function setPaint(c){
 }
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;viewDay=null;renderAll();}
 function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('작업명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 작업명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
-function deleteSite(si){if(!confirm(`"${S.sites[si].name}" 현장을 삭제하시겠어요?`))return;S.sites.splice(si,1);persist();setTab('all');}
+function deleteSite(si){
+  if(!confirm(`"${S.sites[si].name}" 현장을 삭제하시겠어요?`))return;
+  // si+1 이상인 시트들의 cells 키 인덱스를 -1 하고, 색상도 변경된 인덱스에 맞게 교체
+  for(let i=si+1;i<S.sites.length;i++){
+    const oldColor=SITE_COLORS[i%SITE_COLORS.length];
+    const newColor=SITE_COLORS[(i-1)%SITE_COLORS.length];
+    const newCells={};
+    Object.entries(S.sites[i].cells||{}).forEach(([k,v])=>{
+      const parts=k.split('_');
+      parts[0]=String(parseInt(parts[0])-1);
+      // 색상값도 이전 인덱스 색상 → 새 인덱스 색상으로 교체
+      const newV=(v===oldColor)?newColor:v;
+      newCells[parts.join('_')]=newV;
+    });
+    S.sites[i].cells=newCells;
+  }
+  S.sites.splice(si,1);
+  persist();setTab('all');
+}
 
 let addForm={name:"",addr:"",pw:"",key:""};
 function openAdd(){
