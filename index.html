@@ -299,9 +299,13 @@ function startPolling(){
         if(remoteCount!==localCount||JSON.stringify(remote.sites)!==JSON.stringify(S.sites)){
           const currentTab=S.tab;
           const sy=S.scheduleYear,sm=S.scheduleMonth,smode=S.scheduleMode;
+          const localSched=S.scheduleData?JSON.parse(JSON.stringify(S.scheduleData)):null;
+          const localPersons=S.schedulePersons?JSON.parse(JSON.stringify(S.schedulePersons)):null;
           Object.assign(S,remote);
           S.tab=currentTab;
           if(sy)S.scheduleYear=sy;if(sm)S.scheduleMonth=sm;if(smode)S.scheduleMode=smode;
+          if(localSched)S.scheduleData=localSched;
+          if(localPersons)S.schedulePersons=localPersons;
           S.sites.forEach(s=>{if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];});
           renderAll();
           setSyncStatus('ok','업데이트됨 — '+new Date().toLocaleTimeString('ko-KR'));
@@ -316,7 +320,7 @@ function daysInMonth(y,m){return new Date(y,m,0).getDate()}
 function getDow(y,m,d){let w=new Date(y,m-1,d).getDay();return w===0?6:w-1}
 function isWe(y,m,d){return getDow(y,m,d)>=5}
 function ck(si,pi,d){return si+"_"+pi+"_"+S.year+"_"+S.month+"_"+d}
-function tabIndex(t){return t==="all"?-3:t==="schedule"?-2:t==="contacts"?-1:parseInt(t)}
+function tabIndex(t){return t==="all"?-2:t==="contacts"?-1:parseInt(t)}
 function calcCellW(){
   const total=document.getElementById('wrap')?document.getElementById('wrap').offsetWidth:900;
   return Math.min(48,Math.max(24,Math.floor((total-200-16)/daysInMonth(S.year,S.month))));
@@ -371,9 +375,9 @@ function renderAll(){
   const isTyping=focused&&(focused.tagName==='INPUT'||focused.tagName==='TEXTAREA'||focused.tagName==='SELECT');
   // 연락처 탭이거나 proc-panel 안 연락처 입력창이면 스킵
   const isContactInput=isTyping&&(
-    S.tab==='contacts'||S.tab==='schedule'||
+    S.tab==='contacts'||
     (focused.closest&&focused.closest('.proc-panel')&&
-      ['역할/공정','이름','전화번호','메모'].some(p=>(focused.placeholder||'').includes(p)))
+      ['역할/공정','이름','전화번호','차량번호','메모'].some(p=>(focused.placeholder||'').includes(p)))
   );
   if(isContactInput)return;
 
@@ -437,7 +441,7 @@ function renderTabs(){
   const allOn=S.tab==='all';
   const contactsOn=S.tab==='contacts';
   h+=`<button class="tab-btn${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'background:#1F3864;color:#fff;border-color:#1F3864':'border-color:#1F3864;color:#1F3864'}">통합</button>`;
-  h+=`<button class="tab-btn${S.tab==='schedule'?' on':''}" onclick="setTab('schedule')" style="${S.tab==='schedule'?'background:#3B82F6;color:#fff;border-color:#3B82F6':'border-color:#3B82F6;color:#3B82F6'}">일정</button>`;
+
   h+=`<button class="tab-btn${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'background:#5a5a7a;color:#fff;border-color:#5a5a7a':'border-color:#5a5a7a;color:#5a5a7a'}">연락처</button>`;
   S.sites.forEach((s,i)=>{
     const on=S.tab===String(i);
@@ -532,7 +536,7 @@ function removeSiteContact(si,i){
 
 function renderContactsTab(){
   if(!S.globalContacts)S.globalContacts=[];
-  if(!S.newGlobalContact)S.newGlobalContact={name:'',role:'',phone:'',memo:''};
+  if(!S.newGlobalContact)S.newGlobalContact={name:'',role:'',phone:'',car:'',memo:''};
   const nc=S.newGlobalContact;
   let h=`<div>
     <div style="font-size:13px;font-weight:500;color:#222;margin-bottom:12px">전체 연락처</div>`;
@@ -555,6 +559,7 @@ function renderContactsTab(){
           <input style="font-size:12px;font-weight:500;color:#222;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:80px;background:transparent;font-family:inherit" value="${esc(c.role)}" placeholder="역할/공정" oninput="S.globalContacts[${c.idx}].role=this.value" onblur="persist()">
           <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:70px;background:transparent;font-family:inherit" value="${esc(c.name)}" placeholder="이름" oninput="S.globalContacts[${c.idx}].name=this.value" onblur="persist()">
           <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:110px;background:transparent;font-family:inherit" value="${esc(c.phone)}" placeholder="전화번호" oninput="S.globalContacts[${c.idx}].phone=this.value" onblur="persist()">
+          <input style="font-size:12px;color:#555;border:none;border-bottom:1px solid #e8ecf0;outline:none;width:90px;background:transparent;font-family:inherit" value="${esc(c.car||'')}" placeholder="차량번호" oninput="S.globalContacts[${c.idx}].car=this.value" onblur="persist()">
           <input style="font-size:12px;color:#888;border:none;border-bottom:1px solid #e8ecf0;outline:none;flex:1;background:transparent;font-family:inherit" value="${esc(c.memo)}" placeholder="메모" oninput="S.globalContacts[${c.idx}].memo=this.value" onblur="persist()">
           <button onclick="deleteGlobalContact(${c.idx})" style="font-size:10px;padding:1px 6px;border-radius:4px;border:1px solid #e8cece;background:transparent;color:#c00;cursor:pointer;font-family:inherit;flex-shrink:0">✕</button>
         </div>`;
@@ -569,6 +574,7 @@ function renderContactsTab(){
       <input class="proc-add-input" placeholder="역할/공정" style="width:80px" value="${esc(nc.role)}" oninput="S.newGlobalContact.role=this.value">
       <input class="proc-add-input" placeholder="이름 *" style="width:70px" value="${esc(nc.name)}" oninput="S.newGlobalContact.name=this.value">
       <input class="proc-add-input" placeholder="전화번호" style="width:110px" value="${esc(nc.phone)}" oninput="S.newGlobalContact.phone=this.value">
+      <input class="proc-add-input" placeholder="차량번호" style="width:90px" value="${esc(nc.car||'')}" oninput="S.newGlobalContact.car=this.value">
       <input class="proc-add-input" placeholder="메모" style="flex:1" value="${esc(nc.memo)}" oninput="S.newGlobalContact.memo=this.value">
       <button class="btn-accent" onclick="addGlobalContact()">+ 추가</button>
     </div>
@@ -581,8 +587,8 @@ function addGlobalContact(){
   if(!S.globalContacts)S.globalContacts=[];
   const nc=S.newGlobalContact||{};
   if(!nc.name||!nc.name.trim()){alert('이름을 입력해주세요.');return;}
-  S.globalContacts.push({name:nc.name.trim(),role:nc.role||'',phone:nc.phone||'',memo:nc.memo||''});
-  S.newGlobalContact={name:'',role:'',phone:'',memo:''};
+  S.globalContacts.push({name:nc.name.trim(),role:nc.role||'',phone:nc.phone||'',car:nc.car||'',memo:nc.memo||''});
+  S.newGlobalContact={name:'',role:'',phone:'',car:'',memo:''};
   persist();renderAll();
 }
 
@@ -985,15 +991,12 @@ function changeScheduleMonth(d){
   renderAll();
 }
 
-let _addingPerson=false;
 function addSchedulePerson(){
-  if(_addingPerson)return;
-  _addingPerson=true;
-  setTimeout(()=>{_addingPerson=false;},300);
   const input=document.getElementById('new-person-input');
   if(!input)return;
   const name=input.value.trim();
   if(!name){input.focus();return;}
+  input.value='';
   const sd=getScheduleData();
   sd.persons.push({name});
   persist();renderAll();
@@ -1162,15 +1165,13 @@ function renderMain(){
   const y=S.year,m=S.month,days=daysInMonth(y,m),cw=calcCellW();
   let totalFilled=0;S.sites.forEach(s=>Object.values(s.cells).forEach(c=>{if(c)totalFilled++;}));
   let h=`<div>`;
-  h+=`<div class="month-bar" ${S.tab==='schedule'||S.tab==='contacts'?'style="display:none"':''}>
+  h+=`<div class="month-bar" ${S.tab==='contacts'?'style="display:none"':''}>
     <button class="month-btn" onclick="changeMonth(-1)">&#8592;</button>
     <span class="month-label">${y}년 ${m}월</span>
     <button class="month-btn" onclick="changeMonth(1)">&#8594;</button>
   </div>`;
   if(S.tab==="contacts"){
     h+=renderContactsTab();
-  } else if(S.tab==="schedule"){
-    h+=renderScheduleTab();
   } else if(S.tab==="all"){
     const activeDays=new Set();
     S.sites.forEach(s=>Object.keys(s.cells).forEach(k=>{if(s.cells[k]){const p=k.split('_');if(parseInt(p[2])===S.year&&parseInt(p[3])===S.month)activeDays.add(p[4]);}}));
@@ -1924,7 +1925,7 @@ function resetState(){
   S.themeKey='cool';
   S.globalChecklist=[];
   S.globalContacts=[];
-  S.newGlobalContact={name:'',role:'',phone:'',memo:''};
+  S.newGlobalContact={name:'',role:'',phone:'',car:'',memo:''};
   S.sites=[
     {name:'작업 1',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
     {name:'작업 2',addr:'',pw:'',key:'',memo:'',procs:[...DEFAULT_PROCS],newProcName:'',selectedProcs:[],cells:{}},
