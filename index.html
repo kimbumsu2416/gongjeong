@@ -3099,6 +3099,52 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .soc-divider::before,#onboarding .soc-divider::after{
   content:'';flex:1;height:1px;background:rgba(255,255,255,.14)}
 
+
+/* ══════════ 계정 — 비밀번호 변경 ══════════ */
+.acc-input{width:100%;padding:11px 13px;margin-bottom:9px;
+  border:1px solid #d4dae5;border-radius:9px;font-size:13.5px;font-family:inherit;
+  background:#fff;color:#1a2438;box-sizing:border-box}
+.acc-input:focus{outline:none;border-color:#1F3864}
+.acc-input::placeholder{color:#a8b1bd}
+.acc-msg{font-size:12px;min-height:16px;margin:2px 0 8px;line-height:1.4}
+.acc-pw-btn{width:100%;padding:11px;border:none;border-radius:9px;
+  background:#1F3864;color:#fff;font-size:13.5px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:background .14s}
+.acc-pw-btn:hover{background:#2a4a7f}
+
+
+/* 비밀번호 찾기 링크 (로그인 폼) */
+.forgot-link{display:block;margin:-4px 0 14px auto;padding:2px 0;
+  background:none;border:none;cursor:pointer;font-family:inherit;
+  font-size:12.5px;color:rgba(255,255,255,.55);text-decoration:underline;
+  text-underline-offset:2px}
+.forgot-link:hover{color:rgba(255,255,255,.85)}
+
+
+/* ══════════ 이메일 인증 안내 화면 ══════════ */
+.ev-wrap{padding:40px 28px;text-align:center}
+.ev-ico{font-size:48px;margin-bottom:18px}
+.ev-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:12px}
+.ev-email{display:inline-block;font-size:14px;font-weight:700;color:#fff;
+  background:rgba(228,108,10,.2);border:1px solid rgba(228,108,10,.5);
+  padding:8px 16px;border-radius:10px;margin-bottom:20px}
+.ev-desc{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:20px}
+.ev-desc b{color:#fff}
+.ev-hint{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;
+  background:rgba(255,255,255,.05);border-radius:10px;padding:14px;margin-bottom:24px}
+.ev-hint b{color:rgba(255,255,255,.75)}
+.ev-btn{width:100%;padding:14px;border:none;border-radius:11px;
+  background:#B85408;color:#fff;font-size:14.5px;font-weight:800;
+  cursor:pointer;font-family:inherit;transition:background .14s}
+.ev-btn:hover{background:#C96010}
+
+
+/* 고객센터 — 직접 메일 안내 */
+.cs-mail-note{margin-top:14px;padding-top:14px;border-top:1px solid #E4EAF3;
+  font-size:12.5px;color:#6b7686;line-height:1.6}
+.cs-mail-note a{color:#1F3864;font-weight:700;text-decoration:none}
+.cs-mail-note a:hover{text-decoration:underline}
+
 </style>
 </head>
 <body>
@@ -3475,7 +3521,7 @@ const LEGAL = {
   version:  '2026-07-13',
   operator: '공정온 운영팀',                    // 사업자등록 후 상호로 교체
   officer:  '공정온 운영팀',                    // 개인정보 보호책임 부서
-  email:    'kimbumsu8852@naver.com',          // 법정 필수 연락처 (방침 내부에만 표기)
+  email:    'admin@gongjeongon.com',           // 법정 필수 연락처 (방침 내부에만 표기)
   service:  '공정온 (GONGJEONG ON)',
 };
 
@@ -3607,7 +3653,7 @@ let lastSavedAt=null;
 // ══════════ 인증 (Supabase Auth) ══════════
 function saveSession(j){
   ACCESS_TOKEN=j.access_token; REFRESH_TOKEN=j.refresh_token;
-  USER=j.user?{id:j.user.id,email:j.user.email}:USER;
+  USER=j.user?{id:j.user.id,email:j.user.email,meta:j.user.user_metadata||{}}:USER;
   localStorage.setItem('gj_at',ACCESS_TOKEN);
   localStorage.setItem('gj_rt',REFRESH_TOKEN);
 }
@@ -3705,7 +3751,7 @@ async function loadUser(){
     throw new Error('사용자 정보를 불러오지 못했습니다');
   }
   const j=await res.json();
-  USER={id:j.id, email:j.email};
+  USER={id:j.id, email:j.email, meta:j.user_metadata||{}};
   return USER;
 }
 async function refreshSession(){
@@ -4877,6 +4923,7 @@ const LEGAL_DOCS = {
   <tr><td>필수</td><td>가입일시, 접속일시</td><td>서비스 이용 시 자동 생성</td></tr>
   <tr><td>선택</td><td>문의 시 이름·이메일·문의 내용</td><td>문의하기 이용 시</td></tr>
   <tr><td>선택</td><td>이용자가 입력한 프로젝트·작업·연락처·메모</td><td>서비스 이용 시 이용자 입력</td></tr>
+  <tr><td>선택</td><td>표시이름, 전화번호</td><td>개인정보 수정 화면에서 이용자 입력</td></tr>
 </table>
 <p class="lg-note">주민등록번호, 결제정보 등 민감정보는 수집하지 않습니다.</p>
 
@@ -4885,6 +4932,7 @@ const LEGAL_DOCS = {
   <li>회원 식별 및 로그인, 팀 구성원 확인</li>
   <li>일정표 데이터의 저장 및 팀원 간 공유</li>
   <li>비밀번호 재설정 등 계정 관리</li>
+  <li>표시이름 관리 및 필요 시 이용자 연락(전화번호 입력 시)</li>
   <li>문의 응대 및 공지 전달</li>
 </ol>
 
@@ -5215,6 +5263,10 @@ function renderInquiryForm(){
 
         <button class="lp-send" onclick="sendInquiry()">문의 보내기</button>
         <div id="iq-msg-out" class="lp-out"></div>
+
+        <div class="cs-mail-note">
+          직접 메일을 보내시려면 <a href="mailto:${LEGAL.email}?subject=${encodeURIComponent('[공정온] 문의')}">${LEGAL.email}</a> 로 연락 주셔도 됩니다.
+        </div>
       </div>
     </section>
 
@@ -5266,17 +5318,73 @@ async function deleteMyAccount(){
 }
 
 /* ══════════ 계정 설정 ══════════ */
+
+/* ══════════ 비밀번호 변경 ══════════ */
+async function changeMyPassword(){
+  const pw1 = document.getElementById('pw-new').value;
+  const pw2 = document.getElementById('pw-new2').value;
+  const out = document.getElementById('pw-msg');
+  if(!out) return;
+
+  if(!pw1 || !pw2){
+    out.style.color='#c00'; out.textContent='새 비밀번호를 두 번 입력해 주세요.'; return;
+  }
+  if(pw1.length < 6){
+    out.style.color='#c00'; out.textContent='비밀번호는 6자 이상이어야 합니다.'; return;
+  }
+  if(pw1 !== pw2){
+    out.style.color='#c00'; out.textContent='두 비밀번호가 일치하지 않습니다.'; return;
+  }
+
+  out.style.color='#6b7686'; out.textContent='변경 중...';
+  try{
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+      method:'PUT',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({ password: pw1 })
+    });
+    const j = await res.json().catch(()=>({}));
+    if(!res.ok){
+      const m = j.msg || j.error_description || j.message || '';
+      // 소셜 로그인 계정 등 비밀번호가 없는 경우
+      if(/same_password|New password should be different/i.test(m)){
+        out.style.color='#c00'; out.textContent='기존 비밀번호와 다른 비밀번호를 입력해 주세요.';
+      } else {
+        out.style.color='#c00'; out.textContent='변경 실패: '+(m||'다시 시도해 주세요.');
+      }
+      return;
+    }
+    out.style.color='#538135'; out.textContent='비밀번호가 변경되었습니다.';
+    document.getElementById('pw-new').value='';
+    document.getElementById('pw-new2').value='';
+  }catch(e){
+    out.style.color='#c00'; out.textContent='변경 중 오류가 발생했습니다.';
+  }
+}
+
 function openAccount(){
   document.getElementById('modal-area').innerHTML=`
   <div class="modal-overlay" onclick="if(event.target===this)closeAccount()">
     <div class="modal-box" style="max-width:400px">
       <div class="modal-title" style="margin-bottom:6px">계정</div>
-      <div class="tm-acct" style="margin-bottom:20px">
+      <div class="tm-acct" style="margin-bottom:8px">
         <span class="tm-acct-l">로그인 계정</span>
         <span class="tm-acct-v">${USER&&USER.email?esc(USER.email):'—'}</span>
       </div>
+      ${(USER&&USER.meta&&USER.meta.display_name)?`<div class="tm-acct" style="margin-bottom:8px"><span class="tm-acct-l">이름</span><span class="tm-acct-v">${esc(USER.meta.display_name)}</span></div>`:''}
+      <button class="acc-link" onclick="closeAccount();openProfile()" style="margin-bottom:20px">개인정보 수정 →</button>
 
       <div class="tm-sec" style="border-top:none;margin-top:0;padding-top:0">
+        <div class="tm-sec-t">비밀번호 변경</div>
+        <div id="pw-change-box">
+          <input type="password" id="pw-new" class="acc-input" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
+          <input type="password" id="pw-new2" class="acc-input" placeholder="새 비밀번호 확인" autocomplete="new-password">
+          <div id="pw-msg" class="acc-msg"></div>
+          <button class="acc-pw-btn" onclick="changeMyPassword()">비밀번호 변경</button>
+        </div>
+      </div>
+
+      <div class="tm-sec">
         <div class="tm-sec-t">약관 및 정책</div>
         <button class="acc-link" onclick="openLegal('terms')">이용약관 →</button>
         <button class="acc-link" onclick="openLegal('privacy')">개인정보처리방침 →</button>
@@ -5300,6 +5408,70 @@ function closeAccount(){
   if(el) el.innerHTML='';
 }
 
+/* ══════════ 개인정보 수정 ══════════ */
+function openProfile(){
+  const meta = (USER&&USER.meta)||{};
+  document.getElementById('modal-area').innerHTML=`
+  <div class="modal-overlay" onclick="if(event.target===this)closeProfile()">
+    <div class="modal-box" style="max-width:400px">
+      <div class="modal-title" style="margin-bottom:6px">개인정보 수정</div>
+      <div style="font-size:13px;color:#6b7686;margin:0 0 18px">앱에서 표시되는 이름과 연락처를 관리합니다.</div>
+
+      <div class="tm-sec" style="border-top:none;margin-top:0;padding-top:0">
+        <div class="tm-sec-t">로그인 이메일</div>
+        <div class="tm-acct" style="margin:0"><span class="tm-acct-v">${USER&&USER.email?esc(USER.email):'—'}</span></div>
+      </div>
+
+      <div class="tm-sec">
+        <div class="tm-sec-t">표시이름</div>
+        <input type="text" id="pf-name" class="acc-input" maxlength="20" placeholder="예: 홍길동 / 인테리어팀장" value="${meta.display_name?esc(meta.display_name):''}">
+        <div class="tm-sec-t" style="margin-top:14px">전화번호 <span style="font-weight:400;color:#9aa5b1">(선택)</span></div>
+        <input type="tel" id="pf-phone" class="acc-input" maxlength="20" placeholder="예: 010-1234-5678" value="${meta.phone?esc(meta.phone):''}">
+        <div id="pf-msg" class="acc-msg"></div>
+        <button class="acc-pw-btn" onclick="saveProfile()">저장</button>
+      </div>
+
+      <div class="modal-btns"><button onclick="closeProfile()">닫기</button></div>
+    </div>
+  </div>`;
+}
+function closeProfile(){
+  const el=document.getElementById('modal-area');
+  if(el) el.innerHTML='';
+}
+async function saveProfile(){
+  const name  = (document.getElementById('pf-name').value||'').trim();
+  const phone = (document.getElementById('pf-phone').value||'').trim();
+  const out   = document.getElementById('pf-msg');
+  if(!out) return;
+
+  if(name.length>20){ out.style.color='#c00'; out.textContent='이름은 20자 이내로 입력해 주세요.'; return; }
+  if(phone && !/^[0-9+\-\s()]{7,20}$/.test(phone)){
+    out.style.color='#c00'; out.textContent='전화번호 형식을 확인해 주세요. (숫자 · + · - 만 입력)'; return;
+  }
+
+  out.style.color='#6b7686'; out.textContent='저장 중...';
+  try{
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+      method:'PUT',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({ data: { display_name: name, phone: phone } })
+    });
+    const j = await res.json().catch(()=>({}));
+    if(!res.ok){
+      const m = j.msg || j.error_description || j.message || '';
+      out.style.color='#c00'; out.textContent='저장 실패: '+(m||'다시 시도해 주세요.');
+      return;
+    }
+    // 로컬 USER 갱신
+    USER = USER || {};
+    USER.meta = j.user_metadata ? j.user_metadata : Object.assign({}, USER.meta||{}, {display_name:name, phone:phone});
+    out.style.color='#538135'; out.textContent='저장되었습니다.';
+  }catch(e){
+    out.style.color='#c00'; out.textContent='저장 중 오류가 발생했습니다.';
+  }
+}
+
 async function sendInquiry(){
   const name  = document.getElementById('iq-name').value.trim();
   const email = document.getElementById('iq-email').value.trim();
@@ -5310,6 +5482,11 @@ async function sendInquiry(){
   if(!name || !email || !msg){
     out.style.color='#c00';
     out.textContent='이름 · 이메일 · 내용을 모두 입력해 주세요.';
+    return;
+  }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+    out.style.color='#c00';
+    out.textContent='올바른 이메일 형식이 아닙니다. (예: name@example.com)';
     return;
   }
   out.style.color='#6b7686';
@@ -9001,6 +9178,8 @@ function renderAuth(){
       ${authInput('auth-email','email','이메일 주소')}
       ${authInput('auth-pw','password', isLogin?'비밀번호':'비밀번호 (6자 이상)')}
 
+      ${isLogin ? `<button type="button" class="forgot-link" onclick="requestPasswordReset()">비밀번호를 잊으셨나요?</button>` : ''}
+
       ${!isLogin ? `
       <div class="agree">
         <label class="agree-all">
@@ -9044,6 +9223,89 @@ function renderAuth(){
 }
 function switchAuthTab(t){ _authTab=t; renderAuth(); }
 
+
+/* ══════════ 비밀번호 찾기 (재설정 메일 발송) ══════════ */
+async function requestPasswordReset(){
+  const emailEl = document.getElementById('auth-email');
+  const email = (emailEl?.value || '').trim();
+
+  if(!email){
+    setAuthMsg('먼저 이메일 주소를 입력해 주세요.');
+    if(emailEl) emailEl.focus();
+    return;
+  }
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){
+    setAuthMsg('올바른 이메일 형식이 아닙니다.');
+    return;
+  }
+
+  setAuthMsg('재설정 메일을 보내는 중...');
+  try{
+    const redirectTo = location.origin + location.pathname;
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({ email, options:{ redirect_to: redirectTo } })
+    });
+    // 보안상 성공/실패 관계없이 같은 안내 (계정 존재 여부 노출 방지)
+    setAuthMsg(email + ' 로 재설정 메일을 보냈습니다. 메일함을 확인해 주세요.', true);
+  }catch(e){
+    setAuthMsg('메일 발송 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+}
+
+/* 재설정 메일 링크로 돌아왔을 때 → 새 비밀번호 입력 화면 */
+function showPasswordRecovery(){
+  const area = document.getElementById('modal-area');
+  if(!area) return;
+  area.innerHTML = `
+  <div class="modal-overlay" style="z-index:500">
+    <div class="modal-box" style="max-width:400px">
+      <div class="modal-title">새 비밀번호 설정</div>
+      <div style="font-size:12.5px;color:#6b7686;line-height:1.6;margin-bottom:16px">
+        새로 사용할 비밀번호를 입력해 주세요.
+      </div>
+      <input type="password" id="rec-pw" class="acc-input" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
+      <input type="password" id="rec-pw2" class="acc-input" placeholder="새 비밀번호 확인" autocomplete="new-password">
+      <div id="rec-msg" class="acc-msg"></div>
+      <button class="acc-pw-btn" onclick="submitPasswordRecovery()">비밀번호 변경</button>
+    </div>
+  </div>`;
+}
+
+async function submitPasswordRecovery(){
+  const pw1 = document.getElementById('rec-pw').value;
+  const pw2 = document.getElementById('rec-pw2').value;
+  const out = document.getElementById('rec-msg');
+  if(!out) return;
+
+  if(!pw1 || !pw2){ out.style.color='#c00'; out.textContent='새 비밀번호를 두 번 입력해 주세요.'; return; }
+  if(pw1.length < 6){ out.style.color='#c00'; out.textContent='비밀번호는 6자 이상이어야 합니다.'; return; }
+  if(pw1 !== pw2){ out.style.color='#c00'; out.textContent='두 비밀번호가 일치하지 않습니다.'; return; }
+
+  out.style.color='#6b7686'; out.textContent='변경 중...';
+  try{
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+      method:'PUT',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({ password: pw1 })
+    });
+    const j = await res.json().catch(()=>({}));
+    if(!res.ok){
+      out.style.color='#c00'; out.textContent='변경 실패: '+(j.msg||j.message||'다시 시도해 주세요.');
+      return;
+    }
+    out.style.color='#538135'; out.textContent='비밀번호가 변경되었습니다. 로그인해 주세요.';
+    setTimeout(()=>{
+      const a=document.getElementById('modal-area'); if(a) a.innerHTML='';
+      // 로그인 화면으로
+      if(typeof openAuth==='function') openAuth('login');
+    }, 1500);
+  }catch(e){
+    out.style.color='#c00'; out.textContent='변경 중 오류가 발생했습니다.';
+  }
+}
+
 async function doLogin(){
   const email=document.getElementById('auth-email').value.trim();
   const pw=document.getElementById('auth-pw').value;
@@ -9064,6 +9326,34 @@ function syncAgreeAll(){
   const all=[...document.querySelectorAll('.ag-item')].every(el=>el.checked);
   const box=document.getElementById('ag-all');
   if(box) box.checked=all;
+}
+
+
+/* ══════════ 가입 후 이메일 인증 안내 ══════════ */
+function showEmailVerifyNotice(email){
+  const ov = document.querySelector('.ov-box') || document.querySelector('.ov');
+  const target = document.getElementById('onboarding');
+  if(!target) return;
+
+  // 로그인 창 안의 내용을 안내로 교체
+  const box = document.querySelector('.ov-box');
+  if(box){
+    box.innerHTML = `
+      <div class="ev-wrap">
+        <div class="ev-ico">✉️</div>
+        <div class="ev-title">메일을 확인해 주세요</div>
+        <div class="ev-email">${(email||'').replace(/</g,'&lt;')}</div>
+        <div class="ev-desc">
+          위 주소로 <b>인증 메일</b>을 보냈습니다.<br>
+          메일함에서 <b>인증 링크를 클릭</b>하면 가입이 완료됩니다.
+        </div>
+        <div class="ev-hint">
+          메일이 안 보이면 <b>스팸함</b>도 확인해 주세요.<br>
+          인증 후 이 화면에서 로그인하시면 됩니다.
+        </div>
+        <button class="ev-btn" onclick="openAuth('login')">로그인 화면으로</button>
+      </div>`;
+  }
 }
 
 async function doSignup(){
@@ -9101,7 +9391,7 @@ async function doSignup(){
     }
     if(!ok){
       authBusy(false,'회원가입');
-      setAuthMsg('가입 확인 메일을 보냈습니다. 메일함에서 인증 후 로그인해 주세요.',true);
+      showEmailVerifyNotice(email);   // 메일 확인 안내 화면
       return;
     }
     await afterAuth();
@@ -10002,6 +10292,20 @@ function copyInviteCode(){
 
 // ── 세션 확인 후 화면 결정 ──
 (async function boot(){
+  // 비밀번호 재설정 메일 링크로 돌아온 경우 → 새 비밀번호 화면
+  if((location.hash||'').indexOf('type=recovery') !== -1){
+    const params = new URLSearchParams((location.hash||'').replace(/^#/,''));
+    const at = params.get('access_token');
+    if(at){
+      ACCESS_TOKEN = at;
+      const rt = params.get('refresh_token'); if(rt) REFRESH_TOKEN = rt;
+      history.replaceState(null,'',location.origin+location.pathname);
+      _appView='onboarding'; _authView='auth'; routeView();
+      setTimeout(showPasswordRecovery, 300);
+      return;
+    }
+  }
+
   // 소셜 로그인(카카오/구글) 후 돌아온 경우 → 토큰 처리하고 종료
   if((location.hash||'').indexOf('access_token=') !== -1){
     const ok = await handleOAuthReturn();
