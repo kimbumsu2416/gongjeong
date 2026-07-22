@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>공정온 — 함께 보는 현장 공정</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='7' fill='%230E1420'/%3E%3Crect x='4' y='6' width='14' height='5' rx='2.5' fill='%23fff' opacity='.95'/%3E%3Crect x='9' y='12.5' width='17' height='5' rx='2.5' fill='%23fff' opacity='.55'/%3E%3Crect x='6' y='19' width='11' height='5' rx='2.5' fill='%23E46C0A'/%3E%3C/svg%3E">
 <meta name="description" content="현장별 공정표를 팀 전체가 같은 화면에서 봅니다. 설치 없이 브라우저만 있으면 됩니다.">
@@ -16,7 +17,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{line-height:1.55;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:#f2f4f7;min-height:100vh;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
-.wrap{max-width:1760px;margin:0 auto;padding:16px 24px 24px}
+.wrap{max-width:2000px;margin:0 auto;padding:16px 24px 24px}
 /* 헤더 — 랜딩 상단바와 동일한 워드마크·사진 */
 .hero{position:relative;width:100vw;margin-left:calc(50% - 50vw);height:108px;border-radius:0;overflow:hidden;margin-bottom:18px;display:block}
 .hero-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,20,32,0.9) 0%,rgba(14,20,32,0.58) 100%),url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=2200&q=80&auto=format&fit=crop') center 38%/cover no-repeat}
@@ -169,6 +170,52 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .notice{font-size:12.5px;color:#7c8798;margin-bottom:8px;padding:5px 10px;border-radius:8px;border-left:3px solid #b0b8c8;background:#f5f7fa}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:center;justify-content:center}
 .modal-box{background:#fff;border-radius:12px;border:0.5px solid #dde3ee;padding:20px;width:90%;max-width:400px}
+
+/* 개인정보 설정 (네이버 내정보 스타일) */
+.st-head{display:flex;align-items:center;gap:14px;padding:6px 2px 20px}
+.st-av{width:56px;height:56px;border-radius:50%;background:#E46C0A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;flex-shrink:0}
+.st-hname{font-size:18px;font-weight:800;color:#1a2438;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-hmail{font-size:13px;color:#8a94a3;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-group{margin-bottom:16px}
+.st-glabel{font-size:12px;font-weight:700;color:#9aa5b1;letter-spacing:.02em;margin:0 3px 7px}
+.st-card{background:#fff;border:1px solid #e7ebf2;border-radius:14px;overflow:hidden}
+.st-row{display:flex;align-items:center;gap:11px;padding:14px 16px;border-bottom:1px solid #f0f3f8}
+.st-row:last-child{border-bottom:none}
+.st-ico{width:20px;text-align:center;font-size:15px;flex-shrink:0;opacity:.85}
+.st-rmain{flex:1;min-width:0}
+.st-rlab{font-size:14px;color:#3a4557;font-weight:600}
+.st-rval{font-size:12.5px;color:#8a94a3;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-rval.empty{color:#c3cad6}
+.st-act{flex-shrink:0;border:1px solid #d5dbe6;background:#fff;color:#4a5568;font-size:13px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s}
+.st-act:hover{border-color:#9aa5b1;background:#f7f9fc}
+.st-act.danger{border-color:#f0c4c4;color:#c0392b}
+.st-act.danger:hover{background:#fdf3f3;border-color:#e0a0a0}
+.st-edit{padding:14px 16px;border-bottom:1px solid #f0f3f8;background:#fafbfd}
+.st-edit:last-child{border-bottom:none}
+.st-edit .st-rlab{margin-bottom:2px}
+.st-editrow{display:flex;gap:8px;margin-top:10px}
+.st-save{flex:1;padding:9px;background:#E46C0A;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.st-save:hover{background:#cf6109}
+.st-cancel{flex:1;padding:9px;background:#fff;color:#5f6b7c;border:1px solid #d5dbe6;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.st-cancel:hover{background:#f4f6fa}
+.st-x{background:none;border:none;font-size:22px;line-height:1;color:#9aa5b1;cursor:pointer;padding:0 2px}
+.st-x:hover{color:#5f6b7c}
+
+/* 비밀번호 표시 토글 (눈 아이콘) */
+.pw-wrap{position:relative;display:block;margin-bottom:9px}
+.pw-wrap > input{margin-bottom:0!important;padding-right:44px!important}
+.pw-eye{position:absolute;top:0;right:0;height:100%;width:44px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:#9aa5b1;padding:0}
+.pw-eye:hover{color:#5f6b7c}
+.pw-eye .eye-off{display:none}
+.pw-eye.on .eye-on{display:none}
+.pw-eye.on .eye-off{display:block}
+#onboarding .pw-eye{color:rgba(255,255,255,.5)}
+#onboarding .pw-eye:hover{color:rgba(255,255,255,.9)}
+
+/* 모달·드로어 스크롤이 뒤 화면으로 전달되지 않도록 */
+.modal-overlay,.modal-box,.ov-box{overscroll-behavior:contain}
+#onboarding select.auth-in{cursor:pointer}
+#onboarding select.auth-in option{color:#1a2438}
 .modal-title{font-size:15px;font-weight:500;color:#222;margin-bottom:12px}
 .field{margin-bottom:8px}
 .field label{font-size:12.5px;color:#5f6b7c;display:block;margin-bottom:3px}
@@ -220,6 +267,10 @@ html{scroll-behavior:smooth}
 }
 #landing a{color:inherit;text-decoration:none}
 #landing .shell{max-width:1240px;margin:0 auto;padding:0 32px}
+/* 큰 화면(외부 모니터 등)일수록 콘텐츠 폭을 넓혀 여백을 줄인다 */
+@media(min-width:1500px){#landing .shell{max-width:1400px}}
+@media(min-width:1800px){#landing .shell{max-width:1560px}}
+@media(min-width:2200px){#landing .shell{max-width:1720px}}
 @media(max-width:640px){
 #landing .shell{padding:0 22px}
 }
@@ -564,7 +615,7 @@ html{scroll-behavior:smooth}
 #landing .hero-meta{animation:lockIn .9s cubic-bezier(.22,1,.36,1) .34s both}
 
 /* 로고가 커졌으니 헤드라인은 살짝 낮춤 */
-#landing .hero-in h1{font-size:clamp(34px,4.6vw,62px)}
+#landing .hero-in h1{font-size:clamp(34px,4.6vw,72px)}
 
 @media(max-width:860px){
   #landing .hero-lockup{gap:14px;margin-bottom:26px}
@@ -663,7 +714,7 @@ html{scroll-behavior:smooth}
 .apphead-bg{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,20,32,.93) 0%,rgba(14,20,32,.72) 100%),url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=2200&q=80&auto=format&fit=crop') center 38%/cover no-repeat}
 
 /* 1단 */
-.apphead-top{position:relative;z-index:1;max-width:1760px;margin:0 auto;padding:0 24px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(255,255,255,.14)}
+.apphead-top{position:relative;z-index:1;max-width:2000px;margin:0 auto;padding:0 24px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(255,255,255,.14)}
 .ah-brand{display:block;text-decoration:none;flex-shrink:0}
 .ah-name{display:inline-block;font-size:21px;font-weight:800;color:#fff;letter-spacing:.02em;line-height:1;padding-bottom:5px;border-bottom:1.5px solid rgba(255,255,255,.85)}
 .ah-eng{display:block;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:rgba(255,255,255,.62);letter-spacing:.3em}
@@ -753,7 +804,7 @@ html{scroll-behavior:smooth}
 .ah-out:hover{background:#fff;color:#0E1420}
 
 /* 2단 — 내비 */
-.apphead-nav{position:relative;z-index:1;max-width:1760px;margin:0 auto;padding:0 24px}
+.apphead-nav{position:relative;z-index:1;max-width:2000px;margin:0 auto;padding:0 24px}
 .ah-nav-in{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;height:56px;padding-top:8px}
 .ah-nav-in::-webkit-scrollbar{height:0}
 
@@ -2839,6 +2890,10 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .tp-admin b{color:#fff!important}
 #onboarding .tp-admin em{color:rgba(255,255,255,.55)!important}
 
+/* 상단 계정 카드 (개인정보 수정 진입) */
+#onboarding .tp-acct{transition:border-color .15s,background .15s}
+#onboarding .tp-acct:hover{border-color:#E46C0A!important;background:rgba(255,255,255,.09)!important}
+
 /* "다른 팀에 참여" 흰 박스 → 어두운 유리 */
 #onboarding .ov-body div[style*="background:#fff"]{
   background:rgba(255,255,255,.05)!important;
@@ -3149,6 +3204,40 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 </head>
 <body>
 
+<!-- ═══ 사이트 잠금(암호 게이트) — 배포 중 비공개 ═══ -->
+<div id="gate" style="position:fixed;inset:0;z-index:2147483647;background:#0E1420;display:flex;align-items:center;justify-content:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Malgun Gothic','Apple SD Gothic Neo',sans-serif">
+  <div style="width:100%;max-width:340px;text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:22px">
+      <svg width="34" height="34" viewBox="0 0 30 30"><rect width="30" height="30" rx="7" fill="#182234"/><rect x="4" y="6" width="14" height="5" rx="2.5" fill="#fff" opacity=".95"/><rect x="9" y="12.5" width="17" height="5" rx="2.5" fill="#fff" opacity=".55"/><rect x="6" y="19" width="11" height="5" rx="2.5" fill="#E46C0A"/></svg>
+      <span style="color:#fff;font-size:22px;font-weight:800;letter-spacing:-.5px">공정온</span>
+    </div>
+    <div style="color:#cbd5e1;font-size:15px;font-weight:600;margin-bottom:6px">준비 중인 페이지입니다</div>
+    <div style="color:#7b8798;font-size:13px;line-height:1.6;margin-bottom:20px">접근 암호를 입력해 주세요.</div>
+    <input id="gate-pw" type="password" placeholder="암호" autocomplete="off" autofocus
+      style="width:100%;box-sizing:border-box;padding:13px 15px;border-radius:11px;border:1px solid #2b384c;background:#111a28;color:#fff;font-size:15px;outline:none;text-align:center">
+    <div id="gate-msg" style="min-height:18px;color:#f0806a;font-size:12.5px;margin:9px 0 4px"></div>
+    <button id="gate-go" style="width:100%;padding:13px;border:0;border-radius:11px;background:#E46C0A;color:#fff;font-size:15px;font-weight:700;cursor:pointer">들어가기</button>
+  </div>
+</div>
+<script>
+(function(){
+  var PW='Beom0316', KEY='gj_gate_ok';
+  var gate=document.getElementById('gate');
+  function pass(){ try{sessionStorage.setItem(KEY,'1');}catch(e){} gate.parentNode&&gate.parentNode.removeChild(gate); }
+  var ok=false; try{ok=sessionStorage.getItem(KEY)==='1';}catch(e){}
+  if(ok){ pass(); return; }
+  document.documentElement.style.overflow='hidden';
+  var inp=document.getElementById('gate-pw'), msg=document.getElementById('gate-msg'), btn=document.getElementById('gate-go');
+  function tryOpen(){
+    if(inp.value===PW){ document.documentElement.style.overflow=''; pass(); }
+    else{ msg.textContent='암호가 올바르지 않습니다.'; inp.value=''; inp.focus(); }
+  }
+  btn.addEventListener('click',tryOpen);
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); tryOpen(); } });
+  setTimeout(function(){ try{inp.focus();}catch(e){} },50);
+})();
+</script>
+
 <!-- ═══ 랜딩(홈페이지) 화면 ═══ -->
 <div id="landing">
 
@@ -3429,7 +3518,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   <div class="shell rise">
     <div class="sec-eng">START TODAY</div>
     <h2>다음 현장부터 써보십시오.</h2>
-    <p>가입 절차 없이 바로 열립니다. 휴대폰 홈화면에 앱처럼 추가할 수도 있습니다.</p>
+    <p>이메일로 1분이면 가입 완료. 휴대폰 홈화면에 앱처럼 추가해 어디서든 바로 쓸 수 있습니다.</p>
     <div class="btns">
       <a class="btn btn-solid" href="#app" onclick="if(!USER){event.preventDefault();openAuth('signup');}">공정온 열기 →</a>
     </div>
@@ -3456,9 +3545,9 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
       </div>
       <div class="fi-row">
         <span class="fi-k">문의</span>
-        <button class="fi-link" onclick="openInquiry()">고객센터에서 접수해 주세요 →</button>
+        <a class="fi-link" href="mailto:admin@gongjeongon.com?subject=%5B%EA%B3%B5%EC%A0%95%EC%98%A8%5D%20%EB%AC%B8%EC%9D%98">admin@gongjeongon.com</a>
         <span class="fi-bar"></span>
-        <span class="fi-note">현재 무료로 제공되는 서비스입니다.</span>
+        <span class="fi-note">문의 사항은 이 메일로 보내 주시거나, <button class="fi-link" onclick="openInquiry()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit">고객센터 →</button>로 접수해 주세요.</span>
       </div>
     </div>
 
@@ -3499,7 +3588,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
         </span>
         <span class="ah-user" id="ah-user" title="현재 로그인한 계정"></span>
         <button class="ah-btn" onclick="manualSave()" id="save-btn">저장</button>
-        <button class="ah-btn" onclick="openAccount()">계정</button>
+        <button class="ah-btn" onclick="openProfile()">계정</button>
         <button class="ah-btn" onclick="goToSettings()" id="login-btn">로그아웃</button>
         <a class="ah-btn ah-out" href="#">← 소개</a>
       </div>
@@ -3678,8 +3767,10 @@ async function authPost(path,body){
   return j;
 }
 
-async function signUp(email,password){
-  const j=await authPost('signup',{email,password});
+async function signUp(email,password,meta){
+  const body={email,password};
+  if(meta && Object.keys(meta).length) body.data=meta;
+  const j=await authPost('signup',body);
   if(j.access_token){ saveSession(j); return true; }
   // 이메일 인증이 켜져 있는 경우
   return false;
@@ -5308,7 +5399,8 @@ async function deleteMyAccount(){
   try{
     await rpc('delete_my_account',{});
     localStorage.removeItem('gj_team');
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('gj_at');
+    localStorage.removeItem('gj_rt');
     alert('탈퇴가 완료되었습니다. 이용해 주셔서 감사합니다.');
     location.hash='';
     location.reload();
@@ -5408,30 +5500,136 @@ function closeAccount(){
   if(el) el.innerHTML='';
 }
 
-/* ══════════ 개인정보 수정 ══════════ */
-function openProfile(){
-  const meta = (USER&&USER.meta)||{};
+/* ══════════ 도면 준비하기 (셀프) ══════════ */
+function openBlueprintGuide(){
   document.getElementById('modal-area').innerHTML=`
-  <div class="modal-overlay" onclick="if(event.target===this)closeProfile()">
-    <div class="modal-box" style="max-width:400px">
-      <div class="modal-title" style="margin-bottom:6px">개인정보 수정</div>
-      <div style="font-size:13px;color:#6b7686;margin:0 0 18px">앱에서 표시되는 이름과 연락처를 관리합니다.</div>
+  <div class="modal-overlay" style="z-index:500" onclick="if(event.target===this)closeBlueprintGuide()">
+    <div class="modal-box" style="max-width:460px;max-height:88vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div class="modal-title" style="margin:0">🏠 도면 준비하기</div>
+        <button class="st-x" onclick="closeBlueprintGuide()" aria-label="닫기">&times;</button>
+      </div>
+      <div style="font-size:13px;color:#6b7686;margin:6px 0 18px;line-height:1.65">우리 집 평면도가 필요하세요? 아래에서 찾아 <b>이미지로 저장</b>한 뒤, 프로젝트에 <b>첨부</b>로 올려 공정 계획에 활용하세요.</div>
 
-      <div class="tm-sec" style="border-top:none;margin-top:0;padding-top:0">
-        <div class="tm-sec-t">로그인 이메일</div>
-        <div class="tm-acct" style="margin:0"><span class="tm-acct-v">${USER&&USER.email?esc(USER.email):'—'}</span></div>
+      <div class="st-group">
+        <div class="st-glabel">쉽게 참고 (무료)</div>
+        <div class="st-card">
+          <a class="st-row" href="https://hogangnono.com/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="st-ico">🏢</span><div class="st-rmain"><div class="st-rlab">호갱노노</div><div class="st-rval">아파트 단지·평형별 평면도</div></div><span class="st-act">열기 ↗</span></a>
+          <a class="st-row" href="https://new.land.naver.com/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="st-ico">🗺️</span><div class="st-rmain"><div class="st-rlab">네이버 부동산</div><div class="st-rval">단지 상세에 평면도 제공</div></div><span class="st-act">열기 ↗</span></a>
+          <a class="st-row" href="https://asil.kr/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="st-ico">📊</span><div class="st-rmain"><div class="st-rlab">아실</div><div class="st-rval">단지 정보·평면도</div></div><span class="st-act">열기 ↗</span></a>
+        </div>
       </div>
 
-      <div class="tm-sec">
-        <div class="tm-sec-t">표시이름</div>
-        <input type="text" id="pf-name" class="acc-input" maxlength="20" placeholder="예: 홍길동 / 인테리어팀장" value="${meta.display_name?esc(meta.display_name):''}">
-        <div class="tm-sec-t" style="margin-top:14px">전화번호 <span style="font-weight:400;color:#9aa5b1">(선택)</span></div>
-        <input type="tel" id="pf-phone" class="acc-input" maxlength="20" placeholder="예: 010-1234-5678" value="${meta.phone?esc(meta.phone):''}">
-        <div id="pf-msg" class="acc-msg"></div>
-        <button class="acc-pw-btn" onclick="saveProfile()">저장</button>
+      <div class="st-group">
+        <div class="st-glabel">공식 도면 (정확·발급 절차)</div>
+        <div class="st-card">
+          <a class="st-row" href="https://www.eais.go.kr/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="st-ico">🏛️</span><div class="st-rmain"><div class="st-rlab">세움터</div><div class="st-rval">건축물 현황도(평면도) 열람·발급</div></div><span class="st-act">열기 ↗</span></a>
+          <a class="st-row" href="https://www.gov.kr/" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="st-ico">📄</span><div class="st-rmain"><div class="st-rlab">정부24</div><div class="st-rval">건축물대장·도면 발급</div></div><span class="st-act">열기 ↗</span></a>
+        </div>
       </div>
 
-      <div class="modal-btns"><button onclick="closeProfile()">닫기</button></div>
+      <div style="display:flex;gap:9px;background:#f4f7fc;border:1px solid #e2e9f3;border-radius:12px;padding:12px 14px;margin-bottom:8px">
+        <span style="font-size:15px;flex-shrink:0;line-height:1.5">🏢</span>
+        <div style="font-size:12.5px;color:#4a5568;line-height:1.65">아파트라면 <b>관리사무소</b>나 <b>단지 상가의 부동산</b>에 방문하면 평면도를 직접 받을 수 있는 경우가 많습니다. 온라인에서 찾기 어렵다면 이 방법이 가장 확실합니다.</div>
+      </div>
+
+      <div style="font-size:11.5px;color:#9aa5b1;line-height:1.6;margin-top:2px">※ 호갱노노·네이버는 '대표 평면도'라 실제 우리 집과 다를 수 있습니다. 정확한 도면이 필요하면 세움터 공식 현황도를 이용하세요.</div>
+
+      <div class="modal-btns" style="margin-top:14px"><button onclick="closeBlueprintGuide()">닫기</button></div>
+    </div>
+  </div>`;
+}
+function closeBlueprintGuide(){ const el=document.getElementById('modal-area'); if(el) el.innerHTML=''; }
+
+/* ══════════ 개인정보 수정 ══════════ */
+function openProfile(edit){
+  const meta = (USER&&USER.meta)||{};
+  const email = (USER&&USER.email)||'';
+  const dn = meta.display_name||'';
+  const ph = meta.phone||'';
+  const initial = (((dn||email||'?').trim().charAt(0))||'?').toUpperCase();
+
+  const nameRow = edit==='name'
+    ? `<div class="st-edit">
+         <div class="st-rlab">표시이름</div>
+         <input type="text" id="pf-name" class="acc-input" maxlength="20" placeholder="예: 홍길동 / 인테리어팀장" value="${dn?esc(dn):''}">
+         <div id="pf-msg" class="acc-msg"></div>
+         <div class="st-editrow"><button class="st-cancel" onclick="openProfile()">취소</button><button class="st-save" onclick="saveProfile()">저장</button></div>
+       </div>`
+    : `<div class="st-row">
+         <span class="st-ico">👤</span>
+         <div class="st-rmain"><div class="st-rlab">표시이름</div><div class="st-rval ${dn?'':'empty'}">${dn?esc(dn):'미설정'}</div></div>
+         <button class="st-act" onclick="openProfile('name')">수정</button>
+       </div>`;
+
+  const phoneRow = edit==='phone'
+    ? `<div class="st-edit">
+         <div class="st-rlab">전화번호</div>
+         <input type="tel" id="pf-phone" class="acc-input" maxlength="20" placeholder="010-1234-5678" value="${ph?esc(ph):''}">
+         <div id="pf-msg" class="acc-msg"></div>
+         <div class="st-editrow"><button class="st-cancel" onclick="openProfile()">취소</button><button class="st-save" onclick="saveProfile()">저장</button></div>
+       </div>`
+    : `<div class="st-row">
+         <span class="st-ico">📞</span>
+         <div class="st-rmain"><div class="st-rlab">전화번호</div><div class="st-rval ${ph?'':'empty'}">${ph?esc(ph):'미설정'}</div></div>
+         <button class="st-act" onclick="openProfile('phone')">수정</button>
+       </div>`;
+
+  const pwRow = edit==='pw'
+    ? `<div class="st-edit">
+         <div class="st-rlab">비밀번호 변경</div>
+         ${pwInput('pw-new','새 비밀번호 (6자 이상)')}
+         ${pwInput('pw-new2','새 비밀번호 확인')}
+         <div id="pw-msg" class="acc-msg"></div>
+         <div class="st-editrow"><button class="st-cancel" onclick="openProfile()">취소</button><button class="st-save" onclick="changeMyPassword()">변경</button></div>
+       </div>`
+    : `<div class="st-row">
+         <span class="st-ico">🔒</span>
+         <div class="st-rmain"><div class="st-rlab">비밀번호</div><div class="st-rval">••••••••</div></div>
+         <button class="st-act" onclick="openProfile('pw')">수정</button>
+       </div>`;
+
+  document.getElementById('modal-area').innerHTML=`
+  <div class="modal-overlay" style="z-index:500" onclick="if(event.target===this)closeProfile()">
+    <div class="modal-box" style="max-width:440px;max-height:88vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div class="modal-title" style="margin:0">개인정보</div>
+        <button class="st-x" onclick="closeProfile()" aria-label="닫기">&times;</button>
+      </div>
+
+      <div class="st-head">
+        <div class="st-av">${esc(initial)}</div>
+        <div style="min-width:0">
+          <div class="st-hname">${dn?esc(dn):(email?esc(email.split('@')[0]):'사용자')}</div>
+          <div class="st-hmail">${email?esc(email):''}</div>
+        </div>
+      </div>
+
+      <div class="st-group">
+        <div class="st-glabel">기본 정보</div>
+        <div class="st-card">${nameRow}${phoneRow}</div>
+      </div>
+
+      <div class="st-group">
+        <div class="st-glabel">보안</div>
+        <div class="st-card">${pwRow}</div>
+      </div>
+
+      <div class="st-group">
+        <div class="st-glabel">약관 · 정책</div>
+        <div class="st-card">
+          <div class="st-row"><span class="st-ico">📄</span><div class="st-rmain"><div class="st-rlab">이용약관</div></div><button class="st-act" onclick="openLegal('terms')">보기</button></div>
+          <div class="st-row"><span class="st-ico">🛡️</span><div class="st-rmain"><div class="st-rlab">개인정보처리방침</div></div><button class="st-act" onclick="openLegal('privacy')">보기</button></div>
+          <div class="st-row"><span class="st-ico">✉️</span><div class="st-rmain"><div class="st-rlab">고객센터 문의</div></div><button class="st-act" onclick="closeProfile();openInquiry()">문의</button></div>
+        </div>
+      </div>
+
+      <div class="st-group" style="margin-bottom:4px">
+        <div class="st-glabel">회원</div>
+        <div class="st-card">
+          <div class="st-row"><span class="st-ico">⚠️</span><div class="st-rmain"><div class="st-rlab">회원 탈퇴</div><div class="st-rval">계정·데이터가 즉시 삭제됩니다</div></div><button class="st-act danger" onclick="deleteMyAccount()">탈퇴</button></div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -5440,17 +5638,21 @@ function closeProfile(){
   if(el) el.innerHTML='';
 }
 async function saveProfile(){
-  const name  = (document.getElementById('pf-name').value||'').trim();
-  const phone = (document.getElementById('pf-phone').value||'').trim();
-  const out   = document.getElementById('pf-msg');
-  if(!out) return;
+  const meta = (USER&&USER.meta)||{};
+  let name  = meta.display_name||'';
+  let phone = meta.phone||'';
+  const nEl = document.getElementById('pf-name');
+  const pEl = document.getElementById('pf-phone');
+  if(nEl) name  = (nEl.value||'').trim();
+  if(pEl) phone = (pEl.value||'').trim();
+  const out = document.getElementById('pf-msg');
 
-  if(name.length>20){ out.style.color='#c00'; out.textContent='이름은 20자 이내로 입력해 주세요.'; return; }
+  if(name.length>20){ if(out){out.style.color='#c00'; out.textContent='이름은 20자 이내로 입력해 주세요.';} return; }
   if(phone && !/^[0-9+\-\s()]{7,20}$/.test(phone)){
-    out.style.color='#c00'; out.textContent='전화번호 형식을 확인해 주세요. (숫자 · + · - 만 입력)'; return;
+    if(out){out.style.color='#c00'; out.textContent='전화번호 형식을 확인해 주세요. (숫자 · + · - 만 입력)';} return;
   }
 
-  out.style.color='#6b7686'; out.textContent='저장 중...';
+  if(out){ out.style.color='#6b7686'; out.textContent='저장 중...'; }
   try{
     const res = await fetch(`${SUPABASE_URL}/auth/v1/user`,{
       method:'PUT',
@@ -5460,15 +5662,15 @@ async function saveProfile(){
     const j = await res.json().catch(()=>({}));
     if(!res.ok){
       const m = j.msg || j.error_description || j.message || '';
-      out.style.color='#c00'; out.textContent='저장 실패: '+(m||'다시 시도해 주세요.');
+      if(out){ out.style.color='#c00'; out.textContent='저장 실패: '+(m||'다시 시도해 주세요.'); }
       return;
     }
-    // 로컬 USER 갱신
+    // 로컬 USER 갱신 후 보기 모드로 다시 그린다
     USER = USER || {};
     USER.meta = j.user_metadata ? j.user_metadata : Object.assign({}, USER.meta||{}, {display_name:name, phone:phone});
-    out.style.color='#538135'; out.textContent='저장되었습니다.';
+    openProfile();
   }catch(e){
-    out.style.color='#c00'; out.textContent='저장 중 오류가 발생했습니다.';
+    if(out){ out.style.color='#c00'; out.textContent='저장 중 오류가 발생했습니다.'; }
   }
 }
 
@@ -9031,6 +9233,7 @@ function routeView(){
     enterAppView();
     window.scrollTo(0,0);
   } else if(!onLanding){
+    _appView='onboarding'; _authView='pick';   // 앱에서 소개로 나오면, 다음 '공정온 열기' 때 팀 선택 화면부터 다시 뜨도록
     showLanding();
     window.scrollTo(0,0);
   }
@@ -9038,6 +9241,7 @@ function routeView(){
 window.addEventListener('hashchange',routeView);
 
 function renderOnboarding(){
+  if(_authView==='mode') return renderModeSelect();
   if(_authView==='pick') return renderTeamPicker();
   if(_authView==='team') return renderTeamSetup();
   return renderAuth();
@@ -9099,9 +9303,23 @@ function bindEnter(ids, submit){
   });
 }
 
+const PW_EYE_SVG = `<svg class="eye-on" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg class="eye-off" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+function togglePwField(btn){
+  const w=btn.closest('.pw-wrap'); if(!w) return;
+  const inp=w.querySelector('input'); if(!inp) return;
+  const showing = inp.type==='text';
+  inp.type = showing ? 'password' : 'text';
+  btn.classList.toggle('on', !showing);
+  btn.setAttribute('aria-label', showing ? '비밀번호 표시' : '비밀번호 숨기기');
+}
+function pwInput(id,ph,ac){
+  return `<span class="pw-wrap"><input type="password" id="${id}" class="acc-input" placeholder="${ph}" autocomplete="${ac||'new-password'}"><button type="button" class="pw-eye" onclick="togglePwField(this)" aria-label="비밀번호 표시">${PW_EYE_SVG}</button></span>`;
+}
 function authInput(id,type,ph,val){
-  return `<input id="${id}" class="auth-in" type="${type}" placeholder="${ph}" value="${val||''}"
-    autocomplete="${type==='email'?'email':type==='password'?'current-password':'off'}">`;
+  const ac = type==='email'?'email':type==='password'?'current-password':'off';
+  const inp = `<input id="${id}" class="auth-in" type="${type}" placeholder="${ph}" value="${val||''}" autocomplete="${ac}">`;
+  if(type!=='password') return inp;
+  return `<span class="pw-wrap">${inp}<button type="button" class="pw-eye" onclick="togglePwField(this)" aria-label="비밀번호 표시">${PW_EYE_SVG}</button></span>`;
 }
 function authBtn(label,fn){
   return `<button onclick="${fn}" style="width:100%;padding:12px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:4px">${label}</button>`;
@@ -9126,6 +9344,8 @@ function pickSignupMode(m){
   localStorage.setItem('gj_mode', m);
   localStorage.setItem('gj_signup_mode', m);   // 가입 완료 후 서버에 심을 값
   document.querySelectorAll('.smode').forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
+  const pf=document.getElementById('pro-fields');
+  if(pf) pf.style.display = (m==='pro') ? '' : 'none';
 }
 function renderAuth(){
   const el=document.getElementById('onboarding');
@@ -9150,19 +9370,6 @@ function renderAuth(){
       <div style="font-size:12.5px;color:#6b7686;line-height:1.65;margin-bottom:15px">
         ${isLogin?'이메일과 비밀번호를 넣어 주십시오.':'먼저 본인 계정을 만듭니다. 초대코드는 다음 단계입니다.'}
       </div>
-
-      ${!isLogin ? `
-      <div class="signup-mode">
-        <div class="signup-mode-t">어떻게 사용하실 건가요?</div>
-        <div class="signup-mode-btns">
-          <button type="button" class="smode${APP_MODE==='pro'?' on':''}" data-mode="pro" onclick="pickSignupMode('pro')">
-            <b>🔧 전문가</b><span>인테리어 · 시공 팀<br>여러 현장 관리</span>
-          </button>
-          <button type="button" class="smode${APP_MODE==='self'?' on':''}" data-mode="self" onclick="pickSignupMode('self')">
-            <b>🏠 셀프</b><span>우리 집 직접 공사<br>혼자 · 간단하게</span>
-          </button>
-        </div>
-      </div>` : ''}
 
       <div class="social-btns">
         <button type="button" class="soc soc-kakao" onclick="socialLogin('kakao')">
@@ -9265,8 +9472,8 @@ function showPasswordRecovery(){
       <div style="font-size:12.5px;color:#6b7686;line-height:1.6;margin-bottom:16px">
         새로 사용할 비밀번호를 입력해 주세요.
       </div>
-      <input type="password" id="rec-pw" class="acc-input" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password">
-      <input type="password" id="rec-pw2" class="acc-input" placeholder="새 비밀번호 확인" autocomplete="new-password">
+      ${pwInput('rec-pw','새 비밀번호 (6자 이상)')}
+      ${pwInput('rec-pw2','새 비밀번호 확인')}
       <div id="rec-msg" class="acc-msg"></div>
       <button class="acc-pw-btn" onclick="submitPasswordRecovery()">비밀번호 변경</button>
     </div>
@@ -9403,6 +9610,68 @@ async function doSignup(){
 
 
 /* ══════════ 로그인 직후: 팀 선택 · 다른 팀 참여 ══════════ */
+/* ══════════ 로그인 후: 사용 모드 선택 (전문가/셀프) ══════════ */
+let _selMode='pro';
+function pickMode(m){
+  _selMode=m;
+  document.querySelectorAll('#onboarding .smode').forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
+  const pf=document.getElementById('mode-pro-fields');
+  if(pf) pf.style.display=(m==='pro')?'':'none';
+}
+function renderModeSelect(){
+  _selMode = (APP_MODE==='self')?'self':'pro';
+  const el=document.getElementById('onboarding');
+  const nm=(USER&&USER.meta&&USER.meta.display_name)||(USER&&USER.email?USER.email.split('@')[0]:'');
+  el.innerHTML=authShell(`
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.03em">환영합니다${nm?`, ${esc(nm)}님`:''} 👋</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-top:7px;line-height:1.6">공정온을 어떻게 사용하실 건가요?</div>
+    </div>
+    <div class="signup-mode-btns" style="margin-bottom:14px">
+      <button type="button" class="smode${_selMode==='pro'?' on':''}" data-mode="pro" onclick="pickMode('pro')"><b>🔧 전문가</b><span>인테리어 · 시공 팀<br>여러 현장 관리</span></button>
+      <button type="button" class="smode${_selMode==='self'?' on':''}" data-mode="self" onclick="pickMode('self')"><b>🏠 셀프</b><span>우리 집 직접 공사<br>혼자 · 간단하게</span></button>
+    </div>
+    <div id="mode-pro-fields" style="${_selMode==='pro'?'':'display:none'}">
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.82);margin:8px 0 8px">전문가 정보 <span style="font-weight:400;color:rgba(255,255,255,.45)">· 팀 화면에 표시돼요</span></div>
+      <input type="text" id="md-company" class="auth-in" placeholder="업체 / 팀 이름 (예: 대한인테리어)" autocomplete="organization" value="${(USER&&USER.meta&&USER.meta.company)?esc(USER.meta.company):''}">
+      <select id="md-role" class="auth-in">
+        <option value="">직무 / 역할 선택</option>
+        <option>대표</option><option>현장소장</option><option>시공기사</option><option>디자이너</option><option>영업·관리</option><option>기타</option>
+      </select>
+    </div>
+    <button id="mode-go" onclick="confirmModeSelect()" style="width:100%;padding:13px;background:#E46C0A;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px">시작하기 →</button>
+    <div id="mode-msg" style="font-size:12.5px;color:#F09A5A;margin-top:10px;min-height:16px;text-align:center"></div>
+  `);
+}
+async function confirmModeSelect(){
+  const mode=_selMode;
+  const meta={ mode };
+  if(mode==='pro'){
+    const c=(document.getElementById('md-company')||{}).value||'';
+    const r=(document.getElementById('md-role')||{}).value||'';
+    if(c.trim()) meta.company=c.trim();
+    if(r.trim()) meta.role=r.trim();
+  }
+  const btn=document.getElementById('mode-go');
+  if(btn){ btn.disabled=true; btn.textContent='준비 중...'; }
+  try{
+    const res=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+      method:'PUT',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({ data: meta })
+    });
+    const j=await res.json().catch(()=>({}));
+    USER=USER||{};
+    USER.meta = (res.ok && j.user_metadata) ? j.user_metadata : Object.assign({}, USER.meta||{}, meta);
+    APP_MODE=mode; localStorage.setItem('gj_mode',mode);
+    try{ await rpc('plan_init',{ want: mode }); }catch(_){}
+    await afterAuth();
+  }catch(e){
+    const m=document.getElementById('mode-msg'); if(m) m.textContent='시작하지 못했습니다. 다시 시도해 주세요.';
+    if(btn){ btn.disabled=false; btn.textContent='시작하기 →'; }
+  }
+}
+
 let PICK_TEAMS=[];
 function renderTeamPicker(){
   const el=document.getElementById('onboarding');
@@ -9420,10 +9689,36 @@ function renderTeamPicker(){
   });
 
   el.innerHTML=authShell(`
-    <div style="text-align:center;margin-bottom:18px">
-      <div style="font-size:19px;font-weight:800;color:#1a2438;letter-spacing:-0.03em;margin-bottom:6px">어느 팀으로 들어갈까요?</div>
-      <div style="font-size:13.5px;color:#5f6b7c">${USER?esc(USER.email):''}</div>
+    <button onclick="openProfile()" class="tp-acct" style="width:100%;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px 15px;margin-bottom:22px;cursor:pointer;text-align:left;font-family:inherit">
+      <div style="width:40px;height:40px;border-radius:50%;background:#E46C0A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0">${esc(((((USER&&USER.meta&&USER.meta.display_name)||(USER&&USER.email)||'?').trim().charAt(0))||'?').toUpperCase())}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((USER&&USER.meta&&USER.meta.display_name)||(USER&&USER.email)||'')}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(USER&&USER.meta&&USER.meta.display_name)?esc((USER&&USER.email)||''):'로그인 계정'}</div>
+      </div>
+      <span style="font-size:12px;color:#F09A5A;font-weight:700;flex-shrink:0;white-space:nowrap">개인정보 수정 →</span>
+    </button>
+
+    ${isSelf()?`<button onclick="openBlueprintGuide()" class="tp-acct" style="width:100%;display:flex;align-items:center;gap:12px;background:rgba(228,108,10,.12);border:1px solid rgba(228,108,10,.4);border-radius:14px;padding:13px 15px;margin-bottom:22px;cursor:pointer;text-align:left;font-family:inherit">
+      <div style="width:40px;height:40px;border-radius:50%;background:#E46C0A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0">🏠</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">도면 준비하기</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">셀프 인테리어 · 우리 집 평면도 찾기</div>
+      </div>
+      <span style="font-size:12px;color:#F09A5A;font-weight:700;flex-shrink:0;white-space:nowrap">안내 →</span>
+    </button>`:''}
+
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.03em">${isSelf()?'내 공간으로 들어가세요':'어느 팀으로 들어갈까요?'}</div>
     </div>
+
+    ${isSelf()?`<button onclick="enterMySpace()" style="width:100%;display:flex;align-items:center;gap:12px;background:#E46C0A;border:none;border-radius:14px;padding:15px 16px;margin-bottom:22px;cursor:pointer;text-align:left;font-family:inherit">
+      <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📋</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:800;color:#fff">내 공간 열기</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.85)">우리 집 공정표로 바로 들어가기</div>
+      </div>
+      <span style="font-size:17px;color:#fff;flex-shrink:0">→</span>
+    </button>`:''}
 
     ${IS_ADMIN ? `
     <button class="tp-admin" onclick="openInbox()">
@@ -9460,6 +9755,20 @@ function renderTeamPicker(){
 }
 function goCreateTeam(){ _authView='team'; _teamTab='create'; renderOnboarding(); }
 
+async function enterMySpace(){
+  try{
+    let teams = (PICK_TEAMS && PICK_TEAMS.length) ? PICK_TEAMS : await loadMyTeams();
+    PICK_TEAMS = teams || [];
+    if(PICK_TEAMS.length){
+      enterTeam(PICK_TEAMS[0].id);
+    } else {
+      const t = await createTeam('내 공간','self'+Math.random().toString(36).slice(2,8));
+      const team = Array.isArray(t) ? t[0] : t;
+      TEAM = team; localStorage.setItem('gj_team', team.id);
+      _appView='app'; _loaded=false; enterAppView();
+    }
+  }catch(e){ alert('공간을 여는 데 실패했습니다.\n'+(e.message||'')); }
+}
 function enterTeam(id){
   const t=PICK_TEAMS.find(x=>x.id===id);
   if(!t) return;
@@ -9722,6 +10031,17 @@ async function afterAuth(){
   if(l && l.style.display!=='none'){ l.style.display='none'; }
   try{
     if(!USER) await loadUser();
+
+    // 모드 미선택(신규 사용자)이면 환영 화면에서 전문가/셀프를 먼저 고른다
+    if(!(USER.meta && (USER.meta.mode==='pro'||USER.meta.mode==='self'))){
+      authBusy(false,'로그인');
+      _appView='onboarding'; _authView='mode';
+      showOnboarding();
+      return;
+    }
+    APP_MODE = USER.meta.mode;
+    localStorage.setItem('gj_mode', APP_MODE);
+
     const teams=await loadMyTeams();
 
     // ── 셀프 모드: 팀 선택 화면을 건너뛴다 (팀 개념 없음) ──
@@ -10319,14 +10639,20 @@ function copyInviteCode(){
   }
   try{
     await loadUser();                 // ← 새로고침 후에도 내가 누구인지 복원
-    const teams=await loadMyTeams();
-    if(!teams.length){
-      _appView='onboarding'; _authView='team';
+    if(!(USER.meta && (USER.meta.mode==='pro'||USER.meta.mode==='self'))){
+      // 아직 사용 모드를 안 고른 신규 사용자 → 환영(모드 선택) 화면
+      _appView='onboarding'; _authView='mode';
     } else {
-      // 마지막에 쓰던 팀을 기억
-      const last=localStorage.getItem('gj_team');
-      TEAM = teams.find(t=>t.id===last) || teams[0];
-      _appView='app';
+      APP_MODE = USER.meta.mode; localStorage.setItem('gj_mode', APP_MODE);
+      const teams=await loadMyTeams();
+      if(!teams.length){
+        _appView='onboarding'; _authView='team';
+      } else {
+        // 마지막에 쓰던 팀을 기억
+        const last=localStorage.getItem('gj_team');
+        TEAM = teams.find(t=>t.id===last) || teams[0];
+        _appView='app';
+      }
     }
   }catch(e){
     clearSession();
