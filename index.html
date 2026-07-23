@@ -9388,9 +9388,6 @@ function renderAuth(){
       </div>
 
       <div class="social-btns">
-        <button type="button" class="soc soc-kakao" onclick="socialLogin('kakao')">
-          <span class="soc-ic">💬</span> 카카오로 ${isLogin?'로그인':'시작하기'}
-        </button>
         <button type="button" class="soc soc-google" onclick="socialLogin('google')">
           <span class="soc-ic soc-g">G</span> Google로 ${isLogin?'로그인':'시작하기'}
         </button>
@@ -9554,11 +9551,14 @@ function syncAgreeAll(){
 
 
 /* ══════════ 가입 후 이메일 인증 안내 ══════════ */
+let _pendingVerifyEmail = '';
+let _resendTimer = null;
+
 function showEmailVerifyNotice(email){
+  _pendingVerifyEmail = email || '';
   const target = document.getElementById('onboarding');
   if(!target) return;
-  const safe = (email||'').replace(/</g,'&lt;');
-  const arg  = (email||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const safe = _pendingVerifyEmail.replace(/</g,'&lt;');
 
   // 로그인 창 안의 내용을 "인증번호 입력" 화면으로 교체
   const box = document.querySelector('.ov-box');
@@ -9574,21 +9574,31 @@ function showEmailVerifyNotice(email){
         </div>
         <input id="ev-code" class="ev-code" type="text" inputmode="numeric" maxlength="6"
           placeholder="6자리 인증번호" autocomplete="one-time-code"
-          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();verifyEmailCode('${arg}')}">
+          oninput="onCodeInput(this)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();verifyEmailCode()}">
         <div id="ev-msg" class="ev-cmsg"></div>
-        <button class="ev-btn" onclick="verifyEmailCode('${arg}')">인증 완료</button>
+        <button class="ev-btn" onclick="verifyEmailCode()">인증 완료</button>
         <div class="ev-hint">
           메일이 안 보이면 <b>스팸함</b>도 꼭 확인해 주세요.<br>
-          번호가 안 왔다면 <button type="button" class="ev-resend" onclick="resendEmailCode('${arg}')">인증번호 다시 받기</button>
+          <span id="ev-resend-area"></span>
         </div>
         <button class="ev-back" onclick="openAuth('login')">로그인 화면으로</button>
       </div>`;
     setTimeout(()=>{ try{ document.getElementById('ev-code').focus(); }catch(_){ } }, 60);
+    startResendCooldown(30);   // 방금 코드를 보냈으니 재발송은 30초 후
   }
 }
 
-async function verifyEmailCode(email){
+// 6자리를 다 넣으면 자동으로 인증 시도 (편의)
+function onCodeInput(el){
+  el.value = el.value.replace(/[^0-9]/g,'');
+  const msg = document.getElementById('ev-msg');
+  if(msg && msg.textContent) msg.textContent='';
+  if(el.value.length===6) verifyEmailCode();
+}
+
+async function verifyEmailCode(){
+  const email = _pendingVerifyEmail;
   const inp = document.getElementById('ev-code');
   const msg = document.getElementById('ev-msg');
   const code = (inp ? inp.value : '').trim();
@@ -9601,6 +9611,7 @@ async function verifyEmailCode(email){
     const j = await authPost('verify', {type:'signup', email, token:code});
     if(j && j.access_token){
       saveSession(j);
+      if(_resendTimer){ clearInterval(_resendTimer); _resendTimer=null; }
       await afterAuth();
       return;
     }
@@ -9612,18 +9623,39 @@ async function verifyEmailCode(email){
         ? '인증번호가 올바르지 않거나 만료되었습니다. 다시 받아 주세요.'
         : e.message;
     }
+    if(inp){ inp.value=''; inp.focus(); }
   }
 }
 
-async function resendEmailCode(email){
+async function resendEmailCode(){
+  const email = _pendingVerifyEmail;
   const msg = document.getElementById('ev-msg');
   if(msg){ msg.style.color='rgba(255,255,255,.6)'; msg.textContent='다시 보내는 중...'; }
   try{
     await authPost('resend', {type:'signup', email});
     if(msg){ msg.style.color='#8fd18f'; msg.textContent='인증번호를 다시 보냈습니다. 메일함(스팸함 포함)을 확인해 주세요.'; }
   }catch(e){
-    if(msg){ msg.style.color='#f0806a'; msg.textContent = /rate|많/i.test(e.message) ? '잠시 후 다시 시도해 주세요.' : '재발송에 실패했습니다. 잠시 후 다시 시도해 주세요.'; }
+    if(msg){ msg.style.color='#f0806a'; msg.textContent = /rate|많|too many/i.test(e.message) ? '잠시 후 다시 시도해 주세요.' : '재발송에 실패했습니다. 잠시 후 다시 시도해 주세요.'; }
   }
+  startResendCooldown(30);
+}
+
+// 재발송 쿨다운 타이머 (연타 방지 + 언제 다시 받을 수 있는지 안내)
+function startResendCooldown(sec){
+  const el = document.getElementById('ev-resend-area');
+  if(!el) return;
+  if(_resendTimer){ clearInterval(_resendTimer); _resendTimer=null; }
+  let remain = sec;
+  const render = ()=>{
+    if(remain>0){
+      el.innerHTML = `<span style="color:rgba(255,255,255,.4)">${remain}초 후 인증번호를 다시 받을 수 있어요</span>`;
+    }else{
+      el.innerHTML = `번호가 안 왔다면 <button type="button" class="ev-resend" onclick="resendEmailCode()">인증번호 다시 받기</button>`;
+      if(_resendTimer){ clearInterval(_resendTimer); _resendTimer=null; }
+    }
+  };
+  render();
+  _resendTimer = setInterval(()=>{ remain--; render(); }, 1000);
 }
 
 async function doSignup(){
