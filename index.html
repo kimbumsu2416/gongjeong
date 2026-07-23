@@ -3192,6 +3192,19 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   background:#B85408;color:#fff;font-size:14.5px;font-weight:800;
   cursor:pointer;font-family:inherit;transition:background .14s}
 .ev-btn:hover{background:#C96010}
+.ev-code{width:100%;box-sizing:border-box;padding:14px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);
+  color:#fff;font-size:22px;font-weight:800;text-align:center;letter-spacing:8px;
+  outline:none;margin-bottom:10px;font-family:inherit}
+.ev-code:focus{border-color:rgba(228,108,10,.7)}
+.ev-code::placeholder{letter-spacing:normal;font-size:14px;font-weight:500;color:rgba(255,255,255,.4)}
+.ev-cmsg{min-height:18px;font-size:12.5px;margin-bottom:12px}
+.ev-resend{background:none;border:none;color:#E4934A;font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+.ev-back{width:100%;margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.18);
+  border-radius:11px;background:transparent;color:rgba(255,255,255,.75);
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.signup-emailhint{font-size:12px;color:#8a94a3;line-height:1.6;margin:-4px 2px 10px}
+.signup-emailhint b{color:#E4772A}
 
 
 /* 고객센터 — 직접 메일 안내 */
@@ -9384,6 +9397,7 @@ function renderAuth(){
       <div class="soc-divider"><span>또는 이메일로</span></div>
 
       ${authInput('auth-email','email','이메일 주소')}
+      ${!isLogin ? `<div class="signup-emailhint">실제로 받을 수 있는 이메일을 <b>정확히</b> 입력해 주세요. 가입 시 이 주소로 <b>인증번호</b>가 발송됩니다.</div>` : ''}
       ${authInput('auth-pw','password', isLogin?'비밀번호':'비밀번호 (6자 이상)')}
 
       ${isLogin ? `<button type="button" class="forgot-link" onclick="requestPasswordReset()">비밀번호를 잊으셨나요?</button>` : ''}
@@ -9539,28 +9553,74 @@ function syncAgreeAll(){
 
 /* ══════════ 가입 후 이메일 인증 안내 ══════════ */
 function showEmailVerifyNotice(email){
-  const ov = document.querySelector('.ov-box') || document.querySelector('.ov');
   const target = document.getElementById('onboarding');
   if(!target) return;
+  const safe = (email||'').replace(/</g,'&lt;');
+  const arg  = (email||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 
-  // 로그인 창 안의 내용을 안내로 교체
+  // 로그인 창 안의 내용을 "인증번호 입력" 화면으로 교체
   const box = document.querySelector('.ov-box');
   if(box){
     box.innerHTML = `
       <div class="ev-wrap">
         <div class="ev-ico">✉️</div>
-        <div class="ev-title">메일을 확인해 주세요</div>
-        <div class="ev-email">${(email||'').replace(/</g,'&lt;')}</div>
+        <div class="ev-title">인증번호를 입력해 주세요</div>
+        <div class="ev-email">${safe}</div>
         <div class="ev-desc">
-          위 주소로 <b>인증 메일</b>을 보냈습니다.<br>
-          메일함에서 <b>인증 링크를 클릭</b>하면 가입이 완료됩니다.
+          위 주소로 <b>인증번호 6자리</b>를 보냈습니다.<br>
+          메일에 적힌 번호를 아래에 입력하면 가입이 완료됩니다.
         </div>
+        <input id="ev-code" class="ev-code" type="text" inputmode="numeric" maxlength="6"
+          placeholder="6자리 인증번호" autocomplete="one-time-code"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();verifyEmailCode('${arg}')}">
+        <div id="ev-msg" class="ev-cmsg"></div>
+        <button class="ev-btn" onclick="verifyEmailCode('${arg}')">인증 완료</button>
         <div class="ev-hint">
-          메일이 안 보이면 <b>스팸함</b>도 확인해 주세요.<br>
-          인증 후 이 화면에서 로그인하시면 됩니다.
+          메일이 안 보이면 <b>스팸함</b>도 꼭 확인해 주세요.<br>
+          번호가 안 왔다면 <button type="button" class="ev-resend" onclick="resendEmailCode('${arg}')">인증번호 다시 받기</button>
         </div>
-        <button class="ev-btn" onclick="openAuth('login')">로그인 화면으로</button>
+        <button class="ev-back" onclick="openAuth('login')">로그인 화면으로</button>
       </div>`;
+    setTimeout(()=>{ try{ document.getElementById('ev-code').focus(); }catch(_){ } }, 60);
+  }
+}
+
+async function verifyEmailCode(email){
+  const inp = document.getElementById('ev-code');
+  const msg = document.getElementById('ev-msg');
+  const code = (inp ? inp.value : '').trim();
+  if(!/^[0-9]{6}$/.test(code)){
+    if(msg){ msg.style.color='#f0806a'; msg.textContent='6자리 숫자를 정확히 입력해 주세요.'; }
+    return;
+  }
+  if(msg){ msg.style.color='rgba(255,255,255,.6)'; msg.textContent='확인 중...'; }
+  try{
+    const j = await authPost('verify', {type:'signup', email, token:code});
+    if(j && j.access_token){
+      saveSession(j);
+      await afterAuth();
+      return;
+    }
+    if(msg){ msg.style.color='#f0806a'; msg.textContent='인증에 실패했습니다. 번호를 다시 확인해 주세요.'; }
+  }catch(e){
+    if(msg){
+      msg.style.color='#f0806a';
+      msg.textContent = /expired/i.test(e.message) ? '인증번호가 만료되었습니다. 다시 받아 주세요.'
+        : /invalid|otp/i.test(e.message) ? '인증번호가 올바르지 않습니다.'
+        : e.message;
+    }
+  }
+}
+
+async function resendEmailCode(email){
+  const msg = document.getElementById('ev-msg');
+  if(msg){ msg.style.color='rgba(255,255,255,.6)'; msg.textContent='다시 보내는 중...'; }
+  try{
+    await authPost('resend', {type:'signup', email});
+    if(msg){ msg.style.color='#8fd18f'; msg.textContent='인증번호를 다시 보냈습니다. 메일함(스팸함 포함)을 확인해 주세요.'; }
+  }catch(e){
+    if(msg){ msg.style.color='#f0806a'; msg.textContent = /rate|많/i.test(e.message) ? '잠시 후 다시 시도해 주세요.' : '재발송에 실패했습니다. 잠시 후 다시 시도해 주세요.'; }
   }
 }
 
