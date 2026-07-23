@@ -5706,6 +5706,7 @@ async function sendInquiry(){
     out.style.color='#538135';
     out.textContent='접수되었습니다. 확인 후 답변드리겠습니다.';
     document.getElementById('iq-msg').value='';
+    showToast('문의를 남겼습니다 · 확인 후 답변드리겠습니다');
     setTimeout(closeInquiry, 1600);
   }catch(e){
     out.style.color='#c00';
