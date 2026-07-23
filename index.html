@@ -2457,44 +2457,46 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 
 /* 뒷배경 */
 .ov{position:absolute;inset:0;
-  display:flex;justify-content:flex-end;
+  display:flex;justify-content:center;align-items:center;
+  padding:20px;
   background:rgba(8,11,18,0);backdrop-filter:blur(0px);
-  animation:ovDim .38s cubic-bezier(.32,.72,0,1) forwards}
+  animation:ovDim .34s cubic-bezier(.32,.72,0,1) forwards}
 @keyframes ovDim{
-  to{ background:rgba(8,11,18,.58); backdrop-filter:blur(4px) }
+  to{ background:rgba(8,11,18,.62); backdrop-filter:blur(4px) }
 }
 
-/* 창 — 오른쪽 끝에서 밀려 들어온다 */
+/* 창 — 화면 가운데에서 살짝 떠오르며 나타난다 */
 .ov-box{position:relative;
-  width:100%;max-width:404px;height:100%;
+  width:100%;max-width:404px;max-height:calc(100% - 40px);
   overflow-y:auto;
   background:#141A26;
-  border-left:1px solid rgba(255,255,255,.1);
-  box-shadow:-30px 0 80px -20px rgba(0,0,0,.75);
-  padding:28px 30px 22px;
-  animation:ovSlide .42s cubic-bezier(.32,.72,0,1) both}
-@keyframes ovSlide{
-  from{ transform:translateX(100%) }
-  to  { transform:translateX(0) }
-}
-
-/* 내용은 살짝 늦게 따라 들어온다 */
-.ov-brand{animation:ovLag .4s .1s cubic-bezier(.2,.8,.3,1) both}
-.ov-body {animation:ovLag .4s .15s cubic-bezier(.2,.8,.3,1) both}
-.ov-foot {animation:ovLag .4s .2s cubic-bezier(.2,.8,.3,1) both}
-@keyframes ovLag{
-  from{ opacity:0; transform:translateX(22px) }
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.75);
+  padding:30px 30px 24px;
+  animation:ovPop .34s cubic-bezier(.2,.9,.3,1) both}
+@keyframes ovPop{
+  from{ opacity:0; transform:translateY(18px) scale(.97) }
   to  { opacity:1; transform:none }
 }
 
-/* 닫힐 때 — 오른쪽으로 다시 빠진다 */
-.ov.out{animation:ovDimOut .28s ease-in forwards}
+/* 내용은 살짝 늦게 따라 들어온다 */
+.ov-brand{animation:ovLag .4s .08s cubic-bezier(.2,.8,.3,1) both}
+.ov-body {animation:ovLag .4s .13s cubic-bezier(.2,.8,.3,1) both}
+.ov-foot {animation:ovLag .4s .18s cubic-bezier(.2,.8,.3,1) both}
+@keyframes ovLag{
+  from{ opacity:0; transform:translateY(10px) }
+  to  { opacity:1; transform:none }
+}
+
+/* 닫힐 때 — 가운데에서 다시 가라앉는다 */
+.ov.out{animation:ovDimOut .24s ease-in forwards}
 @keyframes ovDimOut{
-  from{ background:rgba(8,11,18,.58); backdrop-filter:blur(4px) }
+  from{ background:rgba(8,11,18,.62); backdrop-filter:blur(4px) }
   to  { background:rgba(8,11,18,0);   backdrop-filter:blur(0px) }
 }
-.ov.out .ov-box{animation:ovSlideOut .28s cubic-bezier(.6,0,.9,.3) forwards}
-@keyframes ovSlideOut{ to{ transform:translateX(100%) } }
+.ov.out .ov-box{animation:ovPopOut .22s cubic-bezier(.6,0,.9,.3) forwards}
+@keyframes ovPopOut{ to{ opacity:0; transform:translateY(10px) scale(.98) } }
 
 /* 닫기 */
 .ov-x{position:absolute;top:16px;right:16px;width:32px;height:32px;
@@ -2538,7 +2540,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   -webkit-box-shadow:0 0 0 40px #1c2637 inset}
 
 @media(max-width:640px){
-  .ov-box{max-width:none;border-left:none;padding:24px 20px 18px}
+  .ov-box{max-width:none;border-radius:18px;padding:24px 20px 18px}
 }
 
 /* ══════════════════════════════════════════════
@@ -3030,6 +3032,25 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #landing .mode-pick-btn.on{background:#fff}
 #landing .mode-pick-btn.on b{color:#1a2438}
 #landing .mode-pick-btn.on span{color:#6b7686}
+/* 로그인 상태 — 전문가/셀프 자리에 내 정보 표시 */
+#landing .mode-pick.hero-me{display:inline-flex;flex-direction:column;align-items:stretch;gap:0;padding:14px 17px;min-width:260px;max-width:100%}
+.hero-me-card{display:flex;align-items:center;gap:13px}
+.hero-me-av{width:44px;height:44px;border-radius:50%;background:#E46C0A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+.hero-me-info{min-width:0;flex:1}
+.hero-me-out{flex-shrink:0;align-self:flex-start;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.7);font-size:11.5px;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
+.hero-me-out:hover{background:rgba(255,255,255,.16);color:#fff}
+.hero-me-name{font-size:16px;font-weight:800;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-me-sub{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-me-stat{font-size:12.5px;color:#F3A867;font-weight:700;margin-top:5px}
+/* 비로그인 — 전문가/셀프 자리에 로그인 카드(네이버식) */
+#landing .mode-pick.hero-login-box{display:block;padding:18px;min-width:280px;max-width:340px}
+.hero-login-t{font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:12px;text-align:center}
+.hero-login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:#E46C0A;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .16s}
+.hero-login-btn:hover{background:#C96010}
+.hero-login-links{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
+.hero-login-links button{background:none;border:none;color:rgba(255,255,255,.6);font-size:12.5px;cursor:pointer;font-family:inherit;padding:0}
+.hero-login-links button:hover{color:#fff}
+.hero-login-links span{color:rgba(255,255,255,.3);font-size:11px}
 
 /* ══════════════════════════════════════════════
    셀프 빈 화면 — 3단계 안내
@@ -3946,20 +3967,61 @@ function applyLandingMode(){
 }
 
 function renderHeroAuth(){
+  renderHeroModeArea();   // 히어로 칸: 로그인 전=로그인 카드 / 로그인 후=내 정보
   const box=document.getElementById('hero-auth');
   if(!box) return;
 
   if(USER){
     box.innerHTML=`
-      <a class="hb hb-go" href="#app">공정온 열기 <b>→</b></a>
-      <div class="hb-me">${esc(USER.email||'')} 로 로그인됨</div>`;
+      <a class="hb hb-go" href="#app">공정온 열기 <b>→</b></a>`;
     return;
   }
 
   box.innerHTML=`
-    <button class="hb hb-go" onclick="openAuth('login')">로그인 <b>→</b></button>
-    <button class="hb hb-line" onclick="openAuth('signup')">회원가입</button>
     <button class="hb hb-txt" onclick="scrollToSec('product')">자세히 보기 ↓</button>`;
+}
+
+/* 히어로 칸 — 로그인 전엔 로그인 카드, 로그인 후엔 내 정보(계정 + 현장 수) */
+function renderHeroModeArea(){
+  const pick=document.getElementById('mode-pick');
+  if(!pick) return;
+
+  if(USER){
+    const name  = (USER.meta && USER.meta.display_name) || '';
+    const email = USER.email || '';
+    const initial = (((name||email||'?').trim().charAt(0))||'?').toUpperCase();
+    const modeLabel = isSelf() ? '🏠 셀프 인테리어' : '🔧 전문가';
+    pick.classList.add('hero-me');
+    pick.classList.remove('hero-login-box');
+    pick.innerHTML=`
+      <div class="hero-me-card">
+        <div class="hero-me-av">${esc(initial)}</div>
+        <div class="hero-me-info">
+          <div class="hero-me-name">${esc(name||email)}</div>
+          ${name?`<div class="hero-me-sub">${esc(email)}</div>`:''}
+          <div class="hero-me-stat" id="hero-me-stat">${modeLabel}</div>
+        </div>
+        <button class="hero-me-out" onclick="doLogout()">로그아웃</button>
+      </div>`;
+    // 현장(팀) 개수는 비동기로 채워 넣음 — 전문가만 팀 개념이 있음
+    if(!isSelf()){
+      loadMyTeams().then(ts=>{
+        const el=document.getElementById('hero-me-stat');
+        if(el) el.textContent = `${modeLabel} · 현장 ${(ts||[]).length}개`;
+      }).catch(()=>{});
+    }
+  }else{
+    pick.classList.remove('hero-me');
+    pick.classList.add('hero-login-box');
+    pick.innerHTML=`
+      <div class="hero-login-t">공정온을 시작해 보세요</div>
+      <button class="hero-login-btn" onclick="openAuth('login')">로그인 →</button>
+      <div class="hero-login-links">
+        <button onclick="openAuth('signup')">회원가입</button>
+        <span>·</span>
+        <button onclick="requestPasswordReset()">비밀번호 찾기</button>
+      </div>`;
+  }
 }
 
 /* 로그인 창 열기 — 오른쪽에서 슉 */
@@ -5371,19 +5433,6 @@ function renderInquiryForm(){
         </div>
       </div>
     </section>
-
-    ${USER ? `
-    <section class="cs-sec cs-adm">
-      <div class="cs-sec-t">운영자 확인</div>
-      <div class="adm-box">
-        <div class="adm-l">
-          접수된 문의는 <b>운영자 계정</b>으로 로그인해야 볼 수 있습니다.<br>
-          <span class="adm-me">현재 로그인: ${esc(USER.email||'—')}</span>
-        </div>
-        <button class="adm-btn" onclick="checkAdminStatus()">내 권한 확인</button>
-      </div>
-      <div id="adm-out"></div>
-    </section>` : ''}
   </div>`;
 }
 
