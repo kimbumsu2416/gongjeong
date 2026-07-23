@@ -3785,7 +3785,9 @@ async function signUp(email,password,meta){
   if(meta && Object.keys(meta).length) body.data=meta;
   const j=await authPost('signup',body);
   if(j.access_token){ saveSession(j); return true; }
-  // 이메일 인증이 켜져 있는 경우
+  // 이미 가입된 이메일 → Supabase는 빈 identities 배열로 응답 (이메일 유출 방지)
+  if(j && Array.isArray(j.identities) && j.identities.length===0){ return 'exists'; }
+  // 이메일 인증이 켜져 있는 경우 (신규 가입)
   return false;
 }
 async function signIn(email,password){
@@ -9606,8 +9608,8 @@ async function verifyEmailCode(email){
   }catch(e){
     if(msg){
       msg.style.color='#f0806a';
-      msg.textContent = /expired/i.test(e.message) ? '인증번호가 만료되었습니다. 다시 받아 주세요.'
-        : /invalid|otp/i.test(e.message) ? '인증번호가 올바르지 않습니다.'
+      msg.textContent = /(expired|invalid|otp|token)/i.test(e.message)
+        ? '인증번호가 올바르지 않거나 만료되었습니다. 다시 받아 주세요.'
         : e.message;
     }
   }
@@ -9641,6 +9643,11 @@ async function doSignup(){
   authBusy(true,'회원가입');
   try{
     const ok=await signUp(email,pw);
+    if(ok==='exists'){
+      authBusy(false,'회원가입');
+      setAuthMsg('이미 가입된 이메일입니다. 위에서 로그인해 주세요.');
+      return;
+    }
     // 동의 기록 (개인정보보호법상 입증책임)
     if(USER){
       try{
