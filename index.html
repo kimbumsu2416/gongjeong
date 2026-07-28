@@ -11003,9 +11003,10 @@ function doLogout(){
   pollingTimer=null;
   clearSession();
   resetState();
-  _authView='auth'; _authTab='login'; _appView='onboarding';
+  _authView='auth'; _authTab='login'; _appView='landing';
   updateTeamChip();
-  showOnboarding();          // ← 화면까지 실제로 전환
+  goHome();                  // 로그인 창 대신 로그아웃된 랜딩(메인 배경)으로 이동
+  try{ renderHeroAuth(); }catch(_){}   // 히어로를 로그아웃 상태(로그인 카드)로 갱신
 }
 
 /* ══════════ 초대코드 보기 ══════════ */
