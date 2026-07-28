@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>공정온 — 함께 보는 현장 공정</title>
+<title>공정온 — 현장이 한눈에</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='7' fill='%230E1420'/%3E%3Crect x='4' y='6' width='14' height='5' rx='2.5' fill='%23fff' opacity='.95'/%3E%3Crect x='9' y='12.5' width='17' height='5' rx='2.5' fill='%23fff' opacity='.55'/%3E%3Crect x='6' y='19' width='11' height='5' rx='2.5' fill='%234F46E5'/%3E%3C/svg%3E">
 <meta name="description" content="현장별 공정표를 팀 전체가 같은 화면에서 봅니다. 설치 없이 브라우저만 있으면 됩니다.">
 <meta name="theme-color" content="#0E1420">
@@ -318,6 +318,10 @@ html{scroll-behavior:smooth}
 @media(max-width:640px){
 #landing .hero{padding:150px 0 68px;min-height:88svh}
 }
+/* 짧은(가로로 넓은) 창 — 바닥 정렬로 밀어올리면 로고가 상단 내비를 침범하므로 위에서부터 자연스럽게 흐르게 */
+@media(max-height:820px){
+#landing .hero{align-items:flex-start;padding:112px 0 56px}
+}
 #landing .hero-in{position:relative;z-index:2;width:100%}
 #landing .hero-eng{
   font-size:clamp(15px,1.6vw,19px);font-weight:400;
@@ -614,8 +618,8 @@ html{scroll-behavior:smooth}
 #landing .hero-in h1{animation:lockIn .9s cubic-bezier(.22,1,.36,1) .22s both}
 #landing .hero-meta{animation:lockIn .9s cubic-bezier(.22,1,.36,1) .34s both}
 
-/* 로고가 커졌으니 헤드라인은 살짝 낮춤 */
-#landing .hero-in h1{font-size:clamp(34px,4.6vw,72px)}
+/* 로고가 커졌으니 헤드라인은 살짝 낮춤 — 로그인 카드가 중심이므로 헤드라인은 보조 크기로 */
+#landing .hero-in h1{font-size:clamp(23px,2.9vw,40px);letter-spacing:-.03em;line-height:1.22;margin-bottom:24px;opacity:.94}
 
 @media(max-width:860px){
   #landing .hero-lockup{gap:14px;margin-bottom:26px}
@@ -929,8 +933,8 @@ textarea.checklist-text{resize:none;overflow:hidden;white-space:pre-wrap;word-br
 .tp-div span{font-size:12.5px;color:#7c8798;white-space:nowrap}
 
 /* ── 가입 단계 안내 ── */
-.steps-hint{background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:14px 16px;margin-bottom:10px}
-.sh-row{display:flex;align-items:center;gap:9px;padding:6px 0}
+.steps-hint{background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:14px 16px;margin-bottom:7px}
+.sh-row{display:flex;align-items:center;gap:9px;padding:3px 0}
 .sh-n{width:19px;height:19px;border-radius:50%;background:#eef1f6;color:#7c8798;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sh-row.on .sh-n{background:#12141C;color:#fff}
 .sh-t{font-size:13.5px;font-weight:600;color:#7c8798;flex-shrink:0}
@@ -2504,7 +2508,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 /* 뒷배경 */
 .ov{position:absolute;inset:0;
   display:flex;justify-content:center;align-items:center;
-  padding:20px;
+  padding:10px;
   background:rgba(8,11,18,0);backdrop-filter:blur(0px);
   animation:ovDim .34s cubic-bezier(.32,.72,0,1) forwards}
 @keyframes ovDim{
@@ -2513,13 +2517,13 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 
 /* 창 — 화면 가운데에서 살짝 떠오르며 나타난다 */
 .ov-box{position:relative;
-  width:100%;max-width:404px;max-height:calc(100% - 40px);
+  width:100%;max-width:404px;max-height:calc(100% - 14px);
   overflow-y:auto;
   background:#141A26;
   border:1px solid rgba(255,255,255,.1);
   border-radius:20px;
   box-shadow:0 30px 80px -20px rgba(0,0,0,.75);
-  padding:30px 30px 24px;
+  padding:24px 28px 20px;
   animation:ovPop .34s cubic-bezier(.2,.9,.3,1) both}
 @keyframes ovPop{
   from{ opacity:0; transform:translateY(18px) scale(.97) }
@@ -2584,6 +2588,20 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .ov-body input:-webkit-autofill{
   -webkit-text-fill-color:#fff;
   -webkit-box-shadow:0 0 0 40px #1c2637 inset}
+
+/* 라이트 모달 입력칸 — 위 다크 규칙(속성 선택자 포함)을 확실히 덮어씀(글씨 검정) */
+#onboarding .ov-box.ov-lite .na-in{
+  padding:12px 15px!important;margin-bottom:11px!important;font-size:15px!important;
+  border-radius:12px!important;background:#F2F4F8!important;
+  border:1.5px solid #E7EAF1!important;color:#141A26!important;
+  -webkit-text-fill-color:#141A26!important;caret-color:#141A26}
+#onboarding .ov-box.ov-lite .na-in::placeholder{color:#5B6472!important;opacity:1!important;-webkit-text-fill-color:#5B6472!important}
+#onboarding .ov-box.ov-lite .na-in:focus{background:#fff!important;
+  border-color:#4F46E5!important;box-shadow:0 0 0 3px rgba(79,70,229,.16)!important}
+#onboarding .ov-box.ov-lite .pw-wrap > .na-in{margin-bottom:0!important;padding-right:46px!important}
+#onboarding .ov-box.ov-lite .na-in:-webkit-autofill{
+  -webkit-text-fill-color:#141A26!important;
+  -webkit-box-shadow:0 0 0 40px #fff inset}
 
 @media(max-width:640px){
   .ov-box{max-width:none;border-radius:18px;padding:24px 20px 18px}
@@ -2700,7 +2718,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .steps-hint{
   background:rgba(255,255,255,.05)!important;
   border:1px solid rgba(255,255,255,.1)!important;
-  border-radius:12px!important;padding:13px 15px!important}
+  border-radius:12px!important;padding:10px 14px!important}
 #onboarding .sh-row{color:rgba(255,255,255,.62)!important;
   background:transparent!important}
 #onboarding .sh-row.on{color:#fff!important}
@@ -2717,7 +2735,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   border:1px solid rgba(255,255,255,.1)!important;
   border-radius:12px!important;
   color:rgba(255,255,255,.7)!important;
-  padding:4px 14px 12px!important}
+  padding:3px 14px 9px!important}
 
 #onboarding .agree-all{
   background:transparent!important;
@@ -2725,12 +2743,12 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   border-bottom:1px solid rgba(255,255,255,.1)!important;
   border-radius:0!important;
   color:#fff!important;font-weight:700!important;
-  padding:13px 0!important;margin:0 0 10px!important}
+  padding:8px 0!important;margin:0 0 6px!important}
 #onboarding .agree-all span{color:#fff!important;font-weight:700}
 
 #onboarding .agree-list{background:transparent!important}
 #onboarding .agree-row{background:transparent!important;
-  color:rgba(255,255,255,.72)!important;padding:6px 0!important}
+  color:rgba(255,255,255,.72)!important;padding:3px 0!important}
 #onboarding .agree-row span{color:rgba(255,255,255,.72)!important}
 #onboarding .agree-row:hover span{color:#fff!important}
 
@@ -2747,6 +2765,94 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .ov-body div[style*="text-align:center"]{
   color:rgba(255,255,255,.66)!important}
 #onboarding .ov-body div[style*="text-align:center"] b{color:#fff!important}
+
+/* ══════════════════════════════════════════════
+   밝은 인증 모달 (로그인 · 회원가입 · 비밀번호 찾기)
+   — .ov-lite 스코프 안에서만 라이트 테마
+   ══════════════════════════════════════════════ */
+.ov-box.ov-lite{background:linear-gradient(180deg,#FFFFFF 0%,#F6F8FD 100%);
+  border:1px solid #ECEEF4;
+  color:#141A26;padding:22px 26px 18px;max-width:406px;border-radius:26px;
+  box-shadow:0 34px 84px -26px rgba(20,26,42,.45),0 2px 8px -2px rgba(20,26,42,.08)}
+.ov-lite .ov-x{background:#EEF1F6;color:#8A909C}
+.ov-lite .ov-x:hover{background:#E2E6EE;color:#141A26}
+
+.na-eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.14em;color:#4F46E5;margin-bottom:6px}
+.na-brand{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.na-logo{width:26px;height:26px;color:#141A26;flex-shrink:0}
+.na-wm{font-size:19px;font-weight:800;letter-spacing:-.02em;color:#141A26}
+.na-wm em{font-style:normal;color:#4F46E5}
+.na-title{font-size:23px;font-weight:800;color:#141A26;letter-spacing:-.03em;line-height:1.12;margin-bottom:6px}
+.na-sub{font-size:13px;color:#5B6472;line-height:1.5;margin-bottom:12px}
+
+.na-soc{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  padding:13px;border-radius:13px;font-size:15px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:transform .1s,box-shadow .16s;margin-bottom:11px}
+.na-google{background:#fff;border:1px solid #E4E7EE;color:#141A26;box-shadow:0 1px 2px rgba(20,26,38,.05)}
+.na-google:hover{border-color:#D6DAE3;box-shadow:0 6px 18px -8px rgba(20,26,38,.2)}
+.na-soc:active{transform:scale(.99)}
+.na-g{display:flex;align-items:center}
+
+.na-divider{display:flex;align-items:center;gap:14px;margin:2px 0 13px;
+  color:#9AA1AC;font-size:12px;font-weight:500}
+.na-divider::before,.na-divider::after{content:'';flex:1;height:1px;background:#E6E9F0}
+
+.na-label{display:block;font-size:13px;font-weight:700;color:#2A303B;margin:0 0 5px}
+.ov-lite .na-in{width:100%;padding:12px 15px;font-size:15px;border-radius:12px;
+  font-family:inherit;background:#F2F4F8;border:1.5px solid #E7EAF1;color:#141A26;
+  outline:none;transition:border-color .14s,box-shadow .14s,background .14s;margin-bottom:11px}
+.ov-lite .na-in::placeholder{color:#5B6472;opacity:1}
+.ov-lite .na-in:focus{background:#fff;border-color:#4F46E5;box-shadow:0 0 0 3px rgba(79,70,229,.16)}
+.na-hint{font-size:12px;color:#6B7280;margin:-8px 2px 12px;line-height:1.45}
+
+.ov-lite .pw-wrap{margin-bottom:11px}
+.ov-lite .pw-wrap > .na-in{margin-bottom:0!important;padding-right:46px!important}
+.ov-lite .pw-eye{color:#7A818E!important}
+.ov-lite .pw-eye:hover{color:#41474F!important}
+
+.na-forgot{display:block;margin:-4px 0 12px auto;padding:2px 2px;background:none;border:none;
+  color:#5B6472;font-size:13px;font-family:inherit;cursor:pointer;text-decoration:underline;
+  text-underline-offset:2px;transition:color .14s}
+.na-forgot:hover{color:#4F46E5}
+
+.na-agree{display:flex;align-items:flex-start;gap:10px;margin:2px 0 11px;cursor:pointer}
+.na-agree input{width:19px;height:19px;accent-color:#4F46E5;cursor:pointer;flex-shrink:0;margin-top:1px}
+.na-agree span{font-size:13px;color:#3A4150;line-height:1.5}
+.na-aglink{background:none;border:none;padding:0;font-family:inherit;font-size:13px;
+  color:#141A26;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.na-aglink:hover{color:#4F46E5}
+.na-req{color:#4F46E5;font-weight:800}
+
+.na-primary{width:100%;padding:15px;border:none;border-radius:13px;
+  background:linear-gradient(135deg,#5B52F0 0%,#4F46E5 55%,#4338CA 100%);color:#fff;
+  font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:-.01em;
+  box-shadow:0 12px 26px -10px rgba(79,70,229,.65);transition:filter .16s,transform .1s,box-shadow .16s}
+.na-primary:hover{filter:brightness(1.06);box-shadow:0 16px 32px -10px rgba(79,70,229,.72)}
+.na-primary:active{transform:scale(.995)}
+
+.na-msg{font-size:13px;color:#DC2626;margin-top:8px;line-height:1.5;min-height:0;text-align:center}
+.na-msg:empty{margin-top:0}
+.na-msg.ok{color:#059669}
+
+.na-switch{display:block;width:100%;margin-top:11px;padding:12px;border-radius:11px;
+  background:#F2F4F8;border:1px solid #E7EAF1;color:#3A4150;font-size:13.5px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:background .14s,border-color .14s,color .14s}
+.na-switch:hover{background:#EAEDF4;border-color:#DCE0E8;color:#141A26}
+.na-switch b{color:#4F46E5}
+
+/* 라이트 모달 위의 이메일 인증 화면 */
+.ov-lite .ev-wrap{padding:6px 2px 2px}
+.ov-lite .ev-title{color:#141A26}
+.ov-lite .ev-email{color:#4F46E5;background:#EEF0FE;border:1px solid #D8DAFB}
+.ov-lite .ev-desc{color:#4B5563}
+.ov-lite .ev-desc b{color:#141A26}
+.ov-lite .ev-hint{color:#8A90A0;background:#fff;border:1px solid #E1E5EC}
+.ov-lite .ev-hint b{color:#4B5563}
+.ov-lite .ev-code{background:#fff;border:1.5px solid #DCE0E6;color:#141A26}
+.ov-lite .ev-code:focus{border-color:#4F46E5}
+.ov-lite .ev-code::placeholder{color:#AEB4BE}
+.ov-lite .ev-back{border:1px solid #DCE0E6;color:#4B5563}
+.ov-lite .ev-back:hover{background:#fff;color:#141A26}
 
 /* ── 팀 선택 · 팀 설정 카드 ── */
 #onboarding .tp-card,#onboarding .pick-card,#onboarding .tm-card,
@@ -2871,7 +2977,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
    창 안 입력칸 — 자동완성 대응 (검은 글씨 방지)
    ══════════════════════════════════════════════ */
 #onboarding .auth-in{
-  width:100%;padding:13px 14px;margin-bottom:10px;
+  width:100%;padding:13px 14px;margin-bottom:8px;
   font-size:14px;border-radius:10px;font-family:inherit;
   background:rgba(255,255,255,.07);
   border:1.5px solid rgba(255,255,255,.16);
@@ -3091,14 +3197,14 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 .hero-me-switch{margin-top:12px;width:100%;padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .14s,color .14s}
 .hero-me-switch:hover{background:rgba(255,255,255,.14);color:#fff}
 /* 비로그인 — 전문가/셀프 자리에 로그인 카드(네이버식) */
-#landing .mode-pick.hero-login-box{display:block;padding:18px;min-width:280px;max-width:340px}
-.hero-login-t{font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:12px;text-align:center}
-.hero-login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:#4F46E5;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .16s}
-.hero-login-btn:hover{background:#4338CA}
-.hero-login-links{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
-.hero-login-links button{background:none;border:none;color:rgba(255,255,255,.6);font-size:12.5px;cursor:pointer;font-family:inherit;padding:0}
-.hero-login-links button:hover{color:#fff}
-.hero-login-links span{color:rgba(255,255,255,.3);font-size:11px}
+#landing .mode-pick.hero-login-box{display:block;padding:26px 28px 22px;min-width:340px;max-width:400px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:18px;box-shadow:0 24px 60px -24px rgba(0,0,0,.5)}
+#landing .hero-login-t{font-size:19px;font-weight:800;color:#fff;margin-bottom:15px;text-align:center;letter-spacing:-.02em}
+#landing .hero-login-btn{width:100%;padding:16px;border:none;border-radius:12px;background:#4F46E5;color:#fff;font-size:19px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .16s,transform .16s,box-shadow .16s;box-shadow:0 10px 24px -8px rgba(79,70,229,.6);letter-spacing:-.01em}
+#landing .hero-login-btn:hover{background:#4338CA;transform:translateY(-1px);box-shadow:0 14px 30px -8px rgba(79,70,229,.7)}
+#landing .hero-login-links{display:flex;align-items:center;justify-content:center;gap:15px;margin-top:14px}
+#landing .hero-login-links button{background:none;border:none;color:rgba(255,255,255,.72);font-size:15.5px;cursor:pointer;font-family:inherit;padding:0}
+#landing .hero-login-links button:hover{color:#fff}
+#landing .hero-login-links span{color:rgba(255,255,255,.3);font-size:13.5px}
 
 /* ══════════════════════════════════════════════
    셀프 빈 화면 — 3단계 안내
@@ -3212,9 +3318,9 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 /* ══════════════════════════════════════════════
    소셜 로그인 버튼 (창 안 — 어두운 톤)
    ══════════════════════════════════════════════ */
-#onboarding .social-btns{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+#onboarding .social-btns{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
 #onboarding .soc{display:flex;align-items:center;justify-content:center;gap:9px;
-  width:100%;padding:13px;border-radius:11px;font-size:14px;font-weight:700;
+  width:100%;padding:12px;border-radius:11px;font-size:14px;font-weight:700;
   cursor:pointer;font-family:inherit;border:none;transition:filter .14s,transform .1s}
 #onboarding .soc:active{transform:scale(.99)}
 #onboarding .soc-ic{font-size:16px;line-height:1}
@@ -3228,7 +3334,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .soc-g{font-weight:800;color:#4285F4;font-family:Arial,sans-serif;
   font-size:15px}
 
-#onboarding .soc-divider{display:flex;align-items:center;gap:12px;margin:2px 0 16px;
+#onboarding .soc-divider{display:flex;align-items:center;gap:12px;margin:2px 0 12px;
   color:rgba(255,255,255,.4);font-size:11.5px}
 #onboarding .soc-divider::before,#onboarding .soc-divider::after{
   content:'';flex:1;height:1px;background:rgba(255,255,255,.14)}
@@ -3283,7 +3389,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 .ev-back{width:100%;margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.18);
   border-radius:11px;background:transparent;color:rgba(255,255,255,.75);
   font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit}
-.signup-emailhint{font-size:12px;color:#8a94a3;line-height:1.6;margin:-4px 2px 10px}
+.signup-emailhint{font-size:12px;color:#8a94a3;line-height:1.5;margin:-2px 2px 9px}
 .signup-emailhint b{color:#4F46E5}
 
 
@@ -3577,7 +3683,7 @@ tr.divider td{background:#EEF0F3!important}
       <rect class="ib ib3" x="20" y="86" width="57" height="26" rx="13" fill="#4F46E5"/>
     </svg>
     <div id="intro-word"><span class="iw1">공정</span><span class="iw2">온</span></div>
-    <div id="intro-sub">GONGJEONG&nbsp;&nbsp;ON</div>
+    <div id="intro-sub">GONGJEONG&nbsp;ON</div>
   </div>
   <div id="intro-hint">🔊 화면을 눌러 시작</div>
   <audio id="intro-audio" preload="auto" playsinline>
@@ -3693,6 +3799,11 @@ tr.divider td{background:#EEF0F3!important}
     </div>
     <p class="hero-eng">One schedule, every site, in real time.</p>
 
+    <h1 id="hero-h1">
+      <span>현장 공정을</span>
+      <span>팀 전체가 같은 화면에서</span>
+    </h1>
+
     <div class="mode-pick" id="mode-pick">
       <button class="mode-pick-btn" data-mode="pro" onclick="pickLandingMode('pro')">
         <b>🔧 프로</b><span>인테리어 · 시공 팀</span>
@@ -3702,10 +3813,6 @@ tr.divider td{background:#EEF0F3!important}
       </button>
     </div>
 
-    <h1 id="hero-h1">
-      <span>현장 공정을</span>
-      <span>팀 전체가 같은 화면에서</span>
-    </h1>
     <div class="hero-cta" id="hero-auth"></div>
    </div>
   </div>
@@ -4448,7 +4555,7 @@ function openAuth(tab){
   /* 창이 다 들어온 뒤 이메일칸에 커서 */
   const tryFocus=(n)=>{
     const el=document.getElementById('auth-email');
-    if(el){ el.focus(); return; }
+    if(el){ try{el.focus({preventScroll:true});}catch(_){el.focus();} const box=document.querySelector('#onboarding .ov-box'); if(box) box.scrollTop=0; return; }
     if(n>0) setTimeout(()=>tryFocus(n-1), 120);
   };
   setTimeout(()=>tryFocus(6), 500);
@@ -9939,7 +10046,16 @@ function renderOnboarding(){
 }
 
 /* ══════════ 공통 화면 틀 — 랜딩 위에 뜨는 모달 ══════════ */
-function authShell(inner){
+function authShell(inner, lite){
+  if(lite){
+    return `
+  <div class="ov" onclick="if(event.target===this)closeAuth()">
+    <div class="ov-box ov-lite">
+      <button class="ov-x" onclick="closeAuth()" aria-label="닫기">&times;</button>
+      <div class="ov-body">${inner}</div>
+    </div>
+  </div>`;
+  }
   return `
   <div class="ov" onclick="if(event.target===this)closeAuth()">
     <div class="ov-box">
@@ -9995,6 +10111,7 @@ function bindEnter(ids, submit){
 }
 
 const PW_EYE_SVG = `<svg class="eye-on" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg class="eye-off" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+const GOOGLE_G_SVG = `<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
 function togglePwField(btn){
   const w=btn.closest('.pw-wrap'); if(!w) return;
   const inp=w.querySelector('input'); if(!inp) return;
@@ -10015,7 +10132,7 @@ function authInput(id,type,ph,val){
 function authBtn(label,fn){
   return `<button onclick="${fn}" style="width:100%;padding:12px;background:#12141C;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:4px">${label}</button>`;
 }
-function authMsg(){ return `<div id="auth-msg" style="font-size:13px;color:#c00;margin-top:10px;line-height:1.6;min-height:18px"></div>`; }
+function authMsg(){ return `<div id="auth-msg" style="font-size:13px;color:#c00;margin-top:7px;line-height:1.55;min-height:14px"></div>`; }
 function setAuthMsg(t,ok){
   const el=document.getElementById('auth-msg');
   if(el){ el.textContent=t||''; el.style.color = ok ? '#538135' : '#c00'; }
@@ -10051,96 +10168,63 @@ function renderAuth(){
   /* ── 비밀번호 찾기 전용 화면 (이메일만 입력) ── */
   if(_authTab==='reset'){
     el.innerHTML=authShell(`
-      <button type="button" onclick="switchAuthTab('login')" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;color:rgba(255,255,255,.6);padding:0;margin-bottom:16px">← 로그인으로 돌아가기</button>
-      <div>
-        <div style="font-size:16px;font-weight:800;color:#12141C;margin-bottom:4px;letter-spacing:-.02em">비밀번호 찾기</div>
-        <div style="font-size:12.5px;color:#6b7686;line-height:1.65;margin-bottom:15px">가입하신 이메일 주소를 입력하시면, 비밀번호를 새로 설정할 수 있는 링크를 메일로 보내드립니다.</div>
-        ${authInput('auth-email','email','가입한 이메일 주소',_resetPrefill)}
-        ${authBtn('재설정 메일 보내기','requestPasswordReset()')}
-        ${authMsg()}
-      </div>
-    `);
+      <div class="na-brand"><svg class="na-logo" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.5" width="16" height="6" rx="3" fill="currentColor" opacity=".95"/><rect x="8" y="12" width="20" height="6" rx="3" fill="currentColor" opacity=".55"/><rect x="4.5" y="19.5" width="13" height="6" rx="3" fill="#4F46E5"/></svg><span class="na-wm">공정<em>온</em></span></div>
+      <div class="na-title">비밀번호 찾기</div>
+      <div class="na-sub">가입하신 이메일 주소로 비밀번호를 새로 설정할 수 있는 링크를 보내드립니다.</div>
+
+      <label class="na-label" for="auth-email">이메일</label>
+      <input id="auth-email" class="na-in" type="email" placeholder="name@example.com" value="${esc(_resetPrefill||'')}" autocomplete="email">
+
+      <button type="button" class="na-primary" onclick="requestPasswordReset()">재설정 메일 보내기</button>
+      <div id="auth-msg" class="na-msg"></div>
+
+      <button type="button" class="na-switch" onclick="switchAuthTab('login')">← 로그인으로 돌아가기</button>
+    `, true);
     const em=document.getElementById('auth-email');
-    if(em){ em.addEventListener('keydown',e=>{ if(e.key==='Enter') requestPasswordReset(); }); setTimeout(()=>em.focus(),60); }
+    if(em){ em.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.isComposing) requestPasswordReset(); }); setTimeout(()=>{try{em.focus({preventScroll:true});}catch(_){em.focus();}},60); }
     return;
   }
 
   const isLogin=_authTab==='login';
+  const pwField=(id,ph,ac)=>`<span class="pw-wrap"><input id="${id}" class="na-in" type="password" placeholder="${ph}" autocomplete="${ac}"><button type="button" class="pw-eye" onclick="togglePwField(this)" aria-label="비밀번호 표시">${PW_EYE_SVG}</button></span>`;
   el.innerHTML=authShell(`
-    <div style="display:flex;gap:0;margin-bottom:17px;border-bottom:2px solid #E4EAF3">
-      <button onclick="switchAuthTab('login')" style="flex:1;font-size:14px;padding:9px 0;border:none;background:transparent;cursor:pointer;font-family:inherit;${isLogin?'color:#12141C;border-bottom:2px solid #12141C;font-weight:500':'color:#5f6b7c;border-bottom:2px solid transparent'};margin-bottom:-2px">로그인</button>
-      <button onclick="switchAuthTab('signup')" style="flex:1;font-size:14px;padding:9px 0;border:none;background:transparent;cursor:pointer;font-family:inherit;${!isLogin?'color:#12141C;border-bottom:2px solid #12141C;font-weight:500':'color:#5f6b7c;border-bottom:2px solid transparent'};margin-bottom:-2px">회원가입</button>
-    </div>
+    <div class="na-brand"><svg class="na-logo" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.5" width="16" height="6" rx="3" fill="currentColor" opacity=".95"/><rect x="8" y="12" width="20" height="6" rx="3" fill="currentColor" opacity=".55"/><rect x="4.5" y="19.5" width="13" height="6" rx="3" fill="#4F46E5"/></svg><span class="na-wm">공정<em>온</em></span></div>
+    <div class="na-title">${isLogin?'로그인':'이메일 회원가입'}</div>
+    <div class="na-sub">${isLogin?'현장 공정을 팀 전체가 같은 화면에서 관리하세요.':'가입하고 현장 공정을 팀과 실시간으로 공유하세요.'}</div>
+
+    <button type="button" class="na-soc na-google" onclick="socialLogin('google')">
+      <span class="na-g">${GOOGLE_G_SVG}</span> Google로 계속하기
+    </button>
+
+    <div class="na-divider"><span>또는</span></div>
+
+    <label class="na-label" for="auth-email">이메일</label>
+    <input id="auth-email" class="na-in" type="email" placeholder="name@example.com" autocomplete="email">
+    ${!isLogin ? `<div class="na-hint">네이버 · Gmail · 다음 · 한메일 · 네이트 이메일만 가입 가능</div>` : ''}
+
+    <label class="na-label" for="auth-pw">비밀번호</label>
+    ${pwField('auth-pw', isLogin?'비밀번호':'6자 이상 입력', isLogin?'current-password':'new-password')}
 
     ${!isLogin ? `
-    <div class="steps-hint">
-      <div class="sh-row on"><span class="sh-n">1</span><span class="sh-t">계정 만들기</span><span class="sh-d">본인 이메일 · 비밀번호</span></div>
-      <div class="sh-row"><span class="sh-n">2</span><span class="sh-t">팀 참여</span><span class="sh-d">초대코드 · 참여 비밀번호</span></div>
-      <div class="sh-row"><span class="sh-n">3</span><span class="sh-t">일정표 사용</span><span class="sh-d">팀원 모두 같은 화면</span></div>
-    </div>` : ''}
+    <label class="na-label" for="auth-pw2">비밀번호 확인</label>
+    ${pwField('auth-pw2','비밀번호를 다시 입력하세요','new-password')}` : ''}
 
-    <div>
-      <div style="font-size:16px;font-weight:800;color:#12141C;margin-bottom:4px;letter-spacing:-.02em">
-        ${isLogin?'다시 오셨네요':'계정 만들기'}
-      </div>
-      <div style="font-size:12.5px;color:#6b7686;line-height:1.65;margin-bottom:15px">
-        ${isLogin?'이메일과 비밀번호를 넣어 주십시오.':'먼저 본인 계정을 만듭니다. 초대코드는 다음 단계입니다.'}
-      </div>
+    ${isLogin ? `<button type="button" class="na-forgot" onclick="showPwReset()">비밀번호를 잊으셨나요?</button>` : ''}
 
-      <div class="social-btns">
-        <button type="button" class="soc soc-google" onclick="socialLogin('google')">
-          <span class="soc-ic soc-g">G</span> Google로 ${isLogin?'로그인':'시작하기'}
-        </button>
-      </div>
+    ${!isLogin ? `
+    <label class="na-agree">
+      <input type="checkbox" id="ag-terms">
+      <span><button type="button" class="na-aglink" onclick="openLegal('terms')">이용약관</button> 및 <button type="button" class="na-aglink" onclick="openLegal('privacy')">개인정보 처리방침</button>에 동의합니다. <b class="na-req">필수</b></span>
+    </label>` : ''}
 
-      <div class="soc-divider"><span>또는 이메일로</span></div>
+    <button type="button" class="na-primary" onclick="${isLogin?'doLogin()':'doSignup()'}">${isLogin?'이메일로 로그인':'계정 만들기'}</button>
+    <div id="auth-msg" class="na-msg"></div>
 
-      ${authInput('auth-email','email','이메일 주소')}
-      ${!isLogin ? `<div class="signup-emailhint">실제로 받을 수 있는 이메일을 <b>정확히</b> 입력해 주세요. 가입 시 이 주소로 <b>인증번호</b>가 발송됩니다.</div>` : ''}
-      ${authInput('auth-pw','password', isLogin?'비밀번호':'비밀번호 (6자 이상)')}
-
-      ${isLogin ? `<button type="button" class="forgot-link" onclick="showPwReset()">비밀번호를 잊으셨나요?</button>` : ''}
-
-      ${!isLogin ? `
-      <div class="agree">
-        <label class="agree-all">
-          <input type="checkbox" id="ag-all" onchange="toggleAllAgree(this.checked)">
-          <span>아래 내용에 모두 동의합니다</span>
-        </label>
-        <div class="agree-list">
-          <label class="agree-row">
-            <input type="checkbox" id="ag-terms" class="ag-item" onchange="syncAgreeAll()">
-            <span><b class="req">[필수]</b> <button type="button" class="ag-link" onclick="openLegal('terms')">이용약관</button>에 동의합니다</span>
-          </label>
-          <label class="agree-row">
-            <input type="checkbox" id="ag-privacy" class="ag-item" onchange="syncAgreeAll()">
-            <span><b class="req">[필수]</b> <button type="button" class="ag-link" onclick="openLegal('privacy')">개인정보 수집·이용</button>에 동의합니다</span>
-          </label>
-          <label class="agree-row">
-            <input type="checkbox" id="ag-mkt" class="ag-item" onchange="syncAgreeAll()">
-            <span><b class="opt">[선택]</b> 서비스 소식·업데이트 안내를 받겠습니다</span>
-          </label>
-        </div>
-      </div>` : ''}
-
-      ${authBtn(isLogin?'로그인':'회원가입', isLogin?'doLogin()':'doSignup()')}
-      ${authMsg()}
-    </div>
-
-    ${isLogin ? `
-    <div class="join-hint">
-      <div class="jh-t">초대코드를 받으셨나요?</div>
-      <div class="jh-d">계정이 아직 없다면 <b>회원가입</b>부터 하십시오.<br>가입 직후 초대코드를 입력하는 화면이 나옵니다.</div>
-      <button class="jh-btn" onclick="switchAuthTab('signup')">회원가입하고 팀 참여하기 →</button>
-    </div>` : `
-    <div style="font-size:12.5px;color:#7c8798;line-height:1.8;margin-top:14px;text-align:center">
-      이미 계정이 있으신가요? 위에서 <b>로그인</b>을 눌러 주세요.
-    </div>`}
-  `);
+    <button type="button" class="na-switch" onclick="switchAuthTab('${isLogin?'signup':'login'}')">${isLogin?'처음이신가요? <b>이메일 회원가입</b>':'이미 계정이 있나요? <b>로그인</b>'}</button>
+  `, true);
   const em=document.getElementById('auth-email');
-  if(em) em.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('auth-pw').focus(); });
-  const pw=document.getElementById('auth-pw');
-  if(pw) pw.addEventListener('keydown',e=>{ if(e.key==='Enter') (isLogin?doLogin():doSignup()); });
+  if(em) em.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.isComposing) document.getElementById('auth-pw').focus(); });
+  bindEnter(isLogin?['auth-pw']:['auth-pw','auth-pw2'], isLogin?doLogin:doSignup);
 }
 function switchAuthTab(t){ _authTab=t; renderAuth(); }
 
@@ -10358,25 +10442,36 @@ function startResendCooldown(sec){
   _resendTimer = setInterval(()=>{ remain--; render(); }, 1000);
 }
 
+const ALLOWED_EMAIL_DOMAINS = ['naver.com','gmail.com','daum.net','hanmail.net','nate.com'];
+function isAllowedEmailDomain(email){
+  const m = /@([^@]+)$/.exec((email||'').toLowerCase().trim());
+  return !!m && ALLOWED_EMAIL_DOMAINS.includes(m[1]);
+}
 async function doSignup(){
   const email=document.getElementById('auth-email').value.trim();
   const pw=document.getElementById('auth-pw').value;
-  const agTerms   = document.getElementById('ag-terms');
-  const agPrivacy = document.getElementById('ag-privacy');
-  const agMkt     = document.getElementById('ag-mkt');
+  const pw2El=document.getElementById('auth-pw2');
+  const pw2=pw2El?pw2El.value:'';
+  const agTerms = document.getElementById('ag-terms');
 
   if(!email||!pw){ setAuthMsg('이메일과 비밀번호를 입력해 주세요.'); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setAuthMsg('올바른 이메일 형식이 아닙니다.'); return; }
+  if(!isAllowedEmailDomain(email)){
+    setAuthMsg('네이버 · Gmail · 다음 · 한메일 · 네이트 이메일만 가입할 수 있습니다.');
+    return;
+  }
   if(pw.length<6){ setAuthMsg('비밀번호는 6자 이상이어야 합니다.'); return; }
-  if(!agTerms.checked || !agPrivacy.checked){
-    setAuthMsg('필수 항목에 동의해 주셔야 가입할 수 있습니다.');
+  if(pw!==pw2){ setAuthMsg('비밀번호가 서로 일치하지 않습니다.'); if(pw2El) pw2El.focus(); return; }
+  if(!agTerms || !agTerms.checked){
+    setAuthMsg('이용약관 및 개인정보 처리방침에 동의해 주셔야 가입할 수 있습니다.');
     return;
   }
 
-  authBusy(true,'회원가입');
+  authBusy(true,'계정 만들기');
   try{
     const ok=await signUp(email,pw);
     if(ok==='exists'){
-      authBusy(false,'회원가입');
+      authBusy(false,'계정 만들기');
       setAuthMsg('이미 가입된 이메일입니다. 위에서 로그인해 주세요.');
       return;
     }
@@ -10391,19 +10486,19 @@ async function doSignup(){
             terms_version: LEGAL.version,
             agreed_terms: true,
             agreed_privacy: true,
-            agreed_marketing: !!(agMkt && agMkt.checked)
+            agreed_marketing: false
           })
         });
       }catch(_){}
     }
     if(!ok){
-      authBusy(false,'회원가입');
+      authBusy(false,'계정 만들기');
       showEmailVerifyNotice(email);   // 메일 확인 안내 화면
       return;
     }
     await afterAuth();
   }catch(e){
-    authBusy(false,'회원가입');
+    authBusy(false,'계정 만들기');
     setAuthMsg(/already registered/i.test(e.message) ? '이미 가입된 이메일입니다. 로그인해 주세요.' : e.message);
   }
 }
