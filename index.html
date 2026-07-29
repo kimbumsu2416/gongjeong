@@ -764,7 +764,9 @@ html{scroll-behavior:smooth}
 .mb-err{font-size:14px;color:#c00;padding:28px 20px;text-align:center;line-height:1.8;white-space:pre-wrap;background:#fdf2f2;border:1px solid #f0d0d0;border-radius:10px}
 
 /* ── 팀 모달 ── */
-.tm-box{max-width:640px}
+.tm-box{max-width:640px;position:relative}
+.tm-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border:none;background:#eef1f6;color:#8a909c;font-size:20px;line-height:1;border-radius:9px;cursor:pointer;transition:background .14s,color .14s;z-index:2}
+.tm-close:hover{background:#e2e6ee!important;color:#141A26}
 .tm-secs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px 22px;border-top:1px solid #eef1f6;margin-top:18px;padding-top:16px}
 .tm-secs .tm-sec{border-top:none;margin-top:0;padding-top:0}
 @media(max-width:560px){.tm-secs{grid-template-columns:1fr}}
@@ -2532,6 +2534,15 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   from{ opacity:0; transform:translateY(18px) scale(.97) }
   to  { opacity:1; transform:none }
 }
+/* 넓은 다크 모달 (팀 선택) — 2단 배치 */
+.ov-box.ov-wide{max-width:760px}
+.pick-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;align-items:start}
+.pick-cols .pick-col{min-width:0}
+@media(max-width:640px){.pick-cols{grid-template-columns:1fr}}
+.tp-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,.14);color:rgba(255,255,255,.85);font-size:11.5px;font-weight:800;margin-right:9px;flex-shrink:0}
+.tp-card.kbd-on .tp-num{background:#4F46E5;color:#fff}
+.pick-kbd-tip{font-size:11.5px;color:rgba(255,255,255,.45);text-align:center;margin-top:10px}
+.pick-kbd-tip b{color:rgba(255,255,255,.7);font-weight:700}
 
 /* 내용은 살짝 늦게 따라 들어온다 */
 .ov-brand{animation:ovLag .4s .08s cubic-bezier(.2,.8,.3,1) both}
@@ -9377,7 +9388,7 @@ function renderSiteTable(si,y,m,days,cw){
 
   st.procs.forEach((proc,pi)=>{
     h+=`<tr class="gt-r">`;
-    h+=`<td class="gt-proc" style="width:${pw}px">${esc(proc)||'<i>작업명을 넣으세요</i>'}</td>`;
+    h+=`<td class="gt-proc" data-si="${si}" data-pi="${pi}" style="width:${pw}px">${esc(proc)||'<i>작업명을 넣으세요</i>'}</td>`;
 
     for(let d=1;d<=days;d++){
       const bg = st.cells[ck(si,pi,d)]||'';
@@ -9770,11 +9781,12 @@ async function deleteAllProcs(si){
 
 function renameSiteProc(si,pi,val,live){
   S.sites[si].procs[pi]=val;
-  // 테이블 작업명 실시간 업데이트
-  document.querySelectorAll('.c-proc').forEach((el,i)=>{
-    if(i===pi)el.textContent=val;
+  // 테이블 작업명 실시간 업데이트 — 해당 현장·작업 셀만 정확히 갱신
+  const has=val&&val.trim();
+  document.querySelectorAll(`.gt-proc[data-si="${si}"][data-pi="${pi}"]`).forEach(el=>{
+    el.innerHTML = has ? esc(val) : '<i>작업명을 넣으세요</i>';
   });
-  // 즉시 저장 (타이머 없이)
+  // 저장
   clearTimeout(window._renameTimer);
   window._renameTimer=setTimeout(()=>persist(),500);
 }
@@ -10049,7 +10061,7 @@ function renderOnboarding(){
 }
 
 /* ══════════ 공통 화면 틀 — 랜딩 위에 뜨는 모달 ══════════ */
-function authShell(inner, lite){
+function authShell(inner, lite, wide){
   if(lite){
     return `
   <div class="ov" onclick="if(event.target===this)closeAuth()">
@@ -10061,7 +10073,7 @@ function authShell(inner, lite){
   }
   return `
   <div class="ov" onclick="if(event.target===this)closeAuth()">
-    <div class="ov-box">
+    <div class="ov-box${wide?' ov-wide':''}">
       <button class="ov-x" onclick="closeAuth()" aria-label="닫기">&times;</button>
 
       <div class="ov-brand">
@@ -10573,11 +10585,13 @@ async function confirmModeSelect(){
 let PICK_TEAMS=[];
 function renderTeamPicker(){
   const el=document.getElementById('onboarding');
+  const pv = !isSelf();   // 프로: 넓은 2단 + 숫자키 조작
   let list='';
-  PICK_TEAMS.forEach(t=>{
+  PICK_TEAMS.forEach((t,idx)=>{
     const owner = USER && t.owner_id===USER.id;
     const noPw = t.has_join_password===false;
-    list+=`<div class="tp-card" onclick="enterTeam('${t.id}')">
+    list+=`<div class="tp-card${pv&&idx<9?' kbd-on':''}" onclick="enterTeam('${t.id}')">
+      ${pv&&idx<9?`<span class="tp-num">${idx+1}</span>`:''}
       <div class="tp-main">
         <div class="tp-name">${esc(t.name)}${owner?'<span class="tp-badge">관리자</span>':''}${noPw?'<span class="tp-warn">비밀번호 없음</span>':''}</div>
         <div class="tp-code">초대코드 ${esc(t.invite_code)}</div>
@@ -10585,6 +10599,28 @@ function renderTeamPicker(){
       <span class="tp-go">→</span>
     </div>`;
   });
+
+  const adminBox = IS_ADMIN ? `
+    <button class="tp-admin" onclick="openInbox()">
+      <span class="tp-admin-ico">✉</span>
+      <span class="tp-admin-txt"><b>문의함</b><em>${INQ_NEW?`미처리 ${INQ_NEW}건`:'접수된 문의 확인'}</em></span>
+      ${INQ_NEW?`<span class="tp-admin-badge">${INQ_NEW}</span>`:'<span class="tp-go">→</span>'}
+    </button>` : '';
+
+  const teamsBox = `
+    <div class="tp-div"><span>내 팀</span></div>
+    <div class="tp-list">${list||'<div style="font-size:13px;color:rgba(255,255,255,.5);padding:10px 2px">참여 중인 팀이 없습니다</div>'}</div>`;
+
+  const joinBox = `
+    <div class="tp-div"><span>다른 팀에 참여</span></div>
+    <div style="background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:16px">
+      <div style="font-size:13px;color:#5f6b7c;line-height:1.7;margin-bottom:12px">다른 팀의 초대코드를 받으셨다면 여기에 입력하세요.</div>
+      <input id="pick-code" type="text" placeholder="A1B2C3" maxlength="6"
+        style="width:100%;font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:500;letter-spacing:0.24em;text-align:center;padding:12px;border-radius:10px;border:1.5px solid #c8d0de;outline:none;color:#12141C;background:#f7f9fc;margin-bottom:8px;text-transform:uppercase">
+      ${authInput('pick-pw','password','참여 비밀번호')}
+      <button id="pick-join-btn" onclick="doJoinFromPicker()" style="width:100%;padding:11px;background:#fff;color:#12141C;border:1px solid #12141C;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">팀 참여하기</button>
+      <div id="pick-msg" style="font-size:12.5px;color:#c00;margin-top:9px;min-height:16px"></div>
+    </div>`;
 
   el.innerHTML=authShell(`
     <button onclick="openProfile()" class="tp-acct" style="width:100%;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px 15px;margin-bottom:22px;cursor:pointer;text-align:left;font-family:inherit">
@@ -10618,38 +10654,25 @@ function renderTeamPicker(){
       <span style="font-size:17px;color:#fff;flex-shrink:0">→</span>
     </button>`:''}
 
-    ${IS_ADMIN ? `
-    <button class="tp-admin" onclick="openInbox()">
-      <span class="tp-admin-ico">✉</span>
-      <span class="tp-admin-txt">
-        <b>문의함</b>
-        <em>${INQ_NEW?`미처리 ${INQ_NEW}건`:'접수된 문의 확인'}</em>
-      </span>
-      ${INQ_NEW?`<span class="tp-admin-badge">${INQ_NEW}</span>`:'<span class="tp-go">→</span>'}
-    </button>
-    <div class="tp-div"><span>내 팀</span></div>` : ''}
-
-    <div class="tp-list">${list}</div>
-
-    <div class="tp-div"><span>다른 팀에 참여</span></div>
-
-    <div style="background:#fff;border:1px solid #dde3ee;border-radius:12px;padding:16px">
-      <div style="font-size:13px;color:#5f6b7c;line-height:1.7;margin-bottom:12px">
-        다른 팀의 초대코드를 받으셨다면 여기에 입력하세요.
-      </div>
-      <input id="pick-code" type="text" placeholder="A1B2C3" maxlength="6"
-        style="width:100%;font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:500;letter-spacing:0.24em;text-align:center;padding:12px;border-radius:10px;border:1.5px solid #c8d0de;outline:none;color:#12141C;background:#f7f9fc;margin-bottom:8px;text-transform:uppercase">
-      ${authInput('pick-pw','password','참여 비밀번호')}
-      <button id="pick-join-btn" onclick="doJoinFromPicker()" style="width:100%;padding:11px;background:#fff;color:#12141C;border:1px solid #12141C;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">팀 참여하기</button>
-      <div id="pick-msg" style="font-size:12.5px;color:#c00;margin-top:9px;min-height:16px"></div>
+    ${pv ? `
+    <div class="pick-cols">
+      <div class="pick-col">${adminBox}${teamsBox}</div>
+      <div class="pick-col">${joinBox}</div>
     </div>
+    <div class="pick-kbd-tip">숫자키 <b>1~9</b> 로 팀 바로 열기 · 코드 입력 후 <b>Enter</b> 로 참여</div>
+    ` : `
+    ${adminBox}
+    ${PICK_TEAMS.length?teamsBox:''}
+    ${joinBox}
+    `}
 
     <div style="display:flex;gap:7px;margin-top:12px">
       <button onclick="goCreateTeam()" style="flex:1;padding:10px;background:transparent;color:#5f6b7c;border:1px solid #dde3ee;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">+ 새 팀 만들기</button>
       <button onclick="doLogout()" style="flex:1;padding:10px;background:transparent;color:#7c8798;border:1px solid #dde3ee;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">로그아웃</button>
     </div>
-  `);
+  `, false, pv);
   bindPickerEnter();
+  bindPickerKeys();
   refreshPickTeams();   // 서버에서 최신 팀 목록을 다시 받아 갱신 (stale 방지)
 }
 
@@ -10694,6 +10717,21 @@ function enterTeam(id){
 
 function bindPickerEnter(){
   bindEnter(['pick-code','pick-pw'], doJoinFromPicker);
+}
+/* 팀 선택 화면 키보드 조작 — 숫자키 1~9로 팀 바로 열기 (입력창 포커스 중엔 무시) */
+function bindPickerKeys(){
+  if(window._pickKeyBound) return;
+  window._pickKeyBound=true;
+  document.addEventListener('keydown', e=>{
+    if(_authView!=='pick' || _appView!=='onboarding') return;
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    const ae=document.activeElement;
+    if(ae && (ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.isContentEditable)) return;
+    if(e.key>='1' && e.key<='9'){
+      const n=parseInt(e.key,10)-1;
+      if(PICK_TEAMS[n]){ e.preventDefault(); enterTeam(PICK_TEAMS[n].id); }
+    }
+  });
 }
 async function doJoinFromPicker(){
   const code=(document.getElementById('pick-code').value||'').trim().toUpperCase();
@@ -11070,6 +11108,7 @@ async function openTeamMenu(){
   document.getElementById('modal-area').innerHTML=`
   <div class="modal-overlay" onclick="if(event.target===this)closeTeamMenu()">
     <div class="modal-box tm-box">
+      <button class="tm-close" onclick="closeTeamMenu()" aria-label="닫기">&times;</button>
       <div class="modal-title" style="margin-bottom:6px">팀</div>
       <div class="tm-acct">
         <span class="tm-acct-l">로그인 계정</span>
@@ -11112,7 +11151,6 @@ async function openTeamMenu(){
       </div>
 
       <div id="tm-msg" class="tm-msg"></div>
-      <div class="modal-btns"><button onclick="closeTeamMenu()">닫기</button></div>
     </div>
   </div>`;
 }
