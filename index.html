@@ -11026,11 +11026,11 @@ async function afterAuth(){
     // ── 전문가 모드: 기존대로 팀 갈림길 ──
     if(!teams.length){
       _authView='team'; _teamTab=''; _appView='onboarding';
-      renderOnboarding();
+      showOnboarding();   // 랜딩을 뒤에 두고 그 위에 모달 (배경 유지)
     } else {
       PICK_TEAMS=teams;
       _authView='pick'; _appView='onboarding';
-      renderOnboarding();
+      showOnboarding();   // 랜딩을 뒤에 두고 그 위에 모달 (배경 유지)
     }
   }catch(e){
     setAuthMsg('데이터를 불러오지 못했습니다. '+e.message);
