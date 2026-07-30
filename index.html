@@ -156,6 +156,13 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .bl-add-name:focus,.bl-add-price:focus{border-color:#4F46E5}
 .bl-sum{font-size:12px;color:#5f6b7c;font-weight:700;white-space:nowrap}
 
+/* 프로 프로젝트 본문 탭 (사진·자료 / 자재·구매) */
+.pj-tabs{display:flex;gap:6px;margin:14px 0 0}
+.pj-tab{font-size:13.5px;font-weight:700;padding:10px 16px;border:1px solid #dde3ee;border-bottom:none;background:#f5f7fb;color:#5f6b7c;border-radius:10px 10px 0 0;cursor:pointer;font-family:inherit;position:relative;top:1px}
+.pj-tab:hover{color:#12141C;background:#eef2f8}
+.pj-tab.on{background:#fff;color:#12141C;border-color:#e4e9f0;box-shadow:0 -2px 0 #4F46E5 inset}
+.pj-tabs + .asx,.pj-tabs + .bl-panel{border-top-left-radius:0}
+
 /* ── 정산 · 비용 (셀프) ── */
 .st-mat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f5f8fc;border:1px solid #e2e8f2;border-radius:10px;margin-bottom:10px}
 .st-mat-k{font-size:13px;color:#5f6b7c;font-weight:600}
@@ -7869,6 +7876,19 @@ function renderSettle(si){
   </div>`;
 }
 
+/* ══════════ 프로 프로젝트 본문 패널 — 사진·자료 / 자재·구매 탭 ══════════ */
+let _projPanelTab = 'assets';   // 'assets' | 'buy'
+function setProjPanel(t){ _projPanelTab=t; dnRerender(); }
+function renderProjPanels(si){
+  const tab = _projPanelTab || 'assets';
+  const bar = `<div class="pj-tabs">
+    <button class="pj-tab${tab==='assets'?' on':''}" onclick="setProjPanel('assets')">📷 사진 · 자료</button>
+    <button class="pj-tab${tab==='buy'?' on':''}" onclick="setProjPanel('buy')">🧾 자재 · 구매</button>
+  </div>`;
+  const body = (tab==='buy') ? renderBuyList(si) : renderSiteAssets(si);
+  return bar + body;
+}
+
 /* ── 렌더 ── */
 function renderSiteAssets(si){
   return `<div class="asx" id="asx-${si}"
@@ -9064,9 +9084,10 @@ function renderMain(){
     // 셀프: 프로젝트 자료 대신 연락처를 넓은 본문에 크게 배치 / 프로: 기존 프로젝트 자료
     const isS = isSelf();
     const main = backBar + renderSpanBar(si) + renderColorPicker(si) + renderSiteTable(si,y,m,days,cw)
-      + (isS ? (renderSiteContacts(si) + renderBuyList(si) + renderSettle(si)) : renderSiteAssets(si));
+      + (isS ? (renderSiteContacts(si) + renderBuyList(si) + renderSettle(si)) : renderProjPanels(si));
+    const _proAssetsShown = isS || (_projPanelTab||'assets')==='assets';   // 프로: 사진 탭일 때만 자료 로드/페인트
     setTimeout(()=>{
-      if(!isS){ qPaint(si); if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si); }
+      if(!isS && _proAssetsShown){ qPaint(si); if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si); }
     }, 0);
 
     const infoInner=`<div class="meta-grid">
