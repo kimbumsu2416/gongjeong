@@ -152,6 +152,25 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .bl-add-name:focus,.bl-add-price:focus{border-color:#4F46E5}
 .bl-sum{font-size:12px;color:#5f6b7c;font-weight:700;white-space:nowrap}
 
+/* ── 정산 · 비용 (셀프) ── */
+.st-mat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f5f8fc;border:1px solid #e2e8f2;border-radius:10px;margin-bottom:10px}
+.st-mat-k{font-size:13px;color:#5f6b7c;font-weight:600}
+.st-auto{font-size:10.5px;font-weight:700;color:#4F46E5;background:#eef0fe;border:1px solid #d8dafb;border-radius:5px;padding:1px 6px;margin-left:4px}
+.st-mat-v{font-size:14px;font-weight:700;color:#12141C}
+.st-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.st-row{display:flex;align-items:center;gap:8px}
+.st-label{flex:1;min-width:100px;font-size:13.5px;padding:8px 10px;border:1px solid #dde3ee;border-radius:8px;font-family:inherit;outline:none;color:#222;background:#fff}
+.st-amt{width:130px;font-size:13.5px;padding:8px 10px;border:1px solid #dde3ee;border-radius:8px;font-family:inherit;outline:none;color:#222;text-align:right;background:#fff}
+.st-label:focus,.st-amt:focus{border-color:#4F46E5}
+.st-won{font-size:12.5px;color:#7c8798;flex-shrink:0}
+.st-add{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #eef1f6;padding-top:10px;margin-bottom:10px}
+.st-add-label{flex:1;min-width:120px;font-size:13.5px;padding:9px 11px;border:1px solid #c8d0de;border-radius:8px;font-family:inherit;outline:none;color:#222;background:#fff}
+.st-add-amt{width:140px;font-size:13.5px;padding:9px 11px;border:1px solid #c8d0de;border-radius:8px;font-family:inherit;outline:none;color:#222;text-align:right;background:#fff}
+.st-add-label:focus,.st-add-amt:focus{border-color:#4F46E5}
+.st-total-row{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:linear-gradient(135deg,#4F46E5,#4338CA);border-radius:11px}
+.st-total-row>span:first-child{font-size:13.5px;font-weight:700;color:#fff}
+.st-total{font-size:19px;font-weight:800;color:#fff}
+
 /* 날짜별 공정 현황 */
 .date-summary{background:#fff;border-radius:12px;border:1px solid #c8d0de;padding:12px 14px;margin-bottom:12px}
 .date-summary-title{font-size:13px;font-weight:500;color:#222;margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -2627,7 +2646,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 @keyframes ovPopOut{ to{ opacity:0; transform:translateY(10px) scale(.98) } }
 
 /* 닫기 */
-.ov-x{position:absolute;top:16px;right:16px;width:32px;height:32px;
+.ov-x{position:absolute;top:16px;right:16px;width:32px;height:32px;z-index:10;
   border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);
   font-size:19px;cursor:pointer;border-radius:9px;line-height:1;
   transition:background .14s,color .14s}
@@ -7639,7 +7658,7 @@ function updateBuy(si,i,field,val){
   if(field==='price') val=String(val).replace(/[^0-9]/g,'');
   l[i][field]=val;
   clearTimeout(window._blTimer); window._blTimer=setTimeout(()=>persist(),500);
-  if(field==='price') _blUpdateSum(si);
+  if(field==='price'){ _blUpdateSum(si); if(typeof _costRefresh==='function') _costRefresh(si); }
 }
 function toggleBuy(si,i,field,checked){
   const l=_blInit(si); if(!l[i]) return;
@@ -7679,6 +7698,59 @@ function renderBuyList(si){
       <input id="bl-price-${si}" class="bl-add-price" placeholder="가격" inputmode="numeric" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addBuyItem(${si});}">
       <button class="btn-accent" onclick="addBuyItem(${si})">+ 추가</button>
     </div>
+  </div>`;
+}
+
+/* ══════════ 정산 · 비용 (셀프) — 자재비(자동) + 기타 = 총 공사 금액 ══════════ */
+function _costInit(si){ const s=S.sites[si]; if(!Array.isArray(s.costs)) s.costs=[]; return s.costs; }
+function _costOther(si){ return _costInit(si).reduce((a,x)=>a+(parseInt(String((x&&x.amount)||'').replace(/[^0-9]/g,''))||0),0); }
+function _costTotal(si){ return _blSummary(si).total + _costOther(si); }
+function _costRefresh(si){
+  const me=document.getElementById('st-mat-'+si); if(me) me.textContent='₩'+_blSummary(si).total.toLocaleString();
+  const te=document.getElementById('st-total-'+si); if(te) te.textContent='₩'+_costTotal(si).toLocaleString();
+}
+function addCost(si){
+  const l=document.getElementById('st-label-'+si), a=document.getElementById('st-amt-'+si);
+  const label=(l?l.value:'').trim(); if(!label){ if(l)l.focus(); return; }
+  const amount=(a?a.value:'').replace(/[^0-9]/g,'');
+  _costInit(si).push({label, amount}); persist(); dnRerender();
+  setTimeout(()=>{ const x=document.getElementById('st-label-'+si); if(x)x.focus(); },50);
+}
+function updateCost(si,i,field,val){
+  const l=_costInit(si); if(!l[i]) return;
+  if(field==='amount') val=String(val).replace(/[^0-9]/g,'');
+  l[i][field]=val;
+  clearTimeout(window._costTimer); window._costTimer=setTimeout(()=>persist(),500);
+  if(field==='amount') _costRefresh(si);
+}
+function delCost(si,i){ const l=_costInit(si); l.splice(i,1); persist(); dnRerender(); }
+function renderSettle(si){
+  const sc=SITE_COLORS[si%SITE_COLORS.length];
+  const mat=_blSummary(si).total;
+  const costs=_costInit(si);
+  const total=_costTotal(si);
+  let rows='';
+  costs.forEach((raw,i)=>{ const it=raw||{};
+    rows+=`<div class="st-row">
+      <input class="st-label" value="${esc(it.label||'')}" placeholder="항목 (예: 인건비, 철거비)" oninput="updateCost(${si},${i},'label',this.value)">
+      <input class="st-amt" value="${esc(it.amount||'')}" placeholder="금액" inputmode="numeric" oninput="updateCost(${si},${i},'amount',this.value)">
+      <span class="st-won">원</span>
+      <button class="bl-del" onclick="delCost(${si},${i})" title="삭제">✕</button>
+    </div>`;
+  });
+  return `<div class="proc-panel st-panel" style="border-left:3px solid ${sc}">
+    <div class="proc-panel-title"><span>정산 · 비용 <span style="font-size:11.5px;font-weight:400;color:#5f6b7c">— 자재비 + 기타 = 총 공사 금액</span></span></div>
+    <div class="st-mat-row">
+      <span class="st-mat-k">자재비 <span class="st-auto">자동</span></span>
+      <span class="st-mat-v" id="st-mat-${si}">₩${mat.toLocaleString()}</span>
+    </div>
+    <div class="st-list">${rows}</div>
+    <div class="st-add">
+      <input id="st-label-${si}" class="st-add-label" placeholder="항목 (예: 인건비)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('st-amt-${si}').focus();}">
+      <input id="st-amt-${si}" class="st-add-amt" placeholder="금액" inputmode="numeric" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addCost(${si});}">
+      <button class="btn-accent" onclick="addCost(${si})">+ 추가</button>
+    </div>
+    <div class="st-total-row"><span>총 공사 금액</span><span class="st-total" id="st-total-${si}">₩${total.toLocaleString()}</span></div>
   </div>`;
 }
 
@@ -8877,7 +8949,7 @@ function renderMain(){
     // 셀프: 프로젝트 자료 대신 연락처를 넓은 본문에 크게 배치 / 프로: 기존 프로젝트 자료
     const isS = isSelf();
     const main = backBar + renderSpanBar(si) + renderColorPicker(si) + renderSiteTable(si,y,m,days,cw)
-      + (isS ? (renderSiteContacts(si) + renderBuyList(si)) : renderSiteAssets(si));
+      + (isS ? (renderSiteContacts(si) + renderBuyList(si) + renderSettle(si)) : renderSiteAssets(si));
     setTimeout(()=>{
       if(!isS){ qPaint(si); if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si); }
     }, 0);
