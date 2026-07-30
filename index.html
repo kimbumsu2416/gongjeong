@@ -2655,9 +2655,18 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 #onboarding .ov-box.ov-lite .na-in:focus{background:rgba(255,255,255,.1)!important;
   border-color:#4F46E5!important;box-shadow:0 0 0 3px rgba(79,70,229,.25)!important}
 #onboarding .ov-box.ov-lite .pw-wrap > .na-in{margin-bottom:0!important;padding-right:46px!important}
-#onboarding .ov-box.ov-lite .na-in:-webkit-autofill{
+#onboarding .ov-box.ov-lite .na-in:-webkit-autofill,
+#onboarding .ov-box.ov-lite .na-in:-webkit-autofill:hover,
+#onboarding .ov-box.ov-lite .na-in:-webkit-autofill:active{
   -webkit-text-fill-color:#fff!important;
-  -webkit-box-shadow:0 0 0 40px #1c2637 inset}
+  -webkit-box-shadow:0 0 0 40px #1c2637 inset!important;
+  caret-color:#fff!important;
+  border:1.5px solid rgba(255,255,255,.16)!important;
+  transition:background-color 9999s ease-in-out 0s}
+#onboarding .ov-box.ov-lite .na-in:-webkit-autofill:focus{
+  -webkit-text-fill-color:#fff!important;
+  -webkit-box-shadow:0 0 0 40px #1c2637 inset, 0 0 0 3px rgba(79,70,229,.3)!important;
+  border-color:#4F46E5!important}
 
 @media(max-width:640px){
   .ov-box{max-width:none;border-radius:18px;padding:24px 20px 18px}
@@ -4929,7 +4938,7 @@ function renderSiteContacts(si){
   const roles=[...new Set((S.globalContacts||[]).map(c=>c.role||'기타'))];
 
   let h=`<div class="proc-panel" style="border-left:3px solid ${sc}">
-    <div class="proc-panel-title">연락처 <span style="font-size:11.5px;font-weight:400;color:#5f6b7c">— 이 프로젝트 담당자를 선택하세요</span></div>`;
+    <div class="proc-panel-title">연락처 <span style="font-size:11.5px;font-weight:400;color:#5f6b7c">— ${isSelf()?'이 공사 관련 담당자·업체를 등록하세요':'이 프로젝트 담당자를 선택하세요'}</span></div>`;
 
   // 선택된 연락처 목록
   if(s.selectedContacts.length>0){
@@ -8756,11 +8765,12 @@ function renderMain(){
     const backBar = isSelf()
       ? `<button class="self-back" onclick="setTab('all')">← 셀프 인테리어 전체로</button>`
       : '';
-    // 물량 산출은 잠시 제외(추후 재도입). 셀프·프로 동일 구성.
-    const main = backBar + renderSpanBar(si) + renderColorPicker(si) + renderSiteTable(si,y,m,days,cw) + renderSiteAssets(si);
+    // 셀프: 프로젝트 자료 대신 연락처를 넓은 본문에 크게 배치 / 프로: 기존 프로젝트 자료
+    const isS = isSelf();
+    const main = backBar + renderSpanBar(si) + renderColorPicker(si) + renderSiteTable(si,y,m,days,cw)
+      + (isS ? renderSiteContacts(si) : renderSiteAssets(si));
     setTimeout(()=>{
-      if(!isSelf()) qPaint(si);
-      if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si);
+      if(!isS){ qPaint(si); if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si); }
     }, 0);
 
     const infoInner=`<div class="meta-grid">
@@ -8777,9 +8787,9 @@ function renderMain(){
     const nContacts=(s.selectedContacts||[]).length;
 
     const side=
-      section('info', isSelf()?'공간 정보':'프로젝트 정보', infoInner) +
-      section('procs', isSelf()?'할 일 관리':'작업 관리', renderSiteProcPanel(si), (s.procs||[]).filter(p=>p).length+'개') +
-      section('contacts','연락처', renderSiteContacts(si), nContacts?`${nContacts}명`:'') +
+      section('info', isS?'공간 정보':'프로젝트 정보', infoInner) +
+      section('procs', isS?'할 일 관리':'작업 관리', renderSiteProcPanel(si), (s.procs||[]).filter(p=>p).length+'개') +
+      (isS ? '' : section('contacts','연락처', renderSiteContacts(si), nContacts?`${nContacts}명`:'')) +
       notepad('데일리 노트', renderDailyNoteCompact(), dnBadge()) +
       `<div class="side-foot"><button class="btn-danger" onclick="deleteSite(${si})">${isSelf()?'공간 삭제':'프로젝트 삭제'}</button></div>`;
 
