@@ -130,6 +130,28 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .proc-add-row{display:flex;gap:5px;align-items:center;padding:5px 2px 0}
 .proc-add-input{flex:1;font-size:12.5px;padding:4px 8px;border-radius:8px;border:1px solid #b0b8c8;background:#fff;color:#222;font-family:inherit;outline:none}
 
+/* ── 자재·구매 목록 (셀프) ── */
+.bl-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.bl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border:1px solid #e4e9f0;border-radius:10px;background:#fff}
+.bl-row.done{background:#f2fbf5;border-color:#c9ead4}
+.bl-status{display:flex;gap:6px;flex-shrink:0}
+.bl-chk{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#7c8798;cursor:pointer;padding:4px 8px;border:1px solid #dde3ee;border-radius:7px;user-select:none}
+.bl-chk input{margin:0;accent-color:#4F46E5;cursor:pointer}
+.bl-chk.on{color:#12141C;border-color:#4F46E5;background:#eef0fe;font-weight:600}
+.bl-name{flex:2;min-width:130px;font-size:13.5px;padding:8px 10px;border:1px solid #dde3ee;border-radius:8px;font-family:inherit;outline:none;color:#222;background:#fff}
+.bl-price{width:96px;font-size:13.5px;padding:8px 10px;border:1px solid #dde3ee;border-radius:8px;font-family:inherit;outline:none;color:#222;text-align:right;background:#fff}
+.bl-url{flex:1;min-width:110px;font-size:12.5px;padding:8px 10px;border:1px solid #dde3ee;border-radius:8px;font-family:inherit;outline:none;color:#555;background:#fff}
+.bl-name:focus,.bl-price:focus,.bl-url:focus{border-color:#4F46E5}
+.bl-open{font-size:12px;font-weight:700;color:#4F46E5;text-decoration:none;padding:7px 9px;border:1px solid #d8dafb;border-radius:7px;flex-shrink:0}
+.bl-open:hover{background:#eef0fe}
+.bl-del{flex-shrink:0;font-size:12px;padding:7px 10px;border:1px solid #e8cece;background:transparent;color:#c00;border-radius:7px;cursor:pointer;font-family:inherit}
+.bl-del:hover{background:#fdf2f2;border-color:#c00}
+.bl-add{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #eef1f6;padding-top:10px}
+.bl-add-name{flex:2;min-width:150px;font-size:13.5px;padding:9px 11px;border:1px solid #c8d0de;border-radius:8px;font-family:inherit;outline:none;color:#222;background:#fff}
+.bl-add-price{width:104px;font-size:13.5px;padding:9px 11px;border:1px solid #c8d0de;border-radius:8px;font-family:inherit;outline:none;color:#222;text-align:right;background:#fff}
+.bl-add-name:focus,.bl-add-price:focus{border-color:#4F46E5}
+.bl-sum{font-size:12px;color:#5f6b7c;font-weight:700;white-space:nowrap}
+
 /* 날짜별 공정 현황 */
 .date-summary{background:#fff;border-radius:12px;border:1px solid #c8d0de;padding:12px 14px;margin-bottom:12px}
 .date-summary-title{font-size:13px;font-weight:500;color:#222;margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -4787,6 +4809,8 @@ function applyTheme(){
 
 // ── 렌더 ──────────────────────────────────
 function renderAll(){
+  // 셀프 모드는 통합 화면을 쓰지 않음 → 진입/리셋 기본값 'all'을 첫 공간으로 교정(탭·본문 모두 일관)
+  if(isSelf() && S.tab==='all' && S.sites && S.sites.length){ S.tab='0'; }
   // 포커스된 입력창 정보 저장
   const focused=document.activeElement;
   const focusedId=focused?focused.id:'';
@@ -4895,12 +4919,11 @@ function renderTabsPro(){
 
 /* 셀프 — 프로젝트 탭 없음. 우리 집 전체 / 연락처만 */
 function renderTabsSelf(){
-  const allOn      = S.tab==='all';
   const contactsOn = S.tab==='contacts';
   const memoOn     = S.tab==='memo';
   let h=`<div class="ah-nav-in">`;
 
-  h+=`<button class="ah-tab${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'border-top-color:#12141C':''}">🏠 셀프 인테리어</button>`;
+  // 셀프는 통합 화면을 쓰지 않음 → '셀프 인테리어 전체' 탭 없음. 공간(방) 탭만.
   h+=`<button class="ah-tab${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'border-top-color:#5a5a7a':''}">연락처</button>`;
 
   if(IS_ADMIN){
@@ -6524,6 +6547,22 @@ function renderSpanCards(){
     <div class="spcs-g">${cards}</div>
   </div>`;
 }
+/* 단일 공간용 기간 카드 (셀프 — 공간 정보 아래) */
+function renderSiteSpanCard(si){
+  const sc=SITE_COLORS[si%SITE_COLORS.length];
+  const sp=siteSpan(si);
+  if(!sp){
+    return `<div style="font-size:13px;color:#9aa5b1;padding:4px 2px;line-height:1.6">아직 일정이 없어요.<br>표에서 날짜를 칠하면 공사 기간이 여기에 표시됩니다.</div>`;
+  }
+  const badge = sp.state==='before' ? `<span class="spc-b before">D−${sp.left}</span>`
+             : sp.state==='done'   ? `<span class="spc-b done">완료</span>`
+             :                        `<span class="spc-b run">D−${sp.left}</span>`;
+  return `<div class="spc" style="cursor:default">
+    <div class="spc-h"><span class="spc-dot" style="background:${sc}"></span><span class="spc-n">${fmtDate(sp.start)} → ${fmtDate(sp.end)}</span>${badge}</div>
+    <div class="spc-t"><b>${sp.total}</b>일</div>
+    <div class="spc-bar"><div class="spc-fill" style="width:${sp.pct}%;background:${sc}"></div></div>
+  </div>`;
+}
 
 /* ══════════════════════════════════════════════
    물량 산출 — 면(面) 단위 · 자재 사전
@@ -7572,6 +7611,76 @@ document.addEventListener('keydown', e=>{
   if(e.key==='ArrowLeft') stepViewer(-1);
   if(e.key==='ArrowRight') stepViewer(1);
 });
+
+/* ══════════ 자재·구매 목록 (셀프) ══════════ */
+function _blInit(si){ const s=S.sites[si]; if(!Array.isArray(s.buylist)) s.buylist=[]; return s.buylist; }
+function _blSummary(si){
+  const list=_blInit(si);
+  const n=list.length;
+  const arrived=list.filter(x=>x&&x.arrived).length;
+  const total=list.reduce((a,x)=>a+(parseInt(String((x&&x.price)||'').replace(/[^0-9]/g,''))||0),0);
+  return {n,arrived,total};
+}
+function _blUpdateSum(si){
+  const el=document.getElementById('bl-sum-'+si); if(!el) return;
+  const s=_blSummary(si);
+  el.textContent=`${s.arrived}/${s.n} 도착 · 합계 ₩${s.total.toLocaleString()}`;
+}
+function addBuyItem(si){
+  const nm=document.getElementById('bl-name-'+si), pr=document.getElementById('bl-price-'+si);
+  const name=(nm?nm.value:'').trim(); if(!name){ if(nm)nm.focus(); return; }
+  const price=(pr?pr.value:'').replace(/[^0-9]/g,'');
+  _blInit(si).push({name, price, url:'', ordered:false, arrived:false});
+  persist(); dnRerender();
+  setTimeout(()=>{ const a=document.getElementById('bl-name-'+si); if(a)a.focus(); },50);
+}
+function updateBuy(si,i,field,val){
+  const l=_blInit(si); if(!l[i]) return;
+  if(field==='price') val=String(val).replace(/[^0-9]/g,'');
+  l[i][field]=val;
+  clearTimeout(window._blTimer); window._blTimer=setTimeout(()=>persist(),500);
+  if(field==='price') _blUpdateSum(si);
+}
+function toggleBuy(si,i,field,checked){
+  const l=_blInit(si); if(!l[i]) return;
+  l[i][field]=checked;
+  if(field==='arrived' && checked) l[i].ordered=true;   // 도착이면 주문도 자동 완료
+  persist(); dnRerender();
+}
+function delBuy(si,i){ const l=_blInit(si); l.splice(i,1); persist(); dnRerender(); }
+function renderBuyList(si){
+  const s=S.sites[si]; const sc=SITE_COLORS[si%SITE_COLORS.length];
+  const list=_blInit(si); const sum=_blSummary(si);
+  let rows='';
+  list.forEach((raw,i)=>{
+    const it=raw||{};
+    const url=(it.url||'').trim();
+    const safeUrl=/^https?:\/\//i.test(url)?url:(url?('https://'+url):'');
+    rows+=`<div class="bl-row${it.arrived?' done':''}">
+      <div class="bl-status">
+        <label class="bl-chk${it.ordered?' on':''}"><input type="checkbox" ${it.ordered?'checked':''} onchange="toggleBuy(${si},${i},'ordered',this.checked)">주문</label>
+        <label class="bl-chk${it.arrived?' on':''}"><input type="checkbox" ${it.arrived?'checked':''} onchange="toggleBuy(${si},${i},'arrived',this.checked)">도착</label>
+      </div>
+      <input class="bl-name" value="${esc(it.name||'')}" placeholder="자재·제품명" oninput="updateBuy(${si},${i},'name',this.value)">
+      <input class="bl-price" value="${esc(it.price||'')}" placeholder="가격" inputmode="numeric" oninput="updateBuy(${si},${i},'price',this.value)">
+      <input class="bl-url" value="${esc(it.url||'')}" placeholder="구매 링크(선택)" oninput="updateBuy(${si},${i},'url',this.value)">
+      ${safeUrl?`<a class="bl-open" href="${esc(safeUrl)}" target="_blank" rel="noopener">열기</a>`:''}
+      <button class="bl-del" onclick="delBuy(${si},${i})" title="삭제">✕</button>
+    </div>`;
+  });
+  return `<div class="proc-panel bl-panel" style="border-left:3px solid ${sc}">
+    <div class="proc-panel-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span>자재·구매 목록 <span style="font-size:11.5px;font-weight:400;color:#5f6b7c">— 살 것 · 가격 · 주문/도착</span></span>
+      <span class="bl-sum" id="bl-sum-${si}">${sum.arrived}/${sum.n} 도착 · 합계 ₩${sum.total.toLocaleString()}</span>
+    </div>
+    <div class="bl-list">${rows||'<div style="font-size:13px;color:#9aa5b1;padding:8px 2px">아래에서 살 자재를 추가해 보세요</div>'}</div>
+    <div class="bl-add">
+      <input id="bl-name-${si}" class="bl-add-name" placeholder="자재·제품명 (예: 디아망 크림화이트)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('bl-price-${si}').focus();}">
+      <input id="bl-price-${si}" class="bl-add-price" placeholder="가격" inputmode="numeric" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addBuyItem(${si});}">
+      <button class="btn-accent" onclick="addBuyItem(${si})">+ 추가</button>
+    </div>
+  </div>`;
+}
 
 /* ── 렌더 ── */
 function renderSiteAssets(si){
@@ -8692,6 +8801,8 @@ function renderMain(){
 
   // 셀프 모드는 팀원 탭 접근 불가 (강제 호출도 차단)
   if(isSelf() && S.tab==='members'){ S.tab='all'; }
+  // 셀프 모드는 통합 화면(타임라인·표)을 쓰지 않음 → 공간이 있으면 첫 공간으로
+  if(isSelf() && S.tab==='all' && S.sites && S.sites.length){ S.tab='0'; }
 
   if(S.tab==='members') return renderMembersTab();
   if(S.tab==='inquiries') return renderInquiriesTab();
@@ -8762,13 +8873,11 @@ function renderMain(){
     // ══ 프로젝트: 좌측 표 / 우측 프로젝트 정보 패널 ══
     const si=parseInt(S.tab),s=S.sites[si],sc=SITE_COLORS[si%SITE_COLORS.length];
 
-    const backBar = isSelf()
-      ? `<button class="self-back" onclick="setTab('all')">← 셀프 인테리어 전체로</button>`
-      : '';
+    const backBar = '';   // 셀프는 통합 화면을 쓰지 않으므로 되돌아갈 곳이 없음
     // 셀프: 프로젝트 자료 대신 연락처를 넓은 본문에 크게 배치 / 프로: 기존 프로젝트 자료
     const isS = isSelf();
     const main = backBar + renderSpanBar(si) + renderColorPicker(si) + renderSiteTable(si,y,m,days,cw)
-      + (isS ? renderSiteContacts(si) : renderSiteAssets(si));
+      + (isS ? (renderSiteContacts(si) + renderBuyList(si)) : renderSiteAssets(si));
     setTimeout(()=>{
       if(!isS){ qPaint(si); if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si); }
     }, 0);
@@ -8788,6 +8897,7 @@ function renderMain(){
 
     const side=
       section('info', isS?'공간 정보':'프로젝트 정보', infoInner) +
+      (isS ? section('span','공사 기간', renderSiteSpanCard(si)) : '') +
       section('procs', isS?'할 일 관리':'작업 관리', renderSiteProcPanel(si), (s.procs||[]).filter(p=>p).length+'개') +
       (isS ? '' : section('contacts','연락처', renderSiteContacts(si), nContacts?`${nContacts}명`:'')) +
       notepad('데일리 노트', renderDailyNoteCompact(), dnBadge()) +
