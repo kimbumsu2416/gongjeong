@@ -144,6 +144,10 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .bl-name:focus,.bl-price:focus,.bl-url:focus{border-color:#4F46E5}
 .bl-open{font-size:12px;font-weight:700;color:#4F46E5;text-decoration:none;padding:7px 9px;border:1px solid #d8dafb;border-radius:7px;flex-shrink:0}
 .bl-open:hover{background:#eef0fe}
+.bl-link{flex:1;min-width:110px;font-size:12.5px;font-weight:600;color:#4F46E5;text-decoration:none;padding:8px 10px;border:1px solid #d8dafb;border-radius:8px;background:#f6f7ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block}
+.bl-link:hover{background:#eef0fe;text-decoration:underline}
+.bl-edit{flex-shrink:0;font-size:13px;padding:7px 9px;border:1px solid #dde3ee;background:#fff;border-radius:7px;cursor:pointer;font-family:inherit}
+.bl-edit:hover{background:#eef2f8}
 .bl-del{flex-shrink:0;font-size:12px;padding:7px 10px;border:1px solid #e8cece;background:transparent;color:#c00;border-radius:7px;cursor:pointer;font-family:inherit}
 .bl-del:hover{background:#fdf2f2;border-color:#c00}
 .bl-add{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #eef1f6;padding-top:10px}
@@ -170,6 +174,22 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .st-total-row{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:linear-gradient(135deg,#4F46E5,#4338CA);border-radius:11px}
 .st-total-row>span:first-child{font-size:13.5px;font-weight:700;color:#fff}
 .st-total{font-size:19px;font-weight:800;color:#fff}
+.st-budget{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#eef0fe;border:1px solid #d8dafb;border-radius:10px;margin-bottom:10px}
+.st-budget-k{font-size:13px;color:#4F46E5;font-weight:700;flex-shrink:0}
+.st-budget-in{width:150px;font-size:13.5px;padding:7px 10px;border:1px solid #cdd0f5;border-radius:8px;font-family:inherit;outline:none;color:#222;text-align:right;background:#fff}
+.st-budget-in:focus{border-color:#4F46E5}
+.st-remain{font-size:13px;color:#4B5563;margin-left:auto;font-weight:600}
+.st-remain b{color:#12141C}
+.st-pay{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#7c8798;cursor:pointer;padding:6px 9px;border:1px solid #dde3ee;border-radius:7px;flex-shrink:0;user-select:none;white-space:nowrap}
+.st-pay input{margin:0;accent-color:#4F46E5;cursor:pointer}
+.st-pay.on{color:#12141C;border-color:#4F46E5;background:#eef0fe;font-weight:700}
+.st-row.paid .st-label,.st-row.paid .st-amt{background:#f6fbf7}
+.st-flow{display:flex;gap:8px;margin-bottom:10px}
+.st-flow-c{flex:1;display:flex;flex-direction:column;gap:2px;padding:9px 12px;border-radius:10px;border:1px solid #e4e9f0}
+.st-flow-c span{font-size:11.5px;color:#7c8798;font-weight:600}
+.st-flow-c b{font-size:15px;color:#12141C}
+.st-flow-c.paid{background:#f2fbf5;border-color:#c9ead4}
+.st-flow-c.due{background:#fff7ed;border-color:#f0d9b6}
 
 /* 날짜별 공정 현황 */
 .date-summary{background:#fff;border-radius:12px;border:1px solid #c8d0de;padding:12px 14px;margin-bottom:12px}
@@ -885,6 +905,7 @@ html{scroll-behavior:smooth}
 .dnc-date{flex:1;text-align:center;font-size:13px;font-weight:800;color:#12141C}
 .dnc-today{border:1px solid #d4dbe6;background:#fff;border-radius:8px;padding:0 9px;height:28px;font-size:11.5px;font-weight:700;color:#12141C;cursor:pointer;flex-shrink:0;font-family:inherit}
 .dnc-today:hover{background:#eef2f8}
+.dnc-today.on{background:#4F46E5!important;color:#fff!important;border-color:#4F46E5!important}
 .np-body:has(.dnc){background:#fff}   /* 데일리 노트 칸에선 노트 줄무늬 제거 */
 textarea.checklist-text{resize:none;overflow:hidden;white-space:pre-wrap;word-break:break-word;display:block;box-sizing:border-box}
 .dn-list .checklist-item{align-items:flex-start}
@@ -7724,6 +7745,10 @@ function toggleBuy(si,i,field,checked){
   persist(); dnRerender();
 }
 function delBuy(si,i){ const l=_blInit(si); l.splice(i,1); persist(); dnRerender(); }
+/* 구매 링크: Enter로 하이퍼링크 확정 / 연필로 다시 수정 */
+window._blUrlEdit = window._blUrlEdit || {};
+function confirmUrl(si,i,val){ const l=_blInit(si); if(!l[i])return; l[i].url=String(val||'').trim(); delete window._blUrlEdit[si+':'+i]; persist(); dnRerender(); }
+function editUrl(si,i){ window._blUrlEdit[si+':'+i]=true; dnRerender(); setTimeout(()=>{ const el=document.getElementById('bl-url-'+si+'-'+i); if(el){ el.focus(); try{el.select();}catch(_){} } },50); }
 function renderBuyList(si){
   const s=S.sites[si]; const sc=SITE_COLORS[si%SITE_COLORS.length];
   const list=_blInit(si); const sum=_blSummary(si);
@@ -7732,6 +7757,11 @@ function renderBuyList(si){
     const it=raw||{};
     const url=(it.url||'').trim();
     const safeUrl=/^https?:\/\//i.test(url)?url:(url?('https://'+url):'');
+    const editing = window._blUrlEdit && window._blUrlEdit[si+':'+i];
+    const domain = url ? url.replace(/^https?:\/\//i,'').replace(/^www\./i,'').split(/[\/?#]/)[0] : '';
+    const urlCell = (url && !editing)
+      ? `<a class="bl-link" href="${esc(safeUrl)}" target="_blank" rel="noopener" title="${esc(url)}">🔗 ${esc(domain||'링크')}</a><button class="bl-edit" onclick="editUrl(${si},${i})" title="링크 수정">✏️</button>`
+      : `<input id="bl-url-${si}-${i}" class="bl-url" value="${esc(it.url||'')}" placeholder="구매 링크 붙여넣고 Enter" oninput="updateBuy(${si},${i},'url',this.value)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();confirmUrl(${si},${i},this.value);}">`;
     rows+=`<div class="bl-row${it.arrived?' done':''}">
       <div class="bl-status">
         <label class="bl-chk${it.ordered?' on':''}"><input type="checkbox" ${it.ordered?'checked':''} onchange="toggleBuy(${si},${i},'ordered',this.checked)">주문</label>
@@ -7739,8 +7769,7 @@ function renderBuyList(si){
       </div>
       <input class="bl-name" value="${esc(it.name||'')}" placeholder="자재·제품명" oninput="updateBuy(${si},${i},'name',this.value)">
       <input class="bl-price" value="${esc(it.price||'')}" placeholder="가격" inputmode="numeric" oninput="updateBuy(${si},${i},'price',this.value)">
-      <input class="bl-url" value="${esc(it.url||'')}" placeholder="구매 링크(선택)" oninput="updateBuy(${si},${i},'url',this.value)">
-      ${safeUrl?`<a class="bl-open" href="${esc(safeUrl)}" target="_blank" rel="noopener">열기</a>`:''}
+      ${urlCell}
       <button class="bl-del" onclick="delBuy(${si},${i})" title="삭제">✕</button>
     </div>`;
   });
@@ -7758,19 +7787,32 @@ function renderBuyList(si){
   </div>`;
 }
 
-/* ══════════ 정산 · 비용 (셀프) — 자재비(자동) + 기타 = 총 공사 금액 ══════════ */
+/* ══════════ 정산 · 비용 (셀프) — 가계부: 예산 · 지불(완료/예정) · 총 공사 금액 ══════════ */
+function _n(v){ return parseInt(String(v||'').replace(/[^0-9]/g,''))||0; }
 function _costInit(si){ const s=S.sites[si]; if(!Array.isArray(s.costs)) s.costs=[]; return s.costs; }
-function _costOther(si){ return _costInit(si).reduce((a,x)=>a+(parseInt(String((x&&x.amount)||'').replace(/[^0-9]/g,''))||0),0); }
+function _costOther(si){ return _costInit(si).reduce((a,x)=>a+_n(x&&x.amount),0); }
 function _costTotal(si){ return _blSummary(si).total + _costOther(si); }
+function _costPaid(si){ return _costInit(si).reduce((a,x)=>a+((x&&x.paid)?_n(x.amount):0),0); }  // 자재비 제외, 기타 항목 중 지불완료 합계
+function _budget(si){ return _n(S.sites[si] && S.sites[si].budget); }
 function _costRefresh(si){
-  const me=document.getElementById('st-mat-'+si); if(me) me.textContent='₩'+_blSummary(si).total.toLocaleString();
-  const te=document.getElementById('st-total-'+si); if(te) te.textContent='₩'+_costTotal(si).toLocaleString();
+  const total=_costTotal(si), paid=_costPaid(si), unpaid=Math.max(0,total-paid), bud=_budget(si);
+  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
+  set('st-mat-'+si, '₩'+_blSummary(si).total.toLocaleString());
+  set('st-total-'+si, '₩'+total.toLocaleString());
+  set('st-paid-'+si, '₩'+paid.toLocaleString());
+  set('st-unpaid-'+si, '₩'+unpaid.toLocaleString());
+  const rem=document.getElementById('st-remain-'+si);
+  if(rem){
+    if(bud>0){ const left=bud-total; rem.innerHTML = left>=0 ? `남은 예산 <b>₩${left.toLocaleString()}</b>` : `예산 <b style="color:#DC2626">₩${Math.abs(left).toLocaleString()} 초과</b>`; }
+    else rem.innerHTML='';
+  }
 }
+function updateBudget(si,val){ const s=S.sites[si]; if(!s) return; s.budget=String(val).replace(/[^0-9]/g,''); clearTimeout(window._costTimer); window._costTimer=setTimeout(()=>persist(),500); _costRefresh(si); }
 function addCost(si){
   const l=document.getElementById('st-label-'+si), a=document.getElementById('st-amt-'+si);
   const label=(l?l.value:'').trim(); if(!label){ if(l)l.focus(); return; }
   const amount=(a?a.value:'').replace(/[^0-9]/g,'');
-  _costInit(si).push({label, amount}); persist(); dnRerender();
+  _costInit(si).push({label, amount, paid:false}); persist(); dnRerender();
   setTimeout(()=>{ const x=document.getElementById('st-label-'+si); if(x)x.focus(); },50);
 }
 function updateCost(si,i,field,val){
@@ -7780,23 +7822,34 @@ function updateCost(si,i,field,val){
   clearTimeout(window._costTimer); window._costTimer=setTimeout(()=>persist(),500);
   if(field==='amount') _costRefresh(si);
 }
+function toggleCostPaid(si,i,checked){ const l=_costInit(si); if(!l[i]) return; l[i].paid=checked; persist(); dnRerender(); }
 function delCost(si,i){ const l=_costInit(si); l.splice(i,1); persist(); dnRerender(); }
 function renderSettle(si){
   const sc=SITE_COLORS[si%SITE_COLORS.length];
   const mat=_blSummary(si).total;
   const costs=_costInit(si);
-  const total=_costTotal(si);
+  const total=_costTotal(si), paid=_costPaid(si), unpaid=Math.max(0,total-paid), bud=_budget(si);
   let rows='';
   costs.forEach((raw,i)=>{ const it=raw||{};
-    rows+=`<div class="st-row">
+    rows+=`<div class="st-row${it.paid?' paid':''}">
+      <label class="st-pay${it.paid?' on':''}" title="지불 완료"><input type="checkbox" ${it.paid?'checked':''} onchange="toggleCostPaid(${si},${i},this.checked)">지불</label>
       <input class="st-label" value="${esc(it.label||'')}" placeholder="항목 (예: 인건비, 철거비)" oninput="updateCost(${si},${i},'label',this.value)">
       <input class="st-amt" value="${esc(it.amount||'')}" placeholder="금액" inputmode="numeric" oninput="updateCost(${si},${i},'amount',this.value)">
       <span class="st-won">원</span>
       <button class="bl-del" onclick="delCost(${si},${i})" title="삭제">✕</button>
     </div>`;
   });
+  const remainHtml = bud>0 ? (bud-total>=0 ? `남은 예산 <b>₩${(bud-total).toLocaleString()}</b>` : `예산 <b style="color:#DC2626">₩${Math.abs(bud-total).toLocaleString()} 초과</b>`) : '';
   return `<div class="proc-panel st-panel" style="border-left:3px solid ${sc}">
-    <div class="proc-panel-title"><span>정산 · 비용 <span style="font-size:11.5px;font-weight:400;color:#5f6b7c">— 자재비 + 기타 = 총 공사 금액</span></span></div>
+    <div class="proc-panel-title"><span>정산 · 비용 <span style="font-size:11.5px;font-weight:400;color:#5f6b7c">— 예산 · 지불 · 총 공사 금액</span></span></div>
+
+    <div class="st-budget">
+      <span class="st-budget-k">예산</span>
+      <input class="st-budget-in" value="${esc((S.sites[si]&&S.sites[si].budget)||'')}" placeholder="예산 금액 (선택)" inputmode="numeric" oninput="updateBudget(${si},this.value)">
+      <span class="st-won">원</span>
+      <span class="st-remain" id="st-remain-${si}">${remainHtml}</span>
+    </div>
+
     <div class="st-mat-row">
       <span class="st-mat-k">자재비 <span class="st-auto">자동</span></span>
       <span class="st-mat-v" id="st-mat-${si}">₩${mat.toLocaleString()}</span>
@@ -7806,6 +7859,11 @@ function renderSettle(si){
       <input id="st-label-${si}" class="st-add-label" placeholder="항목 (예: 인건비)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('st-amt-${si}').focus();}">
       <input id="st-amt-${si}" class="st-add-amt" placeholder="금액" inputmode="numeric" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addCost(${si});}">
       <button class="btn-accent" onclick="addCost(${si})">+ 추가</button>
+    </div>
+
+    <div class="st-flow">
+      <div class="st-flow-c paid"><span>지불 완료</span><b id="st-paid-${si}">₩${paid.toLocaleString()}</b></div>
+      <div class="st-flow-c due"><span>남은 지불</span><b id="st-unpaid-${si}">₩${unpaid.toLocaleString()}</b></div>
     </div>
     <div class="st-total-row"><span>총 공사 금액</span><span class="st-total" id="st-total-${si}">₩${total.toLocaleString()}</span></div>
   </div>`;
@@ -9088,7 +9146,7 @@ function renderDailyNoteCompact(){
       <button class="dnc-nav" onclick="memoShift(-1)">‹</button>
       <span class="dnc-date">${label}</span>
       <button class="dnc-nav" onclick="memoShift(1)">›</button>
-      ${isToday?'':`<button class="dnc-today" onclick="memoGoToday()">오늘</button>`}
+      <button class="dnc-today${isToday?' on':''}" onclick="memoGoToday()" title="오늘로">오늘</button>
     </div>
     <div class="dn-list">${rows}</div>
     <div class="checklist-add" style="margin-top:8px">
