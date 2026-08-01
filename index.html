@@ -156,6 +156,12 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .bl-add-url{flex:1;min-width:140px;font-size:13px;padding:9px 11px;border:1px solid #c8d0de;border-radius:8px;font-family:inherit;outline:none;color:#555;background:#fff}
 .bl-add-url:focus{border-color:#4F46E5}
 .bl-add-name:focus,.bl-add-price:focus{border-color:#4F46E5}
+.bl-price-wrap{display:inline-flex;align-items:center;gap:1px;width:104px;flex-shrink:0;border:1px solid #dde3ee;border-radius:8px;background:#fff;padding:0 9px}
+.bl-price-wrap:focus-within{border-color:#4F46E5}
+.bl-add-price-wrap{width:116px;border-color:#c8d0de}
+.bl-won{font-size:12.5px;color:#98a2b3;flex-shrink:0;user-select:none}
+.bl-price,.bl-add-price{border:none!important;background:transparent!important;width:100%;min-width:0;padding:8px 0!important}
+.bl-add-price{padding:9px 0!important}
 .bl-sum{font-size:12px;color:#5f6b7c;font-weight:700;white-space:nowrap}
 
 /* 프로 프로젝트 본문 탭 (사진·자료 / 자재·구매) */
@@ -7765,6 +7771,16 @@ function toggleBuy(si,i,field,checked){
   persist(); dnRerender();
 }
 function delBuy(si,i){ const l=_blInit(si); l.splice(i,1); persist(); dnRerender(); }
+/* 가격 원화 콤마 표기: 저장은 숫자만, 화면은 200,000 형식 */
+function _won(v){ v=String(v==null?'':v).replace(/[^0-9]/g,''); return v?Number(v).toLocaleString('ko-KR'):''; }
+function onBuyPrice(si,i,el){
+  const digits=String(el.value).replace(/[^0-9]/g,'');
+  el.value = digits?Number(digits).toLocaleString('ko-KR'):'';
+  const l=_blInit(si); if(l[i]) l[i].price=digits;
+  clearTimeout(window._blTimer); window._blTimer=setTimeout(()=>persist(),500);
+  if(typeof _blUpdateSum==='function') _blUpdateSum(si);
+  if(typeof _costRefresh==='function') _costRefresh(si);
+}
 /* 구매 링크: Enter로 하이퍼링크 확정 / 연필로 다시 수정 */
 window._blUrlEdit = window._blUrlEdit || {};
 function confirmUrl(si,i,val){ const l=_blInit(si); if(!l[i])return; l[i].url=String(val||'').trim(); delete window._blUrlEdit[si+':'+i]; persist(); dnRerender(); }
@@ -7788,7 +7804,7 @@ function renderBuyList(si){
         <label class="bl-chk${it.arrived?' on':''}"><input type="checkbox" ${it.arrived?'checked':''} onchange="toggleBuy(${si},${i},'arrived',this.checked)">도착</label>
       </div>
       <input class="bl-name" value="${esc(it.name||'')}" placeholder="자재·제품명" oninput="updateBuy(${si},${i},'name',this.value)">
-      <input class="bl-price" value="${esc(it.price||'')}" placeholder="가격" inputmode="numeric" oninput="updateBuy(${si},${i},'price',this.value)">
+      <div class="bl-price-wrap"><span class="bl-won">₩</span><input class="bl-price" value="${esc(_won(it.price))}" placeholder="가격" inputmode="numeric" oninput="onBuyPrice(${si},${i},this)"></div>
       ${urlCell}
       <button class="bl-del" onclick="delBuy(${si},${i})" title="삭제">✕</button>
     </div>`;
@@ -7801,7 +7817,7 @@ function renderBuyList(si){
     <div class="bl-list">${rows||'<div style="font-size:13px;color:#9aa5b1;padding:8px 2px">아래에서 살 자재를 추가해 보세요</div>'}</div>
     <div class="bl-add">
       <input id="bl-name-${si}" class="bl-add-name" placeholder="자재·제품명 (예: 디아망 크림화이트)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('bl-price-${si}').focus();}">
-      <input id="bl-price-${si}" class="bl-add-price" placeholder="가격" inputmode="numeric" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('bl-urladd-${si}').focus();}">
+      <div class="bl-price-wrap bl-add-price-wrap"><span class="bl-won">₩</span><input id="bl-price-${si}" class="bl-add-price" placeholder="가격" inputmode="numeric" oninput="const d=this.value.replace(/[^0-9]/g,'');this.value=d?Number(d).toLocaleString('ko-KR'):'';" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('bl-urladd-${si}').focus();}"></div>
       <input id="bl-urladd-${si}" class="bl-add-url" placeholder="구매 링크(선택)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addBuyItem(${si});}">
       <button class="btn-accent" onclick="addBuyItem(${si})">+ 추가</button>
     </div>
