@@ -4561,6 +4561,12 @@ async function loadTeamMembers(id){    return await rpc('team_member_list',{team
 async function removeMemberRpc(id,uid){return await rpc('remove_member',{team:id, target:uid}); }
 async function setMemberRole(id,uid,role){ return await rpc('set_member_role',{team:id, target:uid, new_role:role}); }
 function isOwner(){ return !!(TEAM && USER && TEAM.owner_id===USER.id); }
+/* 셀프 전용 개인 공간 팀 식별 — 프로 팀 목록엔 노출하지 않는다.
+   셀프 진입 때 자동 생성되는 팀은 이름이 '내 공간' 이다. */
+const SELF_TEAM_NAME='내 공간';
+function isSelfTeam(t){ return !!(t && (t.name===SELF_TEAM_NAME)); }
+function proTeamsOnly(teams){ return (teams||[]).filter(t=>!isSelfTeam(t)); }
+function findSelfTeam(teams){ return (teams||[]).find(isSelfTeam) || null; }
 let MY_ROLE='member';   // 'owner' | 'member'
 let IS_ADMIN=false;     // 서비스 운영자 (문의함 접근)
 
@@ -4747,18 +4753,32 @@ function roleLabel(r){ return r==='owner' ? '관리자' : '팀원'; }
 function roleColor(r){ return r==='owner' ? '#12141C' : '#8b95a5'; }
 
 // ══════════ 작업 데이터 ══════════
+/* 한 팀 저장 행(schedules.data) 안에 셀프·프로 데이터를 각각 따로 보관한다.
+   형식: { __v:2, self:{...상태...}, pro:{...상태...} }
+   → 셀프와 프로가 서로 섞이지 않는다. */
+let DATA_ENV = null;   // 현재 팀 행의 모드별 봉투 { self, pro }
+function otherMode(m){ return m==='self' ? 'pro' : 'self'; }
+function readModeSlice(raw, mode){
+  if(!raw || typeof raw!=='object') return null;
+  if(raw.__v===2) return raw[mode] || null;
+  if(raw.sites) return raw;   // 구버전(평면) 데이터 → 현재 모드 것으로 간주
+  return null;
+}
 async function dbLoad(){
   if(!TEAM) return [];
   return await api(`/rest/v1/schedules?team_id=eq.${TEAM.id}&select=data,updated_at`) || [];
 }
 async function dbSave(){
   if(!TEAM) return;
+  if(!DATA_ENV) DATA_ENV={self:null,pro:null};
+  DATA_ENV[APP_MODE] = S;                       // 현재 모드 슬롯만 갱신
+  const payload = { __v:2, self:DATA_ENV.self||null, pro:DATA_ENV.pro||null };
   setSyncStatus('ing','저장 중...');
   try{
     await api(`/rest/v1/schedules?team_id=eq.${TEAM.id}`,{
       method:'PATCH',
       headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({data:S,updated_at:new Date().toISOString()})
+      body:JSON.stringify({data:payload,updated_at:new Date().toISOString()})
     });
     lastSavedAt=Date.now();
     setSyncStatus('ok','저장 완료 — '+new Date().toLocaleTimeString('ko-KR'));
@@ -4788,9 +4808,15 @@ function startPolling(){
     if(Date.now()-(lastSavedAt||0)<3000)return;
     try{
       const rows=await dbLoad();
-      if(rows&&rows[0]&&rows[0].data&&rows[0].data.sites){
-        if(rows[0].data.tab!==undefined) delete rows[0].data.tab;   // 저장된 탭은 무시
-        const remote=rows[0].data;
+      const raw=(rows&&rows[0]&&rows[0].data)?rows[0].data:null;
+      // 상대 모드 슬롯도 최신으로 유지 (다음 저장 때 덮어쓰지 않도록)
+      if(raw && raw.__v===2){
+        DATA_ENV = DATA_ENV||{self:null,pro:null};
+        DATA_ENV[otherMode(APP_MODE)] = raw[otherMode(APP_MODE)]||null;
+      }
+      const remote=readModeSlice(raw, APP_MODE);
+      if(remote&&remote.sites){
+        if(remote.tab!==undefined) delete remote.tab;   // 저장된 탭은 무시
         const remoteCount=remote.sites.reduce((a,s)=>a+Object.keys(s.cells).length,0);
         const localCount=S.sites.reduce((a,s)=>a+Object.keys(s.cells).length,0);
         if(remoteCount!==localCount||JSON.stringify(remote.sites)!==JSON.stringify(S.sites)){
@@ -11098,12 +11124,13 @@ function goCreateTeam(){ _authView='team'; _teamTab='create'; renderOnboarding()
 
 async function enterMySpace(){
   try{
-    let teams = (PICK_TEAMS && PICK_TEAMS.length) ? PICK_TEAMS : await loadMyTeams();
-    PICK_TEAMS = teams || [];
-    if(PICK_TEAMS.length){
-      enterTeam(PICK_TEAMS[0].id);
+    let teams = await loadMyTeams();
+    const selfT = findSelfTeam(teams);
+    if(selfT){
+      TEAM = selfT; localStorage.setItem('gj_team', selfT.id);
+      _appView='app'; _loaded=false; enterAppView();
     } else {
-      const t = await createTeam('내 공간','self'+Math.random().toString(36).slice(2,8));
+      const t = await createTeam(SELF_TEAM_NAME,'self'+Math.random().toString(36).slice(2,8));
       const team = Array.isArray(t) ? t[0] : t;
       TEAM = team; localStorage.setItem('gj_team', team.id);
       _appView='app'; _loaded=false; enterAppView();
@@ -11320,7 +11347,7 @@ function openUpgrade(){
             <li>현장별 공정 통합 관리</li>
             <li>셀프의 모든 기능 포함</li>
           </ul>
-          ${!self ? `<div class="up-current">현재 플랜</div>` : `<button class="up-go" onclick="switchPlan('pro')">프로로 전환</button>`}
+          ${!self ? `<div class="up-current">현재 플랜</div>` : `<button class="up-go" onclick="confirmUpgradeToPro()">프로로 전환</button>`}
         </div>
       </div>
 
@@ -11333,6 +11360,46 @@ function openPlans(){ openUpgrade(); }
 function closeUpgrade(){
   const a=document.getElementById('modal-area');
   if(a) a.innerHTML='';
+}
+
+/* 셀프 → 프로 전환 확인 — 셀프 자료를 프로로 가져올지 묻는다 */
+function confirmUpgradeToPro(){
+  const area=document.getElementById('modal-area');
+  if(!area) return;
+  const has = !!(S && S.sites && S.sites.some(s=>!isUntouched(s)));
+  area.innerHTML=`
+  <div class="modal-overlay" style="z-index:130" onclick="if(event.target===this)closeUpgradeConfirm()">
+    <div class="modal-box" style="max-width:440px">
+      <div style="padding:26px 24px 22px">
+        <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em;margin-bottom:10px">프로로 전환할까요?</div>
+        <div style="font-size:14px;color:#5f6b7c;line-height:1.65;margin-bottom:22px">
+          ${has
+            ? `셀프에서 만든 <b>공간·공정표·자재/구매·정산</b> 자료를<br>프로 프로젝트로 함께 가져올 수 있어요.<br><span style="color:#98a2b3;font-size:12.5px">셀프 자료는 그대로 남아있어, 나중에 셀프로 돌아오면 다시 볼 수 있습니다.</span>`
+            : `프로로 전환하면 팀 협업과 여러 현장 관리를 쓸 수 있어요.`}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          ${has ? `<button class="up-go" style="width:100%" onclick="doUpgradeToPro(true)">셀프 자료 가져와서 전환</button>
+          <button class="up-go-alt" style="width:100%" onclick="doUpgradeToPro(false)">새로 시작 (자료 안 가져옴)</button>`
+            : `<button class="up-go" style="width:100%" onclick="doUpgradeToPro(false)">프로로 전환</button>`}
+          <button style="width:100%;background:none;border:none;color:#8b95a5;padding:9px;cursor:pointer;font:inherit;font-size:14px" onclick="closeUpgradeConfirm()">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function closeUpgradeConfirm(){ const a=document.getElementById('modal-area'); if(a) a.innerHTML=''; }
+async function doUpgradeToPro(bring){
+  try{
+    if(bring){
+      // 현재 셀프 상태를 깊은 복사해서 이관 대기열에 저장
+      const snap = JSON.parse(JSON.stringify(S));
+      snap.tab='all';
+      localStorage.setItem('gj_migrate', JSON.stringify({from:'self',to:'pro',data:snap}));
+    } else {
+      localStorage.removeItem('gj_migrate');
+    }
+  }catch(_){}
+  await switchPlan('pro');
 }
 
 /* ══════════════════════════════════════════════
@@ -11403,18 +11470,19 @@ async function afterAuth(){
 
     const teams=await loadMyTeams();
 
-    // ── 셀프 모드: 팀 선택 화면을 건너뛴다 (팀 개념 없음) ──
+    // ── 셀프 모드: 팀 선택 화면을 건너뛴다 (셀프 전용 개인 공간만 사용) ──
     if(isSelf()){
-      if(teams.length){
-        // 이미 개인 공간이 있으면 첫 번째로 바로 진입
-        TEAM = teams[0];
+      const selfT=findSelfTeam(teams);
+      if(selfT){
+        // 이미 셀프 개인 공간이 있으면 바로 진입
+        TEAM = selfT;
         localStorage.setItem('gj_team', TEAM.id);
         _appView='app'; _loaded=false;
         enterAppView();
       } else {
         // 없으면 개인 공간을 자동 생성 (사용자에게 안 보임)
         try{
-          const t = await createTeam('내 공간', 'self'+Math.random().toString(36).slice(2,8));
+          const t = await createTeam(SELF_TEAM_NAME, 'self'+Math.random().toString(36).slice(2,8));
           TEAM = Array.isArray(t) ? t[0] : t;
           localStorage.setItem('gj_team', TEAM.id);
           _appView='app'; _loaded=false;
@@ -11427,12 +11495,13 @@ async function afterAuth(){
       return;
     }
 
-    // ── 전문가 모드: 기존대로 팀 갈림길 ──
-    if(!teams.length){
+    // ── 전문가 모드: 셀프 개인 공간은 목록에서 제외 ──
+    const proTeams=proTeamsOnly(teams);
+    if(!proTeams.length){
       _authView='team'; _teamTab=''; _appView='onboarding';
       showOnboarding();   // 랜딩을 뒤에 두고 그 위에 모달 (배경 유지)
     } else {
-      PICK_TEAMS=teams;
+      PICK_TEAMS=proTeams;
       _authView='pick'; _appView='onboarding';
       showOnboarding();   // 랜딩을 뒤에 두고 그 위에 모달 (배경 유지)
     }
@@ -11881,35 +11950,73 @@ function migrateOrReset(p){
   }
   return true;
 }
+/* 셀프→프로 업그레이드 시 넘겨받을 자료 — 실제 적용될 때만 지운다 */
+function _peekMigration(){
+  try{
+    const raw=localStorage.getItem('gj_migrate');
+    if(!raw) return null;
+    const o=JSON.parse(raw);
+    if(o && o.to==='pro' && o.data && o.data.sites) return o.data;
+  }catch(_){}
+  return null;
+}
+function _clearMigration(){ try{ localStorage.removeItem('gj_migrate'); }catch(_){} }
+/* 기본(손대지 않은) 상태인지 — 이관 자료로 덮어써도 되는지 판단 */
+function _stateUntouched(state){
+  if(!state || !state.sites || !state.sites.length) return true;
+  return state.sites.every(s=>isUntouched(s));
+}
 async function startupLoad(){
   try{
     setSyncStatus('ing','서버 연결 중...');
     const rows=await dbLoad();
-    if(rows&&rows[0]&&rows[0].data&&Object.keys(rows[0].data).length>0){
-      const p=rows[0].data;
-      migrateOrReset(p);
-      if(p.sites){
-        Object.assign(S,p);
-        S.tab='all';                       // 첫 진입은 언제나 프로젝트 통합
-        const beforeCount=(S.sites||[]).length;
-        const beforeNames=(S.sites||[]).map(x=>x.name).join('|');
-        migrateNames();
-        // 이름/개수가 정리됐다면 서버에도 반영
-        if(beforeCount!==S.sites.length || beforeNames!==S.sites.map(x=>x.name).join('|')){
-          setTimeout(()=>dbSave(),400);
-        }
-        S.sites.forEach(s=>{
-          if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];
-          if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
-          if(!s.newProcName)s.newProcName='';
-          if(!s.selectedProcs)s.selectedProcs=[];
-        });
+    const raw=(rows&&rows[0]&&rows[0].data)?rows[0].data:null;
+
+    // 모드별 봉투 구성
+    DATA_ENV={self:null,pro:null};
+    let legacy=false;
+    if(raw && raw.__v===2){
+      DATA_ENV.self = raw.self||null;
+      DATA_ENV.pro  = raw.pro||null;
+    } else if(raw && raw.sites){
+      // 구버전 평면 데이터 → 지금 모드 슬롯으로 이관
+      DATA_ENV[APP_MODE] = raw;
+      legacy=true;
+    }
+    let mine = DATA_ENV[APP_MODE];
+
+    // 업그레이드로 셀프 자료를 프로로 가져오기 (프로가 비어 있을 때만)
+    const mig=_peekMigration();
+    let migrated=false;
+    if(mig && APP_MODE==='pro'){
+      if(_stateUntouched(mine)){
+        mine = mig;
+        DATA_ENV.pro = mig;
+        migrated=true;
       }
+      _clearMigration();   // 프로로 진입한 이상, 소비 처리 (한 번만)
+    }
+
+    if(mine && mine.sites){
+      const p=mine;
+      migrateOrReset(p);
+      Object.assign(S,p);
+      S.tab='all';                       // 첫 진입은 언제나 프로젝트 통합
+      migrateNames();
+      S.sites.forEach(s=>{
+        if(!s.memo)s.memo='';if(!s.checklist)s.checklist=[];
+        if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS];
+        if(!s.newProcName)s.newProcName='';
+        if(!s.selectedProcs)s.selectedProcs=[];
+      });
+      // 구버전·이관 데이터는 새 형식(v2)으로 다시 저장
+      if(legacy || migrated) setTimeout(()=>dbSave(),400);
+      else setTimeout(()=>dbSave(),600);   // 이름 정리 등 반영
     } else {
       resetState();
       await dbSave();
     }
-    setSyncStatus('ok','팀 공유 중 — 실시간 연동');
+    setSyncStatus('ok', isSelf()?'내 공간 — 자동 저장':'팀 공유 중 — 실시간 연동');
     renderAll();
     startPolling();
   }catch(e){
@@ -12093,19 +12200,35 @@ async function handleRecoveryReturn(){
     } else {
       APP_MODE = USER.meta.mode; localStorage.setItem('gj_mode', APP_MODE);
       const teams=await loadMyTeams();
-      if(!teams.length){
-        _appView='onboarding'; _authView='team';
+      if(isSelf()){
+        // 셀프: 셀프 전용 공간만 사용 (없으면 자동 생성)
+        let selfT=findSelfTeam(teams);
+        if(!selfT){
+          try{
+            const t=await createTeam(SELF_TEAM_NAME,'self'+Math.random().toString(36).slice(2,8));
+            selfT=Array.isArray(t)?t[0]:t;
+          }catch(_){ selfT=null; }
+        }
+        if(selfT){ TEAM=selfT; localStorage.setItem('gj_team',TEAM.id); _appView='app'; }
+        else { _appView='onboarding'; _authView='mode'; }
       } else {
-        // 마지막에 쓰던 팀을 기억
-        const last=localStorage.getItem('gj_team');
-        TEAM = teams.find(t=>t.id===last) || teams[0];
-        _appView='app';
+        // 프로: 셀프 개인 공간은 제외
+        const proTeams=proTeamsOnly(teams);
+        if(!proTeams.length){
+          _appView='onboarding'; _authView='team';
+        } else {
+          // 마지막에 쓰던 팀을 기억 (셀프 팀이면 무시)
+          const last=localStorage.getItem('gj_team');
+          const lastT=proTeams.find(t=>t.id===last);
+          TEAM = lastT || proTeams[0];
+          _appView='app';
+        }
       }
     }
   }catch(e){
     // 데이터 로드만 실패 → 로그인은 유지하고 팀 선택 화면으로 보낸다
     APP_MODE = (USER.meta && USER.meta.mode) || localStorage.getItem('gj_mode') || APP_MODE;
-    _appView='onboarding'; _authView='team';
+    _appView='onboarding'; _authView= isSelf()?'mode':'team';
   }
   routeView();
 })();
