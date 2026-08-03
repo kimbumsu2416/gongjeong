@@ -9644,7 +9644,7 @@ function initTplDraft(key){
   _tplPick=t.key;
   _tplDraft=(t.steps||[]).map(s=>({name:s.name, days:s.days||1, tip:s.tip||''}));
 }
-function pickTpl(si,key){ initTplDraft(key); openProcTemplate(si); }
+function pickProcTpl(si,key){ initTplDraft(key); openProcTemplate(si); }
 /* 진입점 — 항상 새 초안(기본 템플릿·오늘 착공)으로 시작 */
 function startProcTemplate(si){ _tplDraft=null; _tplPick=null; _tplStart=tplToday(); openProcTemplate(si); }
 function tplDays(si,i,delta){ if(_tplDraft[i]){ _tplDraft[i].days=Math.max(1,(_tplDraft[i].days||1)+delta); openProcTemplate(si);} }
@@ -9661,7 +9661,7 @@ function openProcTemplate(si){
 
   const cards=tpls.map(t=>{
     const on=t.key===_tplPick;
-    return `<button class="tpl-card${on?' on':''}" onclick="pickTpl(${si},'${t.key}')">
+    return `<button class="tpl-card${on?' on':''}" onclick="pickProcTpl(${si},'${t.key}')">
       <div class="tpl-card-t">${esc(t.label)}</div>
       <div class="tpl-card-d">${esc(t.desc)}</div>
       <div class="tpl-card-m">${t.steps.length}단계 · 약 ${tplTotalDays(t)}일</div>
