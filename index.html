@@ -201,6 +201,96 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .tpl-disc b{color:#5c4f16}
 @media(max-width:520px){.tpl-cards{flex-direction:column}}
 
+/* ── 가이드 탭 (셀프 인테리어 진행 가이드) ── */
+.gp-page{max-width:860px;margin:0 auto;padding:8px 4px 40px;display:flex;flex-direction:column;gap:16px}
+.gp-hero{background:linear-gradient(120deg,#eef0fe,#f6f4ff);border:1px solid #d6d8fb;border-radius:16px;padding:22px 22px}
+.gp-hero-badge{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:#4F46E5;border-radius:20px;padding:4px 11px;margin-bottom:11px}
+.gp-hero-t{font-size:23px;font-weight:800;color:#2a2470;letter-spacing:-0.03em;line-height:1.25}
+.gp-hero-d{font-size:14px;color:#5a5590;line-height:1.7;margin-top:9px}
+.gp-seg{display:flex;gap:6px;background:#eef1f6;border-radius:12px;padding:5px}
+.gp-seg-b{flex:1;font-size:14px;font-weight:700;color:#59636f;background:transparent;border:none;border-radius:9px;padding:11px;cursor:pointer;font-family:inherit}
+.gp-seg-b.on{background:#fff;color:#12141C;box-shadow:0 1px 4px rgba(14,20,32,.1)}
+/* 허가·서류 */
+.pm-lead{font-size:13.5px;color:#4a5568;line-height:1.7;background:#fff;border:1px solid #e4e9f0;border-radius:12px;padding:15px 17px}
+.pm-lead b{color:#4F46E5}
+.pm-sums{display:flex;flex-direction:column;gap:9px}
+.pm-sum{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e4e9f0;border-radius:12px;padding:14px 16px}
+.pm-sum-i{font-size:22px;flex-shrink:0;line-height:1.2}
+.pm-sum-t{font-size:14.5px;font-weight:800;color:#12141C;margin-bottom:3px}
+.pm-sum-b{font-size:13px;color:#4a5568;line-height:1.6}
+.pm-sec-t{font-size:16px;font-weight:800;color:#12141C;margin:20px 2px 4px;letter-spacing:-0.01em}
+.pm-sec-t span{font-size:12.5px;font-weight:500;color:#7a8494}
+.pm-docs{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pm-doc{background:#fff;border:1px solid #e4e9f0;border-radius:11px;padding:12px 14px}
+.pm-doc-t{font-size:13.5px;font-weight:800;color:#12141C;margin-bottom:3px}
+.pm-doc-d{font-size:12px;color:#59636f;line-height:1.5}
+.pm-tip{font-size:12.5px;color:#4a5568;line-height:1.65;background:#f4f4ff;border:1px solid #dcdcfa;border-radius:10px;padding:11px 13px;margin-top:10px}
+.pm-tip b{color:#4338CA}
+.pm-table{border:1px solid #e4e9f0;border-radius:12px;overflow:hidden;background:#fff}
+.pm-row{display:grid;grid-template-columns:1.6fr 0.8fr 1.6fr;gap:8px;padding:11px 13px;border-bottom:1px solid #eef1f6;align-items:center}
+.pm-row:last-child{border-bottom:none}
+.pm-head{background:#f7f9fc;font-size:12px;font-weight:800;color:#59636f}
+.pm-w{font-size:13px;font-weight:700;color:#12141C}
+.pm-a{font-size:12.5px;color:#4a5568;line-height:1.45}
+.pm-k{font-size:11.5px;font-weight:800;text-align:center;border-radius:20px;padding:3px 6px}
+.pm-head .pm-k{background:none;color:#59636f;font-weight:800}
+.pm-k-ok{background:#e5f4ea;color:#2f7a4d}
+.pm-k-warn{background:#fdf0e3;color:#b5701a}
+.pm-k-no{background:#fdeaea;color:#c0392b}
+.pm-nos{display:flex;flex-direction:column;gap:8px}
+.pm-no{display:flex;gap:10px;align-items:baseline;background:#fff5f5;border:1px solid #f3d5d5;border-radius:11px;padding:12px 14px}
+.pm-no-t{flex-shrink:0;font-size:13.5px;font-weight:800;color:#c0392b;min-width:34px}
+.pm-no-d{font-size:12.5px;color:#4a5568;line-height:1.55}
+.pm-waste{font-size:13px;color:#4a5568;line-height:1.7;background:#fff;border:1px solid #e4e9f0;border-radius:12px;padding:14px 16px}
+.pm-waste b{color:#12141C}
+.pm-tls{display:flex;flex-direction:column;gap:7px}
+.pm-tl{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e4e9f0;border-radius:11px;padding:12px 14px}
+.pm-tl-d{flex-shrink:0;font-size:12.5px;font-weight:800;color:#fff;background:#4F46E5;border-radius:7px;padding:3px 9px;min-width:44px;text-align:center}
+.pm-tl-b{font-size:13px;color:#3d4757;line-height:1.55}
+@media(max-width:620px){.pm-docs{grid-template-columns:1fr}.pm-row{grid-template-columns:1.4fr 0.7fr;gap:6px}.pm-row .pm-a{grid-column:1 / -1;padding-top:2px}}
+.gp-flow{background:#fff;border:1px solid #e4e9f0;border-radius:14px;padding:16px 18px}
+.gp-flow-t{font-size:13px;font-weight:800;color:#59636f;margin-bottom:10px}
+.gp-chips{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.gp-chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#12141C;background:#eef0fe;border:1px solid #d6d8fb;border-radius:20px;padding:6px 12px;white-space:nowrap}
+.gp-chip b{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;background:#4F46E5;color:#fff;border-radius:50%;font-size:11px;font-weight:800}
+.gp-arrow{color:#b3b9e6;font-size:13px;font-weight:800}
+.gp-principle{font-size:13.5px;color:#4a5568;line-height:1.6;background:#fdf8e6;border:1px solid #f0e3b0;border-radius:12px;padding:13px 15px}
+.gp-principle b{color:#12141C}
+.gp-list{display:flex;flex-direction:column;gap:12px}
+.gp-step{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #e4e9f0;border-radius:14px;padding:16px 18px}
+.gp-num{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:#4F46E5;color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.gp-body{flex:1;min-width:0}
+.gp-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.gp-name{font-size:16.5px;font-weight:800;color:#12141C;letter-spacing:-0.01em}
+.gp-tag{font-size:11.5px;font-weight:700;color:#4F46E5;background:#eef0fe;border-radius:20px;padding:3px 10px}
+.gp-sum{font-size:13.5px;font-weight:600;color:#3d4757;line-height:1.55;margin-bottom:10px}
+.gp-do-t{font-size:11.5px;font-weight:800;color:#59636f;letter-spacing:.02em;margin-bottom:4px}
+.gp-do{margin:0 0 11px;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.gp-do li{font-size:13.5px;color:#4a5568;line-height:1.6}
+.gp-risk{font-size:12.5px;color:#8a4a1a;background:#fff4ec;border:1px solid #f3d5be;border-radius:9px;padding:9px 11px;line-height:1.55}
+.gp-risk b{color:#c0451a;margin-right:4px}
+.gp-checkbox{background:#f2fbf5;border:1px solid #c9ead4;border-radius:14px;padding:16px 18px}
+.gp-check-t{font-size:15px;font-weight:800;color:#2f6b45;margin-bottom:12px}
+.gp-checks{display:flex;flex-wrap:wrap;gap:8px}
+.gp-check{font-size:13px;font-weight:600;color:#2f6b45;background:#fff;border:1px solid #c9ead4;border-radius:9px;padding:8px 12px}
+.gp-check::before{content:'✓ ';font-weight:800;color:#2f9e5e}
+.gp-cta{width:100%;font-size:15px;font-weight:800;color:#fff;background:#4F46E5;border:none;border-radius:12px;padding:15px;cursor:pointer;font-family:inherit}
+.gp-cta:hover{background:#4038c9}
+.gp-disc{font-size:12px;color:#7a6a2a;background:#fdf8e6;border:1px solid #f0e3b0;border-radius:10px;padding:12px 14px;line-height:1.6}
+@media(max-width:620px){.gp-hero-t{font-size:19px}.gp-step{padding:14px}.gp-num{width:30px;height:30px;font-size:14px}}
+
+/* ── 공정 가이드 (사이드, 미사용) ── */
+.pg-wrap{display:flex;flex-direction:column;gap:8px}
+.pg-note{font-size:12.5px;color:#59636f;line-height:1.55}
+.pg-note b{color:#4F46E5}
+.pg-empty{font-size:13px;color:#6b7583;line-height:1.55;padding:8px 2px}
+.pg-empty b{color:#4F46E5}
+.pg-row{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border:1px solid #e8edf4;border-radius:10px;background:#fff}
+.pg-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.pg-body{flex:1;min-width:0}
+.pg-name{font-size:13.5px;font-weight:700;color:#12141C;margin-bottom:2px}
+.pg-guide{font-size:12.5px;color:#4a5568;line-height:1.5}
+
 /* ── 서류 · 검사 진행 ── */
 .ds-wrap{display:flex;flex-direction:column;gap:9px}
 .ds-note{font-size:12.5px;color:#59636f;line-height:1.55}
@@ -4974,7 +5064,7 @@ function isToday(y,m,d){
   return t.getFullYear()===y && (t.getMonth()+1)===m && t.getDate()===d;
 }
 function ck(si,pi,d){return si+"_"+pi+"_"+S.year+"_"+S.month+"_"+d}
-function tabIndex(t){return t==="all"?-5:t==="contacts"?-4:t==="members"?-3:t==="memo"?-2:t==="inquiries"?-1:parseInt(t)}
+function tabIndex(t){return t==="all"?-5:t==="contacts"?-4:t==="guide"?-3.5:t==="members"?-3:t==="memo"?-2:t==="inquiries"?-1:parseInt(t)}
 function calcCellW(){
   const wrap=document.getElementById('wrap');
   const total=wrap?wrap.offsetWidth:900;
@@ -5109,6 +5199,8 @@ function renderTabsPro(){
   const memoOn     = S.tab==='memo';
   let h=`<div class="ah-nav-in">`;
 
+  const guideOnP = S.tab==='guide';
+  h+=`<button class="ah-tab${guideOnP?' on':''}" onclick="setTab('guide')" style="${guideOnP?'border-top-color:#4F46E5':''}">가이드</button>`;
   h+=`<button class="ah-tab${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'border-top-color:#12141C':''}">프로젝트 통합</button>`;
   h+=`<button class="ah-tab${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'border-top-color:#5a5a7a':''}">연락처</button>`;
   h+=`<button class="ah-tab${membersOn?' on':''}" onclick="setTab('members')" style="${membersOn?'border-top-color:#00868A':''}">팀원</button>`;
@@ -5143,6 +5235,8 @@ function renderTabsSelf(){
   let h=`<div class="ah-nav-in">`;
 
   // 셀프는 통합 화면을 쓰지 않음 → '셀프 인테리어 전체' 탭 없음. 공간(방) 탭만.
+  const guideOnS = S.tab==='guide';
+  h+=`<button class="ah-tab${guideOnS?' on':''}" onclick="setTab('guide')" style="${guideOnS?'border-top-color:#4F46E5':''}">가이드</button>`;
   h+=`<button class="ah-tab${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'border-top-color:#5a5a7a':''}">연락처</button>`;
 
   if(IS_ADMIN){
@@ -7884,6 +7978,30 @@ document.addEventListener('keydown', e=>{
 });
 
 /* ══════════ 자재·구매 목록 (셀프) ══════════ */
+/* ══════════ 공정 가이드 ("이렇게 진행하세요") — 현재 작업 목록 기준 안내 ══════════ */
+function guideBadge(si){
+  const s=S.sites[si]; if(!s) return '';
+  const n=(s.procs||[]).filter(p=>procGuideFor(p)).length;
+  return n?`${n}단계`:'';
+}
+function renderProcGuide(si){
+  const s=S.sites[si];
+  const procs=(s.procs||[]).filter(p=>(p||'').trim());
+  const rows=procs.map((p,idx)=>{
+    const g=procGuideFor(p);
+    if(!g) return '';
+    return `<div class="pg-row">
+      <span class="pg-n" style="background:${procColor(si,idx)}22;color:${procColor(si,idx)}">${idx+1}</span>
+      <div class="pg-body"><div class="pg-name">${esc(p)}</div><div class="pg-guide">${esc(g)}</div></div>
+    </div>`;
+  }).filter(Boolean).join('');
+  if(!rows) return `<div class="pg-empty">추천 공정을 불러오면 각 단계를 <b>이렇게 진행하세요</b> 안내가 여기에 표시됩니다.</div>`;
+  return `<div class="pg-wrap">
+    <div class="pg-note">각 공정을 <b>이런 순서·방식으로</b> 진행하면 실수를 줄일 수 있어요. 상황에 맞게 참고하세요.</div>
+    ${rows}
+  </div>`;
+}
+
 /* ══════════ 서류 · 검사 진행 (계약·신고·검사·세금계산서 등) ══════════ */
 const DOC_SUGGEST_PRO  = ['계약서','착공 신고','안전 점검','중간 검사','준공 검사','세금계산서'];
 const DOC_SUGGEST_SELF = ['계약서','관리실 공사 신고','자재 발주','폐기물 처리','하자 점검','입주 청소'];
@@ -9248,6 +9366,7 @@ function renderMain(){
   if(S.tab==='members') return renderMembersTab();
   if(S.tab==='inquiries') return renderInquiriesTab();
   if(S.tab==='memo') return renderDailyNote();
+  if(S.tab==='guide') return renderGuidePage();
 
   // 프로젝트가 하나도 없으면 안내 화면
   if(S.sites.length===0 && S.tab!=='contacts') return renderEmptyState();
@@ -9612,6 +9731,197 @@ function cellKey(si,pi,y,m,d){ return si+'_'+pi+'_'+y+'_'+m+'_'+d; }
 function _isHolidayYMD(y,m,d){ return !!HOLIDAYS[y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0')]; }
 function _isSkipDay(dt){ const dow=dt.getDay(); return dow===0 || _isHolidayYMD(dt.getFullYear(),dt.getMonth()+1,dt.getDate()); }  // 일요일·공휴일
 
+/* ── 공정별 소비자 안내 ("이렇게 진행하세요") — 표준 공정 순서 기준, 여기서 한 번에 관리 ── */
+const PROC_GUIDE=[
+  {k:'짐',      g:'짐을 빼고 가구·바닥을 보양(비닐·부직포)부터 하세요. 파손 주의 구간은 미리 표시해 둡니다.'},
+  {k:'철거',    g:'관리실에 공사 신고하고 엘리베이터·복도를 보양한 뒤 시작하세요. 폐기물 처리 비용을 미리 확인합니다.'},
+  {k:'설비',    g:'수도·배수·난방 배관 위치와 수전·콘센트 자리를 이 단계에서 확정하세요. 나중엔 바꾸기 어렵습니다.'},
+  {k:'미장',    g:'벽·바닥을 평탄하게 잡는 단계입니다. 다음 공정(타일·도배)의 마감 품질이 여기서 갈립니다.'},
+  {k:'전기',    g:'조명·콘센트·스위치를 원하는 위치대로 배선하세요. 필요한 곳 증설·이동은 지금 해두는 게 좋습니다.'},
+  {k:'타일',    g:'욕실·주방 등 물 쓰는 곳을 먼저. 방수 확인 후 시공하고, 줄눈 색까지 미리 정해 두세요.'},
+  {k:'욕실',    g:'변기·세면대·수전을 설치합니다. 타일이 완전히 마른 뒤 진행하고 실리콘 마감을 꼼꼼히 하세요.'},
+  {k:'도배',    g:'벽지를 시공합니다. 마루면 도배 전, 장판이면 도배 후에 바닥을 까세요. 순서를 꼭 지켜야 오염·곰팡이를 막습니다.'},
+  {k:'바닥',    g:'마루/장판을 시공합니다. 위 도배-바닥 순서 원칙을 지키고, 시공 후 보양은 필수입니다.'},
+  {k:'가구',    g:'붙박이장·주방가구를 설치합니다. 도배·바닥이 끝난 뒤 진행하고, 설치 전 치수를 다시 확인하세요.'},
+  {k:'조명',    g:'조명기구·스위치 커버·몰딩을 마감합니다. 마지막 디테일이니 위치·수평을 점검하세요.'},
+  {k:'입주청소',g:'준공청소로 먼지를 제거하면서, 콘센트·문·수전 작동 등 하자 점검을 함께 하세요.'},
+  {k:'준공청소',g:'준공청소로 먼지를 제거하면서, 콘센트·문·수전 작동 등 하자 점검을 함께 하세요.'},
+  {k:'청소',    g:'청소하면서 콘센트·문·수전 작동 등 하자를 함께 점검하세요.'},
+];
+function procGuideFor(name){
+  const n=(name||'').trim(); if(!n) return '';
+  const hit=PROC_GUIDE.find(x=> n.indexOf(x.k)!==-1 || x.k.indexOf(n)!==-1);
+  return hit ? hit.g : '';
+}
+
+/* ── 공정온 진행 가이드 (가이드 탭) — 공정온만의 구조: 한 줄 · 이렇게 · 놓치면 후회 ── */
+const GUIDE_ORDER=['철거','창호','배관·전기','목공','욕실','도배·바닥','가구','조명·마무리'];
+const GUIDE_STAGES=[
+  {n:1, t:'철거', tag:'비우기',
+   sum:'집을 맨몸으로 되돌리는 출발점.',
+   dos:['벽지·바닥·타일·붙박이 가구·문틀까지 걷어냅니다.','드러난 배관·벽체·바닥을 사진으로 남겨 두면 나중에 판단이 쉬워요.'],
+   risk:'오래된 집은 숨은 누수·균열이 이때 나옵니다. 예비비 10~15%를 미리 빼두지 않으면 예산이 흔들립니다.'},
+  {n:2, t:'창호(샷시)', tag:'먼저 바꾸기',
+   sum:'먼지·진동이 큰 공정이라 마감보다 앞에 둡니다.',
+   dos:['오래된 창이면 이때 교체 — 단열·결로·냉난방이 확 달라집니다.','시공 직후 수평·수직, 폼 충진, 방수 마감, 개폐를 바로 확인하세요.'],
+   risk:'도배부터 하고 창을 바꾸면 새 벽지가 상해 다시 하게 됩니다.'},
+  {n:3, t:'배관·전기', tag:'벽 닫기 전',
+   sum:'벽을 덮기 전에 "생활 동선"을 확정하는 단계.',
+   dos:['콘센트·스위치·조명 위치, 인터넷, 수도·온수·배수를 한 번에 정리합니다.','세탁기·냉장고·에어컨 자리를 먼저 정하고 그에 맞춰 배선하세요.'],
+   risk:'벽이 닫힌 뒤엔 콘센트 하나 옮기는 것도 다시 뜯는 큰 공사가 됩니다.'},
+  {n:4, t:'목공', tag:'뼈대 만들기',
+   sum:'천장·가벽·문틀 같은 집의 라인을 만드는 공정.',
+   dos:['천장·가벽·몰딩·간접조명 박스 등으로 공간 형태를 잡습니다.','치수를 두 번 재고 수평을 맞춰야 다음 마감이 깔끔합니다.'],
+   risk:'목공 치수가 틀어지면 문이 안 닫히고 도배·필름이 들뜹니다.'},
+  {n:5, t:'욕실', tag:'방수가 승부',
+   sum:'하자 1순위 공간 — 방수에서 결과가 갈립니다.',
+   dos:['철거 → 방수 → 타일 → 천장 → 양변기·세면대 → 샤워기 순서로.','방수 후에는 충분히 말린 뒤 다음 공정으로 넘어가세요.'],
+   risk:'방수를 서두르면 아랫집 누수로 이어져 가장 큰 분쟁이 됩니다.'},
+  {n:6, t:'도배·바닥', tag:'집의 얼굴',
+   sum:'먼지 나는 공정이 다 끝난 뒤 하는 마감.',
+   dos:['벽지·바닥재를 예산과 생활에 맞게 고릅니다.','마루는 도배 전, 장판은 도배 후 — 순서를 지키세요.','도배 후 충분히 환기해 접착력을 높입니다.'],
+   risk:'도배·바닥 순서를 바꾸면 오염·들뜸으로 다시 하게 됩니다.'},
+  {n:7, t:'가구', tag:'앉히기',
+   sum:'마감이 끝난 공간에 붙박이 가구를 앉히는 단계.',
+   dos:['싱크대·신발장·붙박이장을 설치합니다.','설치 후 문짝 수평과 실리콘 마감을 한 번 더 확인하세요.'],
+   risk:'바닥·도배 전에 넣으면 흠집과 재작업이 생깁니다.'},
+  {n:8, t:'조명·마무리', tag:'하자 잡기',
+   sum:'디테일을 채우고 하자를 잡는 마무리.',
+   dos:['조명·스위치·콘센트·도어락·환풍기를 설치합니다.','입주청소와 함께 콘센트·수전·문 작동을 전부 점검하세요.'],
+   risk:'이때 하자를 놓치면 입주 후 생활하면서 고쳐야 합니다.'},
+];
+const GUIDE_CHECK=['관리사무소 공사 신고','엘리베이터 사용 예약','폐기물 처리 방법','창호 실측','전기 용량 확인','누수 여부 점검','자재 여유분 10~15%','공정표 작성(공정온으로!)'];
+
+/* ── 허가·서류 가이드 데이터 ── */
+const PERMIT_SUMMARY=[
+  {i:'📝', t:'대부분은 "관리사무소 동의"로 끝', b:'마감재·창호·배관 교체 같은 공사는 구청 신고 없이 관리사무소 동의만으로 진행됩니다(경미한 행위).'},
+  {i:'🧱', t:'벽을 헐면 "구청 허가"', b:'비내력벽을 철거하면 구청 행위허가 대상이고, 해당 동 입주자 1/2 이상 동의서가 필요합니다. 무허가 시공은 벌금 대상입니다.'},
+  {i:'⛔', t:'가스·전기·소방은 셀프 불가', b:'이 3개 공정은 법적으로 면허 업체만 시공할 수 있습니다. 반드시 따로 부르세요.'},
+];
+const PERMIT_DOCS=[
+  {t:'세대 내부 공사 신고서', d:'공사 내용·기간·업체·연락처를 적어 제출'},
+  {t:'입주민 동의서', d:'상·하·좌·우 인접 세대의 서명(단지마다 범위 다름)'},
+  {t:'공사 서약서(각서)', d:'소음 시간 준수·공용부 훼손 시 배상 약속'},
+  {t:'공사 안내문', d:'엘리베이터·게시판에 붙이는 이웃 안내문'},
+  {t:'예치금(공사보증금)', d:'보통 30만~200만원, 공용부 원상복구 확인 후 환급'},
+  {t:'차량·엘리베이터 사용 신청', d:'화물차 진입·사다리차·화물용 EV 지정 등'},
+];
+const PERMIT_CASES=[
+  {w:'마감재(천장·벽·바닥) 교체', k:'경미', kc:'ok', a:'관리사무소 동의만'},
+  {w:'창틀·문틀 교체', k:'경미', kc:'ok', a:'관리사무소 동의(외관은 단지 규격 준수)'},
+  {w:'급배수관 교체·난방 변경', k:'경미', kc:'ok', a:'관리사무소 동의만'},
+  {w:'비내력벽 철거', k:'행위허가', kc:'warn', a:'해당 동 입주자 1/2 이상 동의'},
+  {w:'비내력벽 증설(대수선)', k:'행위허가', kc:'warn', a:'해당 동 입주자 2/3 이상 동의'},
+  {w:'방 쪼개기(세대구분형)', k:'행위허가', kc:'warn', a:'별도 기준 심사'},
+  {w:'내력벽 철거', k:'불가', kc:'no', a:'주택법상 리모델링 절차로만 가능'},
+];
+const PERMIT_NOSELF=[
+  {t:'가스', d:'가스레인지·보일러 이설은 도시가스사 또는 등록업체만. 관할 도시가스사에 변경 신청.'},
+  {t:'전기', d:'분전반 교체·회로 증설은 전기공사업 등록업체. (콘센트 커버 교체 정도는 예외)'},
+  {t:'소방', d:'스프링클러 헤드 이동·차폐는 소방시설공사업체 + 소방서 착공신고. 임의로 묻으면 과태료.'},
+];
+const PERMIT_TIMELINE=[
+  {d:'D-14', b:'관리사무소 방문 — 서식 일체 받기 + 준공도면 열람(벽체 구조 확인)'},
+  {d:'D-10', b:'철거 범위 확정 → 비내력벽 철거면 구청 행위허가 접수 판단'},
+  {d:'D-7',  b:'공사신고서·동의서·서약서 제출, 예치금 납부, 안내문 게시'},
+  {d:'D-5',  b:'가스·전기·소방 업체 일정 예약(허가 공정은 리드타임 김)'},
+  {d:'D-1',  b:'엘리베이터·복도 보양, 차량 출입 등록'},
+];
+
+let _guideView='flow';
+function setGuideView(v){ _guideView=v; try{ document.getElementById('root').innerHTML=renderMain(); attachEvents(); applyTheme(); }catch(_){ renderAll(); } }
+
+function renderGuideFlowBody(){
+  const chips=GUIDE_ORDER.map((s,i)=>`<span class="gp-chip"><b>${i+1}</b> ${esc(s)}</span>`).join('<span class="gp-arrow">›</span>');
+  const cards=GUIDE_STAGES.map(s=>`
+    <div class="gp-step">
+      <div class="gp-num">${s.n}</div>
+      <div class="gp-body">
+        <div class="gp-head"><span class="gp-name">${esc(s.t)}</span>${s.tag?`<span class="gp-tag">${esc(s.tag)}</span>`:''}</div>
+        <div class="gp-sum">${esc(s.sum)}</div>
+        <div class="gp-do-t">이렇게 하세요</div>
+        <ul class="gp-do">${s.dos.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
+        <div class="gp-risk"><b>놓치면 후회</b> ${esc(s.risk)}</div>
+      </div>
+    </div>`).join('');
+  const checks=GUIDE_CHECK.map(c=>`<span class="gp-check">${esc(c)}</span>`).join('');
+  const cta = isSelf() && S.sites && S.sites.length
+    ? `<button class="gp-cta" onclick="goGuideToTemplate()">✨ 이 순서 그대로 내 일정표 만들기</button>` : '';
+  return `
+    <div class="gp-flow"><div class="gp-flow-t">전체 흐름 한눈에</div><div class="gp-chips">${chips}</div></div>
+    <div class="gp-principle">📌 큰 원칙 하나 — <b>안 보이는 곳(철거·배관·전기)부터 손대고, 눈에 보이는 마감(도배·바닥·조명)은 맨 뒤로.</b> 이 하나만 지켜도 재시공을 크게 줄입니다.</div>
+    <div class="gp-list">${cards}</div>
+    <div class="gp-checkbox">
+      <div class="gp-check-t">시작 전, 이건 꼭 챙기세요</div>
+      <div class="gp-checks">${checks}</div>
+    </div>
+    ${cta}`;
+}
+function renderGuidePermitBody(){
+  const sum=PERMIT_SUMMARY.map(s=>`<div class="pm-sum"><div class="pm-sum-i">${s.i}</div><div><div class="pm-sum-t">${esc(s.t)}</div><div class="pm-sum-b">${esc(s.b)}</div></div></div>`).join('');
+  const docs=PERMIT_DOCS.map(d=>`<div class="pm-doc"><div class="pm-doc-t">${esc(d.t)}</div><div class="pm-doc-d">${esc(d.d)}</div></div>`).join('');
+  const cases=PERMIT_CASES.map(c=>`<div class="pm-row">
+      <div class="pm-w">${esc(c.w)}</div>
+      <div class="pm-k pm-k-${c.kc}">${esc(c.k)}</div>
+      <div class="pm-a">${esc(c.a)}</div>
+    </div>`).join('');
+  const nos=PERMIT_NOSELF.map(n=>`<div class="pm-no"><span class="pm-no-t">${esc(n.t)}</span><span class="pm-no-d">${esc(n.d)}</span></div>`).join('');
+  const tl=PERMIT_TIMELINE.map(t=>`<div class="pm-tl"><span class="pm-tl-d">${esc(t.d)}</span><span class="pm-tl-b">${esc(t.b)}</span></div>`).join('');
+  return `
+    <div class="pm-lead">서류는 대부분 <b>단지(관리사무소) 서식</b>이라, 가장 먼저 관리사무소에 들러 양식을 받는 게 시작입니다. 아래는 무엇을 준비해야 하는지 한눈에 보는 지도예요.</div>
+    <div class="pm-sums">${sum}</div>
+
+    <div class="pm-sec-t">① 관리사무소에 낼 서류 <span>(단지마다 서식이 달라요)</span></div>
+    <div class="pm-docs">${docs}</div>
+    <div class="pm-tip">💡 셀프 시공이면 사업자등록증·면허를 요구받을 수 있어요. 이땐 "직영(직접) 공사" 사유서를 쓰거나 일부 공정만 업체 명의로 신고하는 방식으로 협의하세요. 공사 시간은 보통 평일 09~17시, 일·공휴일 금지 — <b>착공 7일 전 접수</b>를 권합니다.</div>
+
+    <div class="pm-sec-t">② 구청 허가가 필요한 경우</div>
+    <div class="pm-table">
+      <div class="pm-row pm-head"><div class="pm-w">공사 항목</div><div class="pm-k">구분</div><div class="pm-a">동의 요건</div></div>
+      ${cases}
+    </div>
+    <div class="pm-tip">💡 비내력벽 철거 허가는 <b>그 벽이 비내력벽임을 증명하는 도면·사진 + 동의서</b>를 첨부해야 합니다. 준공도면은 관리사무소에서 열람·복사할 수 있어요.</div>
+
+    <div class="pm-sec-t">③ 셀프로 하면 안 되는 공정</div>
+    <div class="pm-nos">${nos}</div>
+
+    <div class="pm-sec-t">④ 폐기물</div>
+    <div class="pm-waste">세대 철거물은 <b>건설폐기물</b>입니다. 구청 지정 종량제 마대로 배출하거나, 양이 많으면 지자체에 배출 신고 후 위탁 처리하세요. 관리사무소 협의 없이 분리수거장에 버리면 <b>예치금에서 차감</b>되는 경우가 많습니다.</div>
+
+    <div class="pm-sec-t">⑤ 이 순서로 준비하세요</div>
+    <div class="pm-tls">${tl}</div>`;
+}
+
+function renderGuidePage(){
+  const isPermit=_guideView==='permit';
+  const heroT = isPermit ? '시작 전, 서류부터 챙기세요' : '순서만 지켜도 절반은 성공입니다';
+  const heroD = isPermit
+    ? '아파트 셀프 인테리어는 대부분 관리사무소 동의로 진행되지만, 벽을 헐거나 가스·전기·소방이 얽히면 절차가 달라집니다. 무엇을 준비해야 하는지 공정온이 정리했어요.'
+    : '셀프 인테리어에서 실패는 대부분 "순서를 몰라서" 생깁니다. 공정온이 현장 흐름을 8단계로 정리했어요. 내 집 상황에 맞게 골라 쓰세요.';
+  const body = isPermit ? renderGuidePermitBody() : renderGuideFlowBody();
+  const disc = isPermit
+    ? '※ 허가 기준·동의 범위·예치금은 단지 관리규약과 지자체 조례에 따라 다릅니다. 반드시 해당 관리사무소·구청에 최종 확인하세요. 공정온은 참고 정보만 제공합니다.'
+    : '※ 이 가이드는 공정온이 정리한 일반적인 참고용 흐름입니다. 실제 현장(구조·자재·계절·업체 일정 등)에 따라 순서와 기간은 달라질 수 있으며, 최종 판단·시공 책임은 이용자에게 있습니다.';
+  return `<div class="gp-page">
+    <div class="gp-hero">
+      <div class="gp-hero-badge">공정온 가이드</div>
+      <div class="gp-hero-t">${heroT}</div>
+      <div class="gp-hero-d">${heroD}</div>
+    </div>
+    <div class="gp-seg">
+      <button class="gp-seg-b${!isPermit?' on':''}" onclick="setGuideView('flow')">🧭 진행 순서</button>
+      <button class="gp-seg-b${isPermit?' on':''}" onclick="setGuideView('permit')">📄 허가·서류</button>
+    </div>
+    ${body}
+    <div class="gp-disc">${disc}</div>
+  </div>`;
+}
+function goGuideToTemplate(){
+  if(!(S.sites&&S.sites.length)) return;
+  setTab('0');
+  setTimeout(()=>{ try{ startProcTemplate(0); }catch(_){} }, 150);
+}
+
 let _tplPick=null, _tplSkip=true, _tplDraft=null, _tplStart=null;
 function selfTemplates(){ return PROC_TEMPLATES.filter(t=>t.self && t.steps); }
 function tplTotalDays(t){ return (t.steps||[]).reduce((a,s)=>a+(s.days||1),0); }
@@ -9683,7 +9993,7 @@ function openProcTemplate(si){
         <button class="tpl-day-b" onclick="tplDays(${si},${i},1)" title="늘리기">+</button>
       </div>
       <button class="tpl-del" onclick="tplDel(${si},${i})" title="삭제">&#10005;</button>
-      ${s.tip?`<div class="tpl-erow-tip">💡 ${esc(s.tip)}</div>`:''}
+      ${(()=>{ const g=procGuideFor(s.name)||s.tip||''; return g?`<div class="tpl-erow-tip">💡 ${esc(g)}</div>`:''; })()}
     </div>`).join('');
 
   // 총 기간 · 예상 준공일 미리보기
@@ -11641,10 +11951,28 @@ async function doCreateTeam(){
   if(pw.length<4){ setAuthMsg('참여 비밀번호는 4자 이상이어야 합니다.'); return; }
   authBusy(true,'팀 만들기');
   try{
-    const t=await createTeam(name,pw);
-    TEAM = Array.isArray(t) ? t[0] : t;
-    try{ if(pw) await rpc('set_team_join_pw_plain',{team:TEAM.id, pw}); }catch(_){}
-    alert('팀이 만들어졌습니다.\n\n초대코드: '+TEAM.invite_code+'\n\n팀원에게 이 코드와 참여 비밀번호를 함께 알려주세요.');
+    const created=await createTeam(name,pw);
+    let team = Array.isArray(created) ? created[0] : created;
+    let teamId = team && (team.id || (typeof team==='string' ? team : null));
+    const inv = team && team.invite_code;
+    // 서버 목록에서 방금 만든 팀을 다시 확정 (create_team 이 스칼라를 돌려줘도 id 확보)
+    try{
+      const teams = await loadMyTeams();
+      if(teams && teams.length){
+        team = (inv && teams.find(t=>t.invite_code===inv))
+             || (teamId && teams.find(t=>t.id===teamId))
+             || teams[teams.length-1];
+        teamId = team && team.id;
+      }
+    }catch(_){}
+    TEAM = team;
+    // 생성 직후 참여 비밀번호를 확실히 설정 (변경 기능과 동일한 방식)
+    if(pw && TEAM && TEAM.id){
+      try{ await setTeamPassword(TEAM.id, pw); }catch(_){}
+      try{ await rpc('set_team_join_pw_plain',{team:TEAM.id, pw}); }catch(_){}   // 소유자 보기·복사용
+      TEAM.has_join_password=true; _teamCurPw=pw; _teamPwCache[TEAM.id]=pw;
+    }
+    alert('팀이 만들어졌습니다.\n\n초대코드: '+(TEAM&&TEAM.invite_code||'')+'\n\n팀원에게 이 코드와 참여 비밀번호를 함께 알려주세요.');
     _appView='app'; _loaded=false; enterAppView();
   }catch(e){
     authBusy(false,'팀 만들기');
@@ -11927,10 +12255,11 @@ async function openTeamMenu(){
     const fresh=MY_TEAMS.find(t=>t.id===TEAM.id);
     if(fresh) TEAM=Object.assign(TEAM,fresh);
   }
-  // 소유자만 참여 비밀번호 원문을 불러온다 (공유용)
+  // 소유자만 참여 비밀번호 원문을 불러온다 (공유용) — 서버가 비면 이번 세션에서 만든/바꾼 값으로 보완
   _teamCurPw='';
   if(TEAM && USER && TEAM.owner_id===USER.id){
     try{ _teamCurPw = (await rpc('get_team_join_pw',{team:TEAM.id})) || ''; }catch(_){}
+    if(!_teamCurPw && TEAM.id && _teamPwCache[TEAM.id]) _teamCurPw = _teamPwCache[TEAM.id];
   }
   let list='';
   MY_TEAMS.forEach(t=>{
@@ -12110,6 +12439,7 @@ async function afterTeamRemoved(id){
 
 /* ── 팀장: 참여 비밀번호 공유 표시 (소유자만) ── */
 let _teamCurPw='';
+let _teamPwCache={};   // 팀 id → 이번 세션에서 만든/바꾼 참여 비밀번호 (서버 원문이 비어도 보완)
 function pwShareInner(){
   const cur=_teamCurPw;
   if(cur){
@@ -12147,7 +12477,7 @@ async function doChangeTeamPw(){
     try{ await rpc('set_team_join_pw_plain',{team:TEAM.id, pw}); }catch(_){}
     el.value='';
     TEAM.has_join_password=true;
-    _teamCurPw=pw;
+    _teamCurPw=pw; _teamPwCache[TEAM.id]=pw;
     const row=document.getElementById('tm-pwrow');
     if(row) row.innerHTML=pwShareInner();
     showPwWarning();
