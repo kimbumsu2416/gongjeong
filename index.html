@@ -281,6 +281,14 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .gp-disc{font-size:12px;color:#7a6a2a;background:#fdf8e6;border:1px solid #f0e3b0;border-radius:10px;padding:12px 14px;line-height:1.6}
 @media(max-width:620px){.gp-hero-t{font-size:19px}.gp-step{padding:14px}.gp-num{width:30px;height:30px;font-size:14px}}
 
+/* ── 프로젝트/공간 노트 ── */
+.pn-note{display:flex;flex-direction:column;gap:9px}
+.pn-note-h{font-size:12.5px;color:#59636f;line-height:1.55}
+.pn-note-h b{color:#4F46E5}
+.pn-note-area{width:100%;box-sizing:border-box;min-height:120px;resize:vertical;border:1px solid #dde3ee;border-radius:11px;padding:12px 13px;font-size:14px;line-height:1.7;color:#12141C;font-family:inherit;outline:none;background:#fcfdff}
+.pn-note-area::placeholder{color:#9aa5b1}
+.pn-note-area:focus{border-color:#4F46E5;background:#fff}
+
 /* ── 공정 가이드 (사이드, 미사용) ── */
 .pg-wrap{display:flex;flex-direction:column;gap:8px}
 .pg-note{font-size:12.5px;color:#59636f;line-height:1.55}
@@ -4583,7 +4591,7 @@ let S={
 };
 
 /* ── 화면 접기/펼치기 상태 (서버 저장 안 함) ── */
-let UI={ today:true, summary:false, memo:false, lib:false, info:true, procs:false, contacts:false, view:'timeline' };
+let UI={ today:true, summary:false, memo:false, lib:false, info:true, procs:false, contacts:false, note:true, view:'timeline' };
 function setView(v){ UI.view=(v==='calendar')?'timeline':v; renderAll(); }
 function toggleUI(k){ UI[k]=!UI[k]; renderAll(); }
 function notepad(title,inner,count){
@@ -8004,6 +8012,21 @@ function renderProcGuide(si){
   </div>`;
 }
 
+/* ══════════ 프로젝트/공간 노트 — 준비물·메모 자유 기록 ══════════ */
+function renderProjectNote(si){
+  const s=S.sites[si];
+  const unit=isSelf()?'공간':'프로젝트';
+  return `<div class="pn-note">
+    <div class="pn-note-h">이 ${unit}에 필요한 <b>준비물·메모</b>를 자유롭게 적어두세요. 무엇이 필요한지 한눈에 파악할 수 있어요.</div>
+    <textarea class="pn-note-area" placeholder="예) 벽지 3롤 · 실리콘 건 · 콘센트 커버 5개 · 사다리 대여 예약 · 폐기물 마대 구입…" oninput="updateProjMemo(${si},this.value)">${esc(s.memo||'')}</textarea>
+  </div>`;
+}
+function updateProjMemo(si,val){
+  if(!S.sites[si]) return;
+  S.sites[si].memo=val;
+  clearTimeout(window._pnTimer); window._pnTimer=setTimeout(()=>persist(),500);
+}
+
 /* ══════════ 서류 · 검사 진행 (계약·신고·검사·세금계산서 등) ══════════ */
 const DOC_SUGGEST_PRO  = ['계약서','착공 신고','안전 점검','중간 검사','준공 검사','세금계산서'];
 const DOC_SUGGEST_SELF = ['계약서','관리실 공사 신고','자재 발주','폐기물 처리','하자 점검','입주 청소'];
@@ -9463,6 +9486,7 @@ function renderMain(){
       (isS ? section('span','공사 기간', renderSiteSpanCard(si)) : '') +
       section('procs', isS?'할 일 관리':'작업 관리', renderSiteProcPanel(si), (s.procs||[]).filter(p=>p).length+'개') +
       (isS ? '' : section('contacts','연락처', renderSiteContacts(si), nContacts?`${nContacts}명`:'')) +
+      section('note', isS?'공간 노트':'프로젝트 노트', renderProjectNote(si), (s.memo||'').trim()?'작성됨':'') +
       section('docs','서류 · 검사', renderDocSteps(si), dsBadge(si)) +
       notepad('데일리 노트', renderDailyNoteCompact(), dnBadge()) +
       `<div class="side-foot"><button class="btn-danger" onclick="deleteSite(${si})">${isSelf()?'공간 삭제':'프로젝트 삭제'}</button></div>`;
