@@ -207,6 +207,8 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .gp-hero-badge{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:#4F46E5;border-radius:20px;padding:4px 11px;margin-bottom:11px}
 .gp-hero-t{font-size:23px;font-weight:800;color:#2a2470;letter-spacing:-0.03em;line-height:1.25}
 .gp-hero-d{font-size:14px;color:#5a5590;line-height:1.7;margin-top:9px}
+.gp-forself{font-size:13px;color:#3a34a8;line-height:1.6;background:#eef0fe;border:1px solid #d6d8fb;border-radius:11px;padding:12px 15px}
+.gp-forself b{color:#4F46E5}
 .gp-seg{display:flex;gap:6px;background:#eef1f6;border-radius:12px;padding:5px}
 .gp-seg-b{flex:1;font-size:14px;font-weight:700;color:#59636f;background:transparent;border:none;border-radius:9px;padding:11px;cursor:pointer;font-family:inherit}
 .gp-seg-b.on{background:#fff;color:#12141C;box-shadow:0 1px 4px rgba(14,20,32,.1)}
@@ -9908,6 +9910,7 @@ function renderGuidePage(){
       <div class="gp-hero-t">${heroT}</div>
       <div class="gp-hero-d">${heroD}</div>
     </div>
+    <div class="gp-forself">🏠 이 <b>공정온 가이드</b>는 <b>셀프 인테리어를 직접 진행하시는 분</b>을 위한 안내입니다. 시공을 맡기는 프로(팀) 사용자는 참고용으로만 봐 주세요.</div>
     <div class="gp-seg">
       <button class="gp-seg-b${!isPermit?' on':''}" onclick="setGuideView('flow')">🧭 진행 순서</button>
       <button class="gp-seg-b${isPermit?' on':''}" onclick="setGuideView('permit')">📄 허가·서류</button>
