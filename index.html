@@ -36,6 +36,14 @@ body{line-height:1.55;font-family:'Pretendard Variable',Pretendard,-apple-system
 .sync-dot.ok{background:#538135}
 .sync-dot.ing{background:#4F46E5;animation:pulse 1s infinite}
 .sync-dot.err{background:#C00000}
+/* 충돌 배너 (다른 기기/사람이 먼저 저장) */
+.conflict-bar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9998;display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;background:#1c2130;color:#fff;border:1px solid #3a4256;border-radius:12px;padding:12px 16px;box-shadow:0 12px 30px -8px rgba(0,0,0,.5);max-width:92vw}
+.conflict-bar .cfb-t{font-size:13.5px;font-weight:600}
+.conflict-bar .cfb-btns{display:flex;gap:8px}
+.conflict-bar .cfb-mine{font-size:13px;font-weight:700;padding:8px 13px;border-radius:8px;border:none;background:#4F46E5;color:#fff;cursor:pointer;font-family:inherit}
+.conflict-bar .cfb-remote{font-size:13px;font-weight:700;padding:8px 13px;border-radius:8px;border:1px solid #4a5266;background:transparent;color:#cfd6e4;cursor:pointer;font-family:inherit}
+.conflict-bar .cfb-mine:hover{background:#4038c9}
+.conflict-bar .cfb-remote:hover{background:rgba(255,255,255,.08)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .nav{display:flex;gap:6px;padding:0 0 12px;border-bottom:0.5px solid #dde3ee;margin-bottom:12px;flex-wrap:wrap;justify-content:flex-end}
 button{font-size:13px;padding:5px 11px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#333;cursor:pointer;font-family:inherit}
@@ -280,6 +288,213 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .gp-cta:hover{background:#4038c9}
 .gp-disc{font-size:12px;color:#7a6a2a;background:#fdf8e6;border:1px solid #f0e3b0;border-radius:10px;padding:12px 14px;line-height:1.6}
 @media(max-width:620px){.gp-hero-t{font-size:19px}.gp-step{padding:14px}.gp-num{width:30px;height:30px;font-size:14px}}
+
+/* ── 가계부 (엑셀 표 + 우측 기록 가이드) ── */
+.gb-wrap{display:flex;flex-direction:column;gap:13px}
+.gb-top{background:#fff;border:1px solid #e0e6ef;border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.gb-top-l{display:flex;flex-direction:column;gap:2px}
+.gb-top-k{font-size:12.5px;font-weight:700;color:#59636f}
+.gb-top-v{font-size:27px;font-weight:800;color:#12141C;letter-spacing:-0.03em;line-height:1.15}
+.gb-top-sub{display:flex;flex-wrap:wrap;gap:7px}
+.gb-tag{font-size:12px;font-weight:700;color:#44506a;background:#f2f5fa;border-radius:20px;padding:6px 11px}
+.gb-tag b{color:#12141C;margin-left:3px}
+.gb-tag.due{background:#fff1e8;color:#9a3d1a}
+.gb-tag.due b{color:#c0451a}
+.gb-bud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.gb-bud-k{font-size:12.5px;font-weight:700;color:#59636f}
+.gb-bud-in{width:126px;font-size:14px;font-weight:700;padding:8px 10px;border:1px solid #cfd7e4;border-radius:8px;text-align:right;color:#12141C;font-family:inherit;outline:none;background:#fff}
+.gb-bud-in:focus{border-color:#2f9e5e}
+.gb-bud-in::placeholder{color:#98a2b3;font-weight:400}
+.gb-won{font-size:12.5px;color:#6b7583}
+.gb-rem{font-size:13px;font-weight:700;color:#2f7a4d}
+.gb-rem.none{color:#8a94a6;font-weight:600}
+.gb-rem.over{color:#DC2626}
+.gb-bar{width:100%;height:8px;background:#eef1f6;border-radius:6px;overflow:hidden}
+.gb-bar>div{height:100%;border-radius:6px;background:#2f9e5e;transition:width .3s}
+.gb-bar>div.over{background:#DC2626}
+
+/* 종류 4분할 요약 */
+.gb-kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.gb-kind{background:#fff;border:1px solid #e0e6ef;border-radius:12px;padding:11px 13px 12px;display:flex;flex-direction:column;gap:3px;position:relative;overflow:hidden}
+.gb-kind::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#94A3B8}
+.gb-kind.k0::before{background:#2563EB}.gb-kind.k1::before{background:#B45309}
+.gb-kind.k2::before{background:#7C3AED}.gb-kind.k3::before{background:#0D9488}
+.gb-kind-k{font-size:12px;font-weight:800;color:#4a5568;display:flex;align-items:center;gap:6px}
+.gb-kind-n{font-size:10.5px;font-weight:700;color:#8a94a6;background:#f2f5fa;border-radius:20px;padding:2px 6px;margin-left:auto}
+.gb-kind-v{font-size:17px;font-weight:800;color:#12141C;letter-spacing:-0.02em;line-height:1.25}
+.gb-kind-p{font-size:11px;font-weight:700;color:#7a8494}
+.gb-kind.zero .gb-kind-v{color:#c2cad5}
+.gb-kind-none{grid-column:1/-1;font-size:11.5px;color:#8a6d3b;background:#fff8e8;border:1px solid #f0e2c0;border-radius:9px;padding:9px 12px;font-weight:600;line-height:1.6}
+.gb-kind-none b{color:#8a5a1a}
+@media(max-width:700px){.gb-kinds{grid-template-columns:1fr 1fr}}
+
+/* 2단 배치 */
+.gb-split{display:grid;grid-template-columns:minmax(0,1fr) 306px;gap:14px;align-items:start}
+.gb-main{min-width:0;display:flex;flex-direction:column;gap:10px}
+.gb-side{position:sticky;top:10px}
+@media(max-width:940px){.gb-split{grid-template-columns:1fr}.gb-side{position:static}}
+
+/* 도구줄 */
+.gb-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.gb-tk{font-size:12px;font-weight:700;color:#7a8494;margin-right:2px}
+.gb-view{font-size:12.5px;font-weight:700;color:#59636f;background:#eef1f6;border:none;border-radius:8px;padding:7px 13px;cursor:pointer;font-family:inherit}
+.gb-view.on{background:#12141C;color:#fff}
+.gb-hint{margin-left:auto;font-size:12px;color:#5f6b7c;font-weight:600}
+
+/* 엑셀 표 */
+.gb-sheetwrap{background:#fff;border:1px solid #d5dce7;border-radius:11px;overflow:auto}
+.gb-sheet{min-width:884px}
+.gb-row{display:grid;grid-template-columns:92px 88px 74px 88px minmax(108px,1fr) 48px 50px 106px 104px 60px 34px 28px;align-items:stretch;border-bottom:1px solid #eef1f6}
+.gb-row:last-child{border-bottom:none}
+.gb-hd{background:#f4f7fb;border-bottom:1.5px solid #d5dce7;position:sticky;top:0;z-index:3}
+.gb-hd>span{font-size:11.5px;font-weight:800;color:#4a5568;padding:10px 9px;border-right:1px solid #e4eaf2;display:flex;align-items:center;letter-spacing:-0.01em}
+.gb-hd>span:last-child{border-right:none}
+.gb-cell{border-right:1px solid #f0f3f8;display:flex;align-items:center;min-height:38px}
+.gb-cell:last-child{border-right:none}
+.gb-in{width:100%;height:100%;min-height:38px;font-size:13.5px;padding:7px 9px;border:1.5px solid transparent;border-radius:5px;font-family:inherit;color:#12141C;outline:none;background:transparent}
+.gb-in:hover{background:#f8fafc}
+.gb-in:focus{border-color:#2f9e5e;background:#fff;box-shadow:0 0 0 2px rgba(47,158,94,.14)}
+.gb-in::placeholder{color:#a8b1be}
+.gb-in.num{text-align:right}
+.gb-in.amt{font-weight:700}
+.gb-in.dt{font-size:12px;padding:7px 6px}
+.gb-in.cat{font-size:12.5px;color:#3d4757;font-weight:600}
+.gb-in.vd{font-size:12.5px;color:#3d4757;font-weight:600}
+.gb-in.ac{font-size:12px;color:#5f6b7c;font-variant-numeric:tabular-nums}
+.gb-in.kd{font-size:12px;font-weight:700;padding:7px 3px;cursor:pointer;-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center}
+.gb-in.kd option{color:#12141C;font-weight:600}
+
+/* 영수증 사진 */
+.gb-rc{width:100%;min-height:38px;border:none;background:transparent;cursor:pointer;font-size:13px;color:#c3ccd8;font-family:inherit;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.gb-rc:hover{background:#f4f7fb;color:#2f9e5e}
+.gb-rc.has{color:#1f6b45}
+.gb-rc img{width:27px;height:27px;object-fit:cover;border-radius:5px;border:1px solid #cbe9d6;display:block}
+.gb-rc.up{color:#2f9e5e;font-size:10px;font-weight:800}
+.gb-lb{position:fixed;inset:0;background:rgba(10,12,18,.87);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;gap:12px}
+.gb-lb img{max-width:min(100%,760px);max-height:74vh;border-radius:10px;background:#fff}
+.gb-lb-t{font-size:13px;color:#e6eaf0;font-weight:700}
+.gb-lb-bar{display:flex;gap:8px}
+.gb-lb-b{font-size:13px;font-weight:700;font-family:inherit;border:none;border-radius:9px;padding:10px 17px;cursor:pointer;background:#fff;color:#12141C}
+.gb-lb-b.d{background:#DC2626;color:#fff}
+.gb-paybtn{width:100%;height:100%;min-height:38px;font-size:11.5px;font-weight:700;border:none;background:transparent;color:#98a2b3;cursor:pointer;font-family:inherit;white-space:nowrap;padding:0 2px}
+.gb-paybtn.on{color:#1f6b45;background:#f0f9f4}
+.gb-xbtn{width:100%;min-height:38px;font-size:12px;border:none;background:transparent;color:#c3ccd8;cursor:pointer;font-family:inherit}
+.gb-xbtn:hover{background:#fff0f0;color:#c00}
+.gb-row.grp{grid-template-columns:1fr auto;background:#f7f9fc;border-top:1px solid #e4eaf2}
+.gb-grp-n{font-size:12.5px;font-weight:800;color:#3d4757;padding:8px 11px;display:flex;align-items:center;gap:7px}
+.gb-grp-s{font-size:12.5px;font-weight:800;color:#3d4757;padding:8px 11px}
+.gb-gdot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+.gb-row.new{background:#fbfdfc}
+.gb-row.new .gb-in::placeholder{color:#9fb8ab}
+.gb-ft{display:grid;grid-template-columns:1fr auto;background:#f4f7fb;border-top:1.5px solid #d5dce7}
+.gb-ft-k{font-size:12.5px;font-weight:700;color:#4a5568;padding:11px 12px}
+.gb-ft-v{font-size:15px;font-weight:800;color:#12141C;padding:11px 12px}
+.gb-note{font-size:12px;color:#5f6b7c;line-height:1.6}
+.gb-note b{color:#1f6b45}
+
+/* 우측 기록 가이드 */
+.gb-side-box{background:#fff;border:1px solid #d5dce7;border-radius:12px;overflow:hidden}
+.gb-side-h{background:#f4f7fb;border-bottom:1px solid #e4eaf2;padding:12px 14px}
+.gb-side-t{font-size:14px;font-weight:800;color:#12141C}
+.gb-side-d{font-size:12px;color:#5f6b7c;line-height:1.6;margin-top:4px}
+.gb-side-p{display:flex;align-items:center;gap:8px;margin-top:9px}
+.gb-side-pb{flex:1;height:7px;background:#e4eaf2;border-radius:5px;overflow:hidden}
+.gb-side-pb>div{height:100%;background:#2f9e5e;border-radius:5px;transition:width .3s}
+.gb-side-pn{font-size:11.5px;font-weight:800;color:#1f6b45;white-space:nowrap}
+.gb-side-body{max-height:640px;overflow-y:auto}
+.gb-g{border-bottom:1px solid #f0f3f8}
+.gb-g:last-child{border-bottom:none}
+.gb-gh{display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;padding:10px 13px;cursor:pointer;font-family:inherit;text-align:left}
+.gb-gh:hover{background:#f8fafc}
+.gb-gn{font-size:13px;font-weight:800;color:#12141C}
+.gb-gc{margin-left:auto;font-size:11px;font-weight:800;color:#7a8494;background:#f2f5fa;border-radius:20px;padding:3px 8px}
+.gb-gc.done{background:#eaf7ef;color:#1f6b45}
+.gb-ga{font-size:10px;color:#a8b1be}
+.gb-gl{padding:0 9px 9px}
+.gb-gi{display:flex;align-items:center;gap:8px;width:100%;background:#f8fafc;border:1px solid #eef1f6;border-radius:8px;padding:8px 10px;cursor:pointer;font-family:inherit;text-align:left;margin-top:5px}
+.gb-gi:hover{background:#eaf7ef;border-color:#a9dcbe}
+.gb-gi-n{font-size:12.5px;font-weight:600;color:#3d4757}
+.gb-gi-u{font-size:10.5px;font-weight:700;color:#7a8494;background:#eef1f6;border-radius:5px;padding:2px 6px}
+.gb-gi-plus{margin-left:auto;font-size:12px;font-weight:800;color:#2f9e5e}
+.gb-gi.done{background:#f2fbf5;border-color:#cbe9d6}
+.gb-gi.done .gb-gi-n{color:#1f6b45}
+.gb-gi.done .gb-gi-plus{color:#1f6b45}
+.gb-side-f{border-top:1px solid #eef1f6;padding:10px 13px;font-size:11.5px;color:#5f6b7c;line-height:1.65}
+.gb-side-f b{color:#1f6b45}
+@media(max-width:600px){.gb-top{gap:12px}.gb-bud{margin-left:0;width:100%}.gb-hint{margin-left:0;width:100%;order:9}.gb-side-body{max-height:none}}
+
+
+.qt-b{font-size:12.5px;font-weight:700;font-family:inherit;color:#3d4654;background:#fff;border:1px solid #dfe5ee;border-radius:9px;padding:9px 13px;cursor:pointer;white-space:nowrap}
+.qt-b:hover{border-color:#2f9e5e;color:#1f6b45;background:#f7fdf9}
+.qt-b.p{background:#2f9e5e;border-color:#2f9e5e;color:#fff}
+.qt-b.p:hover{background:#278a51;color:#fff}
+.qt-b:disabled,.qt-b.p:disabled,.qt-b.p:disabled:hover{background:#eef1f6;border-color:#eef1f6;color:#b0b8c4;cursor:default}
+/* 자주 쓰는 작업 고르기 모달 — 버튼(.qt-b)과 창(.qm) */
+.qm{position:fixed;inset:0;background:rgba(10,12,18,.55);z-index:99997;display:flex;align-items:center;justify-content:center;padding:18px}
+.qm-box{background:#fff;border-radius:16px;width:min(880px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.qm-h{padding:17px 19px 13px;border-bottom:1px solid #eef1f6}
+.qm-t{font-size:17px;font-weight:800;color:#12141C;letter-spacing:-0.02em}
+.qm-d{font-size:12.5px;color:#6b7583;line-height:1.65;margin-top:5px}
+.qm-b{flex:1;overflow:auto;display:flex;gap:14px;padding:15px 19px}
+.qm-l{flex:1;min-width:0}
+.qm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:7px}
+.qm-c{position:relative;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#3d4654;background:#fff;border:1px solid #e0e6ef;border-radius:10px;padding:10px 11px;cursor:pointer;font-family:inherit;text-align:left}
+.qm-c:hover{border-color:#a8dcbe;background:#f7fdf9}
+.qm-c.on{border-color:#2f9e5e;background:#f2fbf5;color:#1f6b45}
+.qm-n{width:19px;height:19px;flex:0 0 19px;border-radius:50%;border:1.5px solid #dfe5ee;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#c8d0da}
+.qm-c.on .qm-n{background:#2f9e5e;border-color:#2f9e5e;color:#fff}
+.qm-add{display:flex;gap:7px;margin-top:11px}
+.qm-add input{flex:1;font-size:13px;font-family:inherit;border:1px solid #dfe5ee;border-radius:9px;padding:9px 11px;color:#12141C}
+.qm-add input:focus{outline:none;border-color:#2f9e5e}
+.qm-side{width:212px;flex:0 0 212px;border-left:1px solid #eef1f6;padding-left:14px;display:flex;flex-direction:column;gap:7px}
+.qm-side-t{font-size:11.5px;font-weight:800;color:#7a8494}
+.qm-pick{display:flex;flex-direction:column;gap:5px}
+.qm-p{display:flex;align-items:center;gap:7px;background:#f7f9fc;border-radius:9px;padding:8px 9px;font-size:12.5px;font-weight:700;color:#3d4654}
+.qm-p-i{width:17px;height:17px;flex:0 0 17px;border-radius:50%;background:#2f9e5e;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.qm-p-x{margin-left:auto;border:none;background:transparent;color:#b8c1cd;font-size:12px;cursor:pointer;font-family:inherit;padding:0 2px}
+.qm-p-x:hover{color:#DC2626}
+.qm-p-none{font-size:11.5px;color:#98a2b3;line-height:1.7}
+.qm-f{border-top:1px solid #eef1f6;padding:13px 19px;display:flex;gap:8px;align-items:center}
+.qm-f-d{font-size:11.5px;color:#8a94a6;margin-right:auto;line-height:1.6}
+@media(max-width:840px){.qm-b{flex-direction:column}.qm-side{width:auto;flex:none;border-left:none;border-top:1px solid #eef1f6;padding-left:0;padding-top:12px}}
+
+/* 자주 쓰는 작업 고르기 — qm 계열을 그대로 쓰고 이미 있는 것 표시만 더함 */
+.qm-c.tk-has,.qm-c.tk-has:hover{background:#f7f9fc;border-color:#eef1f6;color:#b0b8c4;cursor:default}
+.tk-had{margin-left:auto;font-size:10px;font-weight:800;color:#b0b8c4;flex:0 0 auto}
+
+/* ── 가계부 탭 ── */
+.lg-page{max-width:1200px;margin:0 auto;padding:8px 4px 40px;display:flex;flex-direction:column;gap:14px}
+.lg-head{background:linear-gradient(120deg,#eaf6ef,#f2fbf5);border:1px solid #cbe9d6;border-radius:14px;padding:18px 20px}
+.lg-title{font-size:21px;font-weight:800;color:#1f6b45;letter-spacing:-0.02em}
+.lg-desc{font-size:13.5px;color:#4a5568;line-height:1.6;margin-top:7px}
+.lg-desc b{color:#2f9e5e}
+.lg-empty{font-size:14px;color:#6b7583;padding:24px;text-align:center;background:#fff;border:1px solid #e4e9f0;border-radius:12px}
+.lg-subs{display:flex;gap:7px;flex-wrap:wrap;background:#eef1f6;border-radius:12px;padding:5px}
+.lg-sub{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#59636f;background:transparent;border:none;border-radius:9px;padding:9px 14px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.lg-sub.on{background:#fff;color:#12141C;box-shadow:0 1px 4px rgba(14,20,32,.1)}
+.tmb-n{font-size:10.5px;font-weight:800;color:#8a94a6;background:#f2f5fa;border-radius:20px;padding:2px 7px}
+.lg-sub.on .tmb-n{background:#eef2f8;color:#3d4757}
+.tmb-note{font-size:12.5px;color:#5f6b7c;line-height:1.7;background:#f7f9fc;border:1px solid #e8ecf3;border-radius:11px;padding:12px 14px;margin-bottom:14px}
+.tmb-note b{color:#12141C}
+.tmb-wrap{max-width:920px}
+.ct-scroll{overflow-x:auto}
+.ct-inner{min-width:640px}
+@media(min-width:701px){.ct-inner{min-width:0}}
+.lg-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+.lg-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:6px 0 12px}
+.lg-sum-c{background:#f7f9fc;border:1px solid #e8edf4;border-radius:11px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.lg-sum-c span{font-size:12px;color:#59636f;font-weight:600}
+.lg-sum-c b{font-size:17px;font-weight:800;color:#12141C}
+.lg-sum-c.strong{background:#eef0fe;border-color:#d6d8fb}
+.lg-sum-c.strong b{color:#4F46E5}
+.lg-pcards-t{font-size:12.5px;font-weight:800;color:#59636f;margin:14px 2px 8px}
+.lg-pcards{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lg-pcard{text-align:left;background:#fff;border:1px solid #e4e9f0;border-radius:11px;padding:12px 14px;cursor:pointer;font-family:inherit}
+.lg-pcard:hover{border-color:#2f9e5e;background:#f6fdf9}
+.lg-pcard-h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#12141C}
+.lg-pcard-t{font-size:17px;font-weight:800;color:#12141C;margin-top:6px}
+.lg-pcard-r{font-size:12px;color:#59636f;margin-top:2px}
+@media(max-width:560px){.lg-sum-grid,.lg-pcards{grid-template-columns:1fr}}
 
 /* ── 프로젝트/공간 노트 ── */
 .pn-note{display:flex;flex-direction:column;gap:9px}
@@ -1520,6 +1735,7 @@ textarea.checklist-text{resize:none;overflow:hidden;white-space:pre-wrap;word-br
   font-size:14px;color:#3d4757;margin-bottom:30px!important}
 .lg-note{font-size:13px;color:#5f6b7c;background:#F7F9FC;border-left:3px solid #C3CDDE;
   padding:14px 18px;border-radius:0 8px 8px 0;line-height:1.9;margin-left:14px}
+.lg-h5{font-size:13.5px;font-weight:700;color:#3d4757;margin:16px 0 -4px 14px}
 .lg-tbl{width:calc(100% - 14px);border-collapse:collapse;margin:12px 0 18px 14px;font-size:13.5px}
 .lg-tbl th,.lg-tbl td{border:1px solid #DCE3EE;padding:11px 14px;text-align:left;vertical-align:top}
 .lg-tbl th{background:#EDF1F8;font-weight:700;color:#12141C;white-space:nowrap}
@@ -1557,8 +1773,9 @@ select.lp-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   .lp-tab{font-size:12.5px;padding:9px 14px}
   .lp-body{padding:56px 18px 50px;font-size:14px}
   .lp-head-in{padding:0 18px}
-  .lg-tbl{font-size:12.5px}
-  .lg-tbl th,.lg-tbl td{padding:9px 10px}
+  .lg-tbl{font-size:12.5px;width:100%;min-width:0;margin-left:0;table-layout:fixed}
+  .lg-tbl th,.lg-tbl td{padding:9px 10px;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+  .lg-h5{margin-left:0}
 }
 
 /* ══════════ 계정 설정 ══════════ */
@@ -2616,8 +2833,25 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 
 .gt-proc{padding:0 11px;font-size:12.5px;color:#3d4757;font-weight:600;
   border-right:1px solid #C3CDDE;border-bottom:1px solid #DCE3EE;
-  background:#FAFBFD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  background:#FAFBFD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}
 .gt-proc i{font-style:normal;color:#59636f;font-weight:500}
+
+/* 일정표 작업 칸 — 끌거나 화살표로 순서 바꾸기 */
+.gt-proc[draggable="true"]{cursor:grab}
+.gt-pn{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gt-mv{position:absolute;right:3px;top:50%;transform:translateY(-50%);
+  display:none;gap:2px;background:#FAFBFD;padding-left:6px;
+  box-shadow:-7px 0 7px -3px #FAFBFD}
+.gt-r:hover .gt-mv{display:flex}
+.gt-mv button{width:18px;height:18px;padding:0;line-height:1;font-family:inherit;font-size:9.5px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:#7a8494;background:#fff;border:1px solid #dfe5ee;border-radius:5px}
+.gt-mv button:hover{border-color:#4F46E5;color:#4F46E5}
+.gt-mv button:disabled,.gt-mv button:disabled:hover{opacity:.32;cursor:default;border-color:#eef1f6;color:#b0b8c4}
+.gt-proc.dragging{opacity:.42}
+.gt-proc.drop-before{box-shadow:inset 0 2px 0 #4F46E5}
+.gt-proc.drop-after{box-shadow:inset 0 -2px 0 #4F46E5}
+@media(max-width:840px){.gt-mv{display:flex}.gt-pn{padding-right:41px}}
 
 /* 칸 — 격자를 되살린다 */
 .gt-c{padding:3px;position:relative;height:34px;background:#fff;
@@ -4443,6 +4677,7 @@ tr.divider td{background:#EEF0F3!important}
         </span>
         <span class="ah-user" id="ah-user" title="현재 로그인한 계정"></span>
         <button class="ah-btn" onclick="manualSave()" id="save-btn">저장</button>
+        <button class="ah-btn" onclick="openDataBackup()" title="데이터 백업·복원">백업</button>
         <button class="ah-btn" onclick="openProfile()">계정</button>
         <button class="ah-btn" onclick="goToSettings()" id="login-btn">로그아웃</button>
         <a class="ah-btn ah-out" href="#">← 소개</a>
@@ -4617,6 +4852,10 @@ function section(key,title,inner,count){
 let saveTimer=null;
 let pollingTimer=null;
 let lastSavedAt=null;
+let _unsaved=false;        // 저장 대기/실패 중인 변경이 있는지
+let _baselineAt=null;      // 내가 기준으로 삼은 서버 버전(updated_at) — 충돌 감지용
+let _saveRetryTimer=null;  // 저장 실패 시 자동 재시도 타이머
+let _conflict=false;       // 다른 기기/사람이 먼저 수정한 상태
 
 // ══════════ 인증 (Supabase Auth) ══════════
 function saveSession(j){
@@ -4995,30 +5234,101 @@ async function dbLoad(){
   if(!TEAM) return [];
   return await api(`/rest/v1/schedules?team_id=eq.${TEAM.id}&select=data,updated_at`) || [];
 }
-async function dbSave(){
+function scheduleSaveRetry(){
+  clearTimeout(_saveRetryTimer);
+  _saveRetryTimer=setTimeout(()=>{ if(_unsaved && !_conflict) dbSave(); }, 6000);
+}
+/* 서버에 저장된 현재 updated_at 을 읽는다 */
+async function _fetchRemoteAt(){
+  try{
+    const rows=await api(`/rest/v1/schedules?team_id=eq.${TEAM.id}&select=updated_at`);
+    return (rows&&rows[0]&&rows[0].updated_at)||null;
+  }catch(_){ return null; }
+}
+/* 내가 기준 삼은 버전 이후 남이 수정했는지 확인 */
+async function _remoteChangedSinceBaseline(){
+  const at=await _fetchRemoteAt();
+  // 기준 시각을 모르거나(첫 저장) 서버 값을 못 읽으면 충돌 아님으로 간주
+  if(at && _baselineAt && at!==_baselineAt) return true;
+  return false;
+}
+async function dbSave(force){
   if(!TEAM) return;
+  if(typeof navigator!=='undefined' && navigator.onLine===false){
+    _unsaved=true; setSyncStatus('err','오프라인 — 연결되면 자동 저장'); scheduleSaveRetry(); return;
+  }
   if(!DATA_ENV) DATA_ENV={self:null,pro:null};
+  // 저장 직전 충돌 확인 (강제 저장이 아니면)
+  if(!force && await _remoteChangedSinceBaseline()){
+    _unsaved=true; _conflict=true; showConflictBar();
+    setSyncStatus('err','다른 기기에서 수정됨 — 저장 보류');
+    return;
+  }
   DATA_ENV[APP_MODE] = S;                       // 현재 모드 슬롯만 갱신
   const payload = { __v:2, self:DATA_ENV.self||null, pro:DATA_ENV.pro||null };
+  const nowIso=new Date().toISOString();
   setSyncStatus('ing','저장 중...');
   try{
     await api(`/rest/v1/schedules?team_id=eq.${TEAM.id}`,{
       method:'PATCH',
       headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({data:payload,updated_at:new Date().toISOString()})
+      body:JSON.stringify({data:payload,updated_at:nowIso})
     });
-    lastSavedAt=Date.now();
+    lastSavedAt=Date.now(); _unsaved=false; _conflict=false;
+    // 서버가 실제로 저장한 시각을 기준으로 삼는다 (DB가 updated_at 을 자체 갱신해도 오탐 방지)
+    _baselineAt = (await _fetchRemoteAt()) || nowIso;
+    hideConflictBar();
     setSyncStatus('ok','저장 완료 — '+new Date().toLocaleTimeString('ko-KR'));
-  }catch(e){ setSyncStatus('err','저장 실패'); }
+  }catch(e){ _unsaved=true; setSyncStatus('err','저장 실패 — 자동 재시도 중'); scheduleSaveRetry(); }
 }
 
 function persist(){
   clearTimeout(saveTimer);
   if(TEAM){
+    _unsaved=true;
     saveTimer=setTimeout(()=>dbSave(),800);
   } else {
     try{localStorage.setItem('gj_local_data',JSON.stringify(S));}catch(e){}
   }
+}
+
+/* ── 충돌 배너 (다른 기기/사람이 먼저 저장한 경우) ── */
+function showConflictBar(){
+  let el=document.getElementById('conflict-bar');
+  if(!el){
+    el=document.createElement('div');
+    el.id='conflict-bar';
+    el.className='conflict-bar';
+    document.body.appendChild(el);
+  }
+  el.innerHTML=`<span class="cfb-t">⚠ 다른 기기(또는 팀원)가 이 자료를 방금 수정했어요.</span>
+    <span class="cfb-btns">
+      <button class="cfb-mine" onclick="resolveConflict('mine')">내 내용으로 저장</button>
+      <button class="cfb-remote" onclick="resolveConflict('remote')">상대 내용 불러오기</button>
+    </span>`;
+  el.style.display='flex';
+}
+function hideConflictBar(){ const el=document.getElementById('conflict-bar'); if(el) el.style.display='none'; }
+async function resolveConflict(how){
+  _conflict=false;
+  if(how==='mine'){
+    hideConflictBar();
+    await dbSave(true);   // 강제 저장 (내 내용으로 덮어쓰기)
+  } else {
+    hideConflictBar();
+    _unsaved=false;
+    try{ _loaded=false; await startupLoad(); showToast('상대가 저장한 내용을 불러왔어요'); }catch(_){}
+  }
+}
+
+/* ── 온라인/오프라인 · 이탈 경고 ── */
+if(typeof window!=='undefined' && !window._gjNetBound){
+  window._gjNetBound=true;
+  window.addEventListener('online', ()=>{ if(TEAM && _unsaved && !_conflict){ setSyncStatus('ing','연결됨 — 저장 중...'); dbSave(); } });
+  window.addEventListener('offline', ()=>{ if(TEAM) setSyncStatus('err','오프라인 — 연결되면 자동 저장'); });
+  window.addEventListener('beforeunload', (e)=>{
+    if(TEAM && (_unsaved || _conflict)){ e.preventDefault(); e.returnValue='아직 저장되지 않은 변경이 있어요. 나가시겠어요?'; return e.returnValue; }
+  });
 }
 
 function setSyncStatus(type,msg){
@@ -5033,9 +5343,11 @@ function setSyncStatus(type,msg){
 function startPolling(){
   pollingTimer=setInterval(async()=>{
     if(Date.now()-(lastSavedAt||0)<3000)return;
+    if(_unsaved || _conflict) return;   // 내 미저장 변경이 있으면 원격으로 덮어쓰지 않는다
     try{
       const rows=await dbLoad();
       const raw=(rows&&rows[0]&&rows[0].data)?rows[0].data:null;
+      const remoteAt=(rows&&rows[0]&&rows[0].updated_at)||null;
       // 상대 모드 슬롯도 최신으로 유지 (다음 저장 때 덮어쓰지 않도록)
       if(raw && raw.__v===2){
         DATA_ENV = DATA_ENV||{self:null,pro:null};
@@ -5061,6 +5373,7 @@ function startPolling(){
           setSyncStatus('ok','업데이트됨 — '+new Date().toLocaleTimeString('ko-KR'));
         }
       }
+      if(remoteAt) _baselineAt=remoteAt;   // 원격과 동기화됐으니 기준 버전 갱신
     }catch(e){}
   },30000);
 }
@@ -5074,7 +5387,7 @@ function isToday(y,m,d){
   return t.getFullYear()===y && (t.getMonth()+1)===m && t.getDate()===d;
 }
 function ck(si,pi,d){return si+"_"+pi+"_"+S.year+"_"+S.month+"_"+d}
-function tabIndex(t){return t==="all"?-5:t==="contacts"?-4:t==="guide"?-3.5:t==="members"?-3:t==="memo"?-2:t==="inquiries"?-1:parseInt(t)}
+function tabIndex(t){return t==="all"?-5:t==="guide"?-4.5:t==="ledger"?-4.2:t==="contacts"?-4:t==="members"?-3:t==="memo"?-2:t==="inquiries"?-1:parseInt(t)}
 function calcCellW(){
   const wrap=document.getElementById('wrap');
   const total=wrap?wrap.offsetWidth:900;
@@ -5204,7 +5517,6 @@ function renderTabs(){
 
 function renderTabsPro(){
   const allOn      = S.tab==='all';
-  const contactsOn = S.tab==='contacts';
   const membersOn  = S.tab==='members';
   const memoOn     = S.tab==='memo';
   let h=`<div class="ah-nav-in">`;
@@ -5212,8 +5524,9 @@ function renderTabsPro(){
   const guideOnP = S.tab==='guide';
   h+=`<button class="ah-tab${guideOnP?' on':''}" onclick="setTab('guide')" style="${guideOnP?'border-top-color:#4F46E5':''}">가이드</button>`;
   h+=`<button class="ah-tab${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'border-top-color:#12141C':''}">프로젝트 통합</button>`;
-  h+=`<button class="ah-tab${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'border-top-color:#5a5a7a':''}">연락처</button>`;
-  h+=`<button class="ah-tab${membersOn?' on':''}" onclick="setTab('members')" style="${membersOn?'border-top-color:#00868A':''}">팀원</button>`;
+  const ledgerOnP = S.tab==='ledger';
+  h+=`<button class="ah-tab${ledgerOnP?' on':''}" onclick="setTab('ledger')" style="${ledgerOnP?'border-top-color:#2f9e5e':''}">가계부</button>`;
+  h+=`<button class="ah-tab${membersOn?' on':''}" onclick="setTab('members')" style="${membersOn?'border-top-color:#00868A':''}">팀 관리</button>`;
 
   if(IS_ADMIN){
     const inqOn = S.tab==='inquiries';
@@ -5247,6 +5560,8 @@ function renderTabsSelf(){
   // 셀프는 통합 화면을 쓰지 않음 → '셀프 인테리어 전체' 탭 없음. 공간(방) 탭만.
   const guideOnS = S.tab==='guide';
   h+=`<button class="ah-tab${guideOnS?' on':''}" onclick="setTab('guide')" style="${guideOnS?'border-top-color:#4F46E5':''}">가이드</button>`;
+  const ledgerOnS = S.tab==='ledger';
+  h+=`<button class="ah-tab${ledgerOnS?' on':''}" onclick="setTab('ledger')" style="${ledgerOnS?'border-top-color:#2f9e5e':''}">가계부</button>`;
   h+=`<button class="ah-tab${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'border-top-color:#5a5a7a':''}">연락처</button>`;
 
   if(IS_ADMIN){
@@ -5366,7 +5681,8 @@ function renderContactsTab(){
   if(!S.newGlobalContact)S.newGlobalContact={name:'',role:'',phone:'',car:'',memo:''};
   const nc=S.newGlobalContact;
   let h=`<div>
-    <div style="font-size:14px;font-weight:500;color:#222;margin-bottom:12px">전체 연락처</div>`;
+    <div style="font-size:14px;font-weight:500;color:#222;margin-bottom:12px">전체 연락처</div>
+    <div class="ct-scroll"><div class="ct-inner">`;
 
   if(S.globalContacts.length===0){
     h+=`<div style="font-size:13px;color:#6b7583;padding:12px 0;text-align:center">아래에서 연락처를 추가해보세요</div>`;
@@ -5406,6 +5722,7 @@ function renderContactsTab(){
       <button class="btn-accent" onclick="addGlobalContact()">+ 추가</button>
     </div>
   </div>
+  </div></div>
   </div>`;
   return h;
 }
@@ -6026,16 +6343,26 @@ const LEGAL_DOCS = {
 <div class="lg-summary">
   <div class="lg-sum-t">먼저, 핵심만 알려드립니다.</div>
   <ul class="lg-sum-list">
-    <li>받는 것은 <b>이메일과 비밀번호</b>뿐입니다. 이름·전화번호·주민번호는 받지 않습니다.</li>
+    <li>가입할 때 꼭 받는 것은 <b>이메일과 비밀번호</b>뿐입니다. 주민번호는 받지 않습니다.</li>
     <li>비밀번호는 <b>암호화되어 저장</b>되며, 운영자도 볼 수 없습니다.</li>
     <li>개인정보를 <b>다른 곳에 팔거나 넘기지 않습니다.</b></li>
-    <li>데이터는 <b>서울에 있는 서버</b>에 저장됩니다.</li>
+    <li>적어 넣으신 일정·연락처·사진은 <b>서울에 있는 서버</b>에 저장됩니다.</li>
+    <li>광고를 위한 <b>외부 추적 도구는 쓰지 않습니다.</b> 다른 회사에 넘기는 접속 기록은 홈페이지를 띄워 주는 곳뿐입니다.</li>
     <li><b>탈퇴하면 즉시 삭제</b>됩니다. 앱 안에서 바로 하실 수 있습니다.</li>
   </ul>
   <div class="lg-sum-n">아래는 위 내용을 법적으로 정리한 전문입니다.</div>
 </div>
 
 <p class="lg-lead">${LEGAL.service}(이하 "서비스")는 이용자의 개인정보를 중요하게 생각하며, 「개인정보 보호법」을 준수합니다.</p>
+
+<h4>0. 서비스를 운영하는 사람</h4>
+<table class="lg-tbl">
+  <tr><th>상호</th><td>${LEGAL.operator}</td></tr>
+  <tr><th>대표자</th><td>${LEGAL.rep}</td></tr>
+  <tr><th>사업자등록번호</th><td>${LEGAL.bizno}</td></tr>
+  <tr><th>사업장 소재지</th><td>${LEGAL.addr}</td></tr>
+  <tr><th>연락처</th><td>${LEGAL.email}</td></tr>
+</table>
 
 <h4>1. 수집하는 개인정보 항목</h4>
 <table class="lg-tbl">
@@ -6045,8 +6372,16 @@ const LEGAL_DOCS = {
   <tr><td>선택</td><td>문의 시 이름·이메일·문의 내용</td><td>문의하기 이용 시</td></tr>
   <tr><td>선택</td><td>이용자가 입력한 프로젝트·작업·연락처·메모</td><td>서비스 이용 시 이용자 입력</td></tr>
   <tr><td>선택</td><td>표시이름, 전화번호</td><td>개인정보 수정 화면에서 이용자 입력</td></tr>
+  <tr><td>선택</td><td>이용자가 올린 사진·자료 파일 (영수증, 도면, 견적서 등)</td><td>서비스 이용 시 이용자 업로드</td></tr>
 </table>
-<p class="lg-note">주민등록번호, 결제정보 등 민감정보는 수집하지 않습니다.</p>
+
+<p class="lg-h5">소셜 로그인을 쓰시는 경우, 이메일·비밀번호 대신 아래 항목을 받습니다.</p>
+<table class="lg-tbl">
+  <tr><th>공급자</th><th>받는 항목</th></tr>
+  <tr><td>구글</td><td>이메일 주소, 프로필 정보</td></tr>
+  <tr><td>카카오</td><td>닉네임, 프로필 이미지 <b>(이메일은 받지 않습니다)</b></td></tr>
+</table>
+<p class="lg-note">주민등록번호, 결제정보 등 민감정보는 수집하지 않습니다. 광고나 이용자 추적을 위한 외부 분석 도구(Google Analytics 등)와 제3자 광고 쿠키는 사용하지 않습니다.</p>
 
 <h4>2. 개인정보의 수집·이용 목적</h4>
 <ol class="lg-ol">
@@ -6069,13 +6404,38 @@ const LEGAL_DOCS = {
 <p>서비스는 이용자의 개인정보를 <b>제3자에게 제공하지 않습니다.</b> 다만 법령에 근거한 수사기관의 요청이 있는 경우는 예외로 합니다.</p>
 
 <h4>5. 개인정보 처리 위탁</h4>
+<p>서비스 운영을 위해 아래 업체에 처리를 맡기고 있습니다. 이용자의 계정 정보와 적어 넣으신 자료, 올리신 사진은 모두 <b>국내(서울) 서버</b>에 보관됩니다.</p>
 <table class="lg-tbl">
   <tr><th>수탁자</th><th>위탁 업무</th><th>보관 위치</th></tr>
-  <tr><td>Supabase Inc.</td><td>데이터베이스 및 회원 인증 시스템 운영</td><td>대한민국 (서울 리전)</td></tr>
-  <tr><td>Vercel Inc.</td><td>웹사이트 호스팅</td><td>글로벌 CDN</td></tr>
+  <tr><td>Supabase Inc.</td><td>데이터베이스 및 회원 인증 시스템 운영</td><td>대한민국 (서울, ap-northeast-2)</td></tr>
+  <tr><td>Supabase Storage</td><td>사진·자료 파일 저장 및 전송</td><td>대한민국 (서울, ap-northeast-2)</td></tr>
+  <tr><td>Vercel Inc.</td><td>웹사이트 화면 전송(호스팅)</td><td>미국 및 글로벌 CDN</td></tr>
 </table>
+<p class="lg-note">Supabase Inc.의 본사는 해외에 있으나, 서비스가 쓰는 데이터 보관 지역은 국내(서울)로 지정되어 있습니다.</p>
 
-<h4>6. 이용자의 권리</h4>
+<h4>6. 개인정보의 국외 이전</h4>
+<p>아래 항목은 서비스 화면을 띄우는 과정에서 국외로 이전됩니다. 이용자는 가입 시 이 방침에 동의함으로써 아래 이전에 동의한 것으로 봅니다.</p>
+<table class="lg-tbl">
+  <tr><th>이전받는 자</th><td>Vercel Inc.</td></tr>
+  <tr><th>이전되는 항목</th><td>접속 IP 주소, HTTP 요청 기록</td></tr>
+  <tr><th>이전 국가</th><td>미국 (글로벌 CDN 포함)</td></tr>
+  <tr><th>이전 일시·방법</th><td>이용자가 서비스에 접속하는 시점에 암호화(HTTPS)된 통신으로 자동 전송</td></tr>
+  <tr><th>이전받는 자 연락처</th><td>privacy@vercel.com</td></tr>
+  <tr><th>이용 목적</th><td>웹사이트 화면 전송 및 장애 진단</td></tr>
+  <tr><th>보유·이용 기간</th><td>접속 기록을 단기간 보관한 후 파기</td></tr>
+</table>
+<p class="lg-note">이용자는 국외 이전을 거부하실 수 있으나, 이 경우 서비스 접속 자체가 이루어지지 않아 이용이 제한됩니다.</p>
+
+<h4>7. 쿠키 및 브라우저 저장</h4>
+<p>서비스는 로그인을 유지하고 작성 중인 내용을 지키기 위해 브라우저의 저장 공간(localStorage)을 사용합니다.</p>
+<ul>
+  <li><b>로그인 유지</b> — 인증 토큰(gj_at, gj_rt)</li>
+  <li><b>화면 상태 기억</b> — 소속 팀·이용 모드(gj_team, gj_mode)</li>
+  <li><b>로그인 전 임시 저장</b> — 가입 전에 적어 두신 내용(gj_local_data). 로그인하시면 서버로 옮겨집니다.</li>
+</ul>
+<p class="lg-note">광고나 이용자 추적을 위한 제3자 쿠키는 사용하지 않습니다. 브라우저 설정에서 저장을 막거나 지우실 수 있으나, 인증 토큰이 막히면 로그인이 유지되지 않아 이용이 제한됩니다.</p>
+
+<h4>8. 이용자의 권리</h4>
 <p>이용자는 언제든지 다음 권리를 행사할 수 있습니다.</p>
 <ul>
   <li>개인정보 <b>열람·정정</b> 요구</li>
@@ -6083,17 +6443,43 @@ const LEGAL_DOCS = {
   <li>개인정보 <b>처리 정지</b> 요구</li>
 </ul>
 
-<h4>7. 개인정보의 파기</h4>
-<p>보유 기간이 지나거나 처리 목적이 달성된 경우 <b>지체 없이 파기</b>합니다. 전자적 파일은 복구할 수 없는 방법으로 영구 삭제합니다.</p>
+<h4>9. 개인정보의 파기</h4>
+<p>보유 기간이 지나거나 처리 목적이 달성된 경우 <b>지체 없이 파기</b>합니다.</p>
+<p class="lg-h5">파기 절차</p>
+<ul>
+  <li>탈퇴 요청 → 본인 확인 → 계정 즉시 비활성화 → 데이터베이스에서 영구 삭제</li>
+</ul>
+<p class="lg-h5">파기 방법</p>
+<ul>
+  <li><b>데이터베이스 기록</b> — 복구할 수 없는 방법으로 영구 삭제합니다. 지운 것처럼 표시만 하고 남겨 두지 않습니다.</li>
+  <li><b>사진·자료 파일</b> — 저장소(Supabase Storage)에서 함께 삭제합니다.</li>
+  <li><b>종이 출력물</b> — 서비스가 클라우드 기반이므로 해당 사항이 없습니다.</li>
+</ul>
 
-<h4>8. 개인정보 보호를 위한 조치</h4>
+<h4>10. 개인정보 보호를 위한 조치</h4>
 <ul>
   <li>비밀번호는 <b>단방향 암호화</b>하여 저장하며, 운영자도 확인할 수 없습니다.</li>
   <li>모든 통신 구간은 <b>HTTPS로 암호화</b>됩니다.</li>
   <li>데이터베이스 접근 권한을 최소화하고, 팀 단위로 데이터를 격리합니다.</li>
+  <li>서비스가 클라우드 기반이므로 별도의 물리적 시설은 두지 않으며, 클라우드 사업자의 보안 조치를 따릅니다.</li>
 </ul>
 
-<h4>9. 개인정보 보호책임자</h4>
+<h4>11. 운영자의 자료 열람에 관하여</h4>
+<p>운영자는 이용자가 적어 넣으신 <b>일정·견적·연락처·메모·사진 등의 내용을 들여다보지 않습니다.</b> 아래의 경우에만 예외로 합니다.</p>
+<ul>
+  <li>이용자가 직접 문의·요청하셔서 문제를 확인해야 하는 경우</li>
+  <li>부정 이용·계정 탈취 등이 의심되어 확인이 필요한 경우</li>
+  <li>수사기관·법원의 적법한 요청이 있는 경우</li>
+</ul>
+
+<h4>12. 만 14세 미만 아동 · 가명정보 · 자동화된 결정</h4>
+<ul>
+  <li><b>만 14세 미만 아동</b> — 서비스는 사업자를 대상으로 하며, 만 14세 미만 아동의 개인정보를 의도적으로 수집하지 않습니다.</li>
+  <li><b>가명정보</b> — 서비스는 가명정보를 따로 처리하지 않습니다.</li>
+  <li><b>자동화된 결정</b> — 서비스가 보여 드리는 추천 공정·예상 기간 등은 참고용 예시이며, 이용자의 권리·의무에 중대한 영향을 미치는 완전 자동화된 결정을 하지 않습니다.</li>
+</ul>
+
+<h4>13. 개인정보 보호책임자</h4>
 <p>서비스는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 이용자의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임 부서를 지정하고 있습니다.</p>
 <table class="lg-tbl">
   <tr><th>부서</th><td>${LEGAL.officer}</td></tr>
@@ -6101,12 +6487,18 @@ const LEGAL_DOCS = {
   <tr><th>문의 접수</th><td><button class="lgf-link" onclick="setLegalTab('inquiry')">문의하기에서 접수해 주세요 &rarr;</button></td></tr>
 </table>
 <p class="lg-note">이용자는 개인정보 보호와 관련한 모든 문의를 위 연락처 또는 <b>문의하기</b>로 접수하실 수 있습니다. 서비스는 지체 없이 답변하겠습니다.</p>
-<p class="lg-note">개인정보 침해에 대한 신고·상담이 필요하시면 아래 기관에 문의하실 수 있습니다.<br>
-개인정보침해신고센터 (privacy.kisa.or.kr / 국번없이 118)<br>
-개인정보 분쟁조정위원회 (kopico.go.kr / 1833-6972)</p>
+<h4>14. 권익 침해 구제 방법</h4>
+<p>개인정보와 관련하여 분쟁 해결이나 상담이 필요하시면 아래 기관에 신청하실 수 있습니다.</p>
+<table class="lg-tbl">
+  <tr><th>기관</th><th>전화</th><th>주소</th></tr>
+  <tr><td>개인정보분쟁조정위원회</td><td>1833-6972</td><td>www.kopico.go.kr</td></tr>
+  <tr><td>개인정보침해신고센터</td><td>118</td><td>privacy.kisa.or.kr</td></tr>
+  <tr><td>대검찰청 사이버범죄수사단</td><td>1301</td><td>www.spo.go.kr</td></tr>
+  <tr><td>경찰청 사이버수사국</td><td>182</td><td>cyberbureau.police.go.kr</td></tr>
+</table>
 
-<h4>10. 방침의 변경</h4>
-<p>이 방침이 변경되는 경우 시행 7일 전부터 서비스 내 공지합니다.</p>
+<h4>15. 방침의 변경</h4>
+<p>이 방침이 변경되는 경우 시행 <b>7일 전</b>부터 서비스 내에 공지합니다. 이용자에게 불리하거나 중요한 변경일 때에는 <b>30일 전</b>에 공지합니다.</p>
 
 <div class="lg-foot">
   <div>공고일자: ${LEGAL.version}</div>
@@ -8253,17 +8645,668 @@ function renderSettle(si){
   </div>`;
 }
 
+/* ══════════ 가계부 — 엑셀 표처럼 적고, 우측에서 "뭘 적어야 하는지"를 미리 본다 ══════════ */
+/* 설계 원칙
+   1) 표는 비어 있는 채로 시작한다. 미리 만들어 두는 줄은 없다.
+   2) 우측 가이드는 "이런 걸 적어두면 좋다"를 보여줄 뿐, 누르지 않으면 아무 일도 안 일어난다.
+   3) 필수는 금액 하나. 분류·물량·날짜는 빈칸이어도 그대로 저장된다.                */
+const GB_SUGGEST=['철거','설비·배관','전기','목공','창호(샷시)','타일','욕실','도배','바닥재','도장·필름','조명','가구·붙박이','폐기물·운반','인건비','기타'];
+const GB_COLORS=['#8C6D46','#0E7490','#B45309','#7C3AED','#2563EB','#0891B2','#0D9488','#DB2777','#CA8A04','#9333EA','#EA580C','#4F46E5','#57606A','#DC2626','#64748B'];
+const GB_UNCAT='미분류';
+const GB_UNITS=['㎡','평','장','롤','개','통','자','식','말','포','회','명','일','대','세트','차'];
+/* 종류 — 분류(공정)와 달리 회계상 성격이라 4가지로 고정한다. 안 골라도 저장은 된다. */
+const GB_KINDS=['자재비','인건비','외주비','경비'];
+const GB_KCOL={'자재비':'#2563EB','인건비':'#B45309','외주비':'#7C3AED','경비':'#0D9488'};
+function _gbGuessKind(name){
+  const n=String(name||'');
+  if(/인건비|인부|일당|품값|공임|시공비|설치비|기공|조공/.test(n)) return '인건비';
+  if(/처리|운반|이사|청소|예치금|식대|잡비|보양|양생|주차|보관/.test(n)) return '경비';
+  return '자재비';
+}
+/* 우측 가이드 — 인테리어에서 보통 돈이 나가는 자리. 예시일 뿐 강제가 아니다. */
+const GB_GUIDE=[
+  {cat:'철거',        items:[{n:'철거 인건비',u:'명'},{n:'폐기물 처리·운반',u:'차'},{n:'양생·보양재',u:'식'}]},
+  {cat:'설비·배관',   items:[{n:'배관 자재',u:'식'},{n:'설비 인건비',u:'명'},{n:'수도·보일러 이설',u:'식'}]},
+  {cat:'전기',        items:[{n:'전선·배선 자재',u:'식'},{n:'콘센트·스위치',u:'개'},{n:'전기 인건비',u:'명'}]},
+  {cat:'창호(샷시)',  items:[{n:'창호 제작·시공',u:'식'},{n:'중문',u:'개'},{n:'방충망·실리콘',u:'식'}]},
+  {cat:'목공',        items:[{n:'목자재(합판·각재)',u:'장'},{n:'몰딩·걸레받이',u:'자'},{n:'목공 인건비',u:'명'}]},
+  {cat:'타일',        items:[{n:'타일 자재',u:'장'},{n:'접착·줄눈 부자재',u:'포'},{n:'타일 인건비',u:'명'}]},
+  {cat:'욕실',        items:[{n:'양변기·세면대',u:'개'},{n:'수전·액세서리',u:'식'},{n:'욕실장·거울',u:'개'}]},
+  {cat:'도장·필름',   items:[{n:'페인트·프라이머',u:'통'},{n:'필름지',u:'㎡'},{n:'도장 인건비',u:'명'}]},
+  {cat:'바닥재',      items:[{n:'장판·강마루·데코타일',u:'㎡'},{n:'바닥 부자재',u:'식'},{n:'바닥 인건비',u:'명'}]},
+  {cat:'도배',        items:[{n:'벽지(실크·합지)',u:'㎡'},{n:'도배 부자재',u:'식'},{n:'도배 인건비',u:'명'}]},
+  {cat:'조명',        items:[{n:'거실·방 조명',u:'개'},{n:'다운라이트·레일',u:'개'},{n:'조명 설치비',u:'식'}]},
+  {cat:'가구·붙박이', items:[{n:'싱크대·주방가구',u:'식'},{n:'붙박이장',u:'식'},{n:'신발장',u:'개'}]},
+  {cat:'기타',        items:[{n:'입주 청소',u:'회'},{n:'이사비',u:'회'},{n:'식대·잡비',u:'식'},{n:'관리사무소 예치금',u:'회'}]}
+];
+function gbColor(k){
+  if(!k||k===GB_UNCAT) return '#94A3B8';
+  const i=GB_SUGGEST.indexOf(k); if(i>=0) return GB_COLORS[i%GB_COLORS.length];
+  const g=GB_GUIDE.map(function(x){ return x.cat; }).indexOf(k); if(g>=0) return GB_COLORS[g%GB_COLORS.length];
+  let h=0; for(let j=0;j<k.length;j++) h=(h*31+k.charCodeAt(j))>>>0;
+  return GB_COLORS[h%GB_COLORS.length];
+}
+function gbQ(s){ return esc(String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")); }
+function _ymdToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtLedgerDate(d){
+  if(!d) return '날짜 없음';
+  const p=String(d).split('-'); if(p.length!==3) return d;
+  const dt=new Date(+p[0],+p[1]-1,+p[2]); const W=['일','월','화','수','목','금','토'];
+  return (+p[1])+'/'+(+p[2])+' ('+W[dt.getDay()]+')'+(d===_ymdToday()?' · 오늘':'');
+}
+
+/* ── 데이터 ── */
+function _gbList(si){
+  const s=S.sites[si]; if(!s) return [];
+  if(!Array.isArray(s.ledger)) s.ledger=[];
+  // 구버전 데이터 1회 이관 — 이미 기록이 있으면 건드리지 않는다(중복 방지)
+  if(s.ldMig!=='v3'){
+    if(!s.ledger.length){
+      if(Array.isArray(s.costs)) s.costs.forEach(function(c){
+        if(c && (c.label||c.amount)) s.ledger.push({date:'',cat:'',name:c.label||'',qty:'',unit:'',amount:String(c.amount||'').replace(/[^0-9]/g,''),paid:!!c.paid});
+      });
+      if(Array.isArray(s.buylist)) s.buylist.forEach(function(b){
+        if(b && (b.name||b.price)) s.ledger.push({date:'',cat:'자재',name:b.name||'',qty:'',unit:'',amount:String(b.price||'').replace(/[^0-9]/g,''),paid:!!b.arrived});
+      });
+    }
+    s.ldMig='v3';
+  }
+  return s.ledger;
+}
+function _gbSum(si){ return _gbList(si).reduce(function(a,e){ return a+_n(e&&e.amount); },0); }
+function _gbUnpaid(si){ return _gbList(si).reduce(function(a,e){ return a+((e&&!e.paid)?_n(e.amount):0); },0); }
+function _ledgerSum(si){ return _gbSum(si); }
+function _ledgerUnpaid(si){ return _gbUnpaid(si); }
+/* 종류별 집계 — 안 고른 줄은 따로 센다(억지로 채우지 않는다) */
+function _gbKindStat(list){
+  const st={}; GB_KINDS.forEach(function(k){ st[k]={sum:0,n:0}; });
+  let none=0, total=0;
+  (list||[]).forEach(function(e){
+    const a=_n(e&&e.amount); total+=a;
+    const k=(e&&e.kind)||'';
+    if(st[k]){ st[k].sum+=a; st[k].n++; } else none++;
+  });
+  return {st:st,none:none,total:total};
+}
+function gbKindsHtml(si){
+  const r=_gbKindStat(_gbList(si));
+  let h=GB_KINDS.map(function(k,ki){
+    const c=r.st[k], pct=r.total>0?Math.round(c.sum/r.total*100):0;
+    return '<div class="gb-kind k'+ki+(c.sum?'':' zero')+'">'
+      + '<div class="gb-kind-k"><span class="gb-gdot" style="background:'+GB_KCOL[k]+'"></span>'+k+'<span class="gb-kind-n">'+c.n+'줄</span></div>'
+      + '<div class="gb-kind-v">₩'+c.sum.toLocaleString()+'</div>'
+      + '<div class="gb-kind-p">'+(r.total>0?(pct+'% 차지'):'아직 없음')+'</div></div>';
+  }).join('');
+  if(r.none>0) h+='<div class="gb-kind-none">종류를 안 고른 줄이 <b>'+r.none+'줄</b> 있습니다. 표의 <b>종류</b> 칸에서 골라 주시면 위 네 칸에 바로 반영됩니다. (안 골라도 합계에는 들어갑니다)</div>';
+  return '<div class="gb-kinds" id="gb-kinds-'+si+'">'+h+'</div>';
+}
+function gbRefreshKinds(si){
+  const box=document.getElementById('gb-kinds-'+si);
+  if(!box) return;
+  const tmp=document.createElement('div'); tmp.innerHTML=gbKindsHtml(si);
+  const nw=tmp.firstChild;
+  if(nw && box.parentNode) box.parentNode.replaceChild(nw,box);
+}
+function _gbCatKey(e){ const k=((e&&e.cat)||'').trim(); return k||GB_UNCAT; }
+/* 지금까지 실제로 쓰인 분류 + 가이드 분류 (중복 없이) — 자동완성 목록용 */
+function _gbKnownCats(si){
+  const used=[];
+  _gbList(si).forEach(function(e){ const k=_gbCatKey(e); if(k!==GB_UNCAT && used.indexOf(k)<0) used.push(k); });
+  GB_GUIDE.forEach(function(g){ if(used.indexOf(g.cat)<0) used.push(g.cat); });
+  GB_SUGGEST.forEach(function(k){ if(used.indexOf(k)<0) used.push(k); });
+  return used;
+}
+/* 가이드 항목이 이미 표에 적혀 있는가 */
+function _gbNorm(s){ return String(s||'').replace(/\s/g,'').toLowerCase(); }
+function _gbHasItem(si,cat,name){
+  const nn=_gbNorm(name);
+  return _gbList(si).some(function(e){
+    if(_gbNorm(e.cat)!==_gbNorm(cat)) return false;
+    const en=_gbNorm(e.name);
+    return en===nn || (en && nn && (en.indexOf(nn)>=0 || nn.indexOf(en)>=0));
+  });
+}
+
+/* ── 화면 상태 ── */
+let _gbSort='input';        // 'input' | 'cat' | 'date'
+let _gbGOpen={};            // 가이드 그룹 펼침
+let _gbNewDraft={date:'',cat:'',kind:'',vendor:'',name:'',qty:'',unit:'',amount:'',acct:''};
+
+function setGbSort(v){ _gbSort=v; dnRerender(); }
+function gbToggleGuide(k){ _gbGOpen[k]=!_gbGOpen[k]; dnRerender(); }
+
+/* ── 표 편집 ── */
+function gbUpdate(si,i,field,val){
+  const l=_gbList(si); if(!l[i]) return;
+  if(field==='amount') val=String(val).replace(/[^0-9]/g,'');
+  else if(field==='qty') val=String(val).replace(/[^0-9.]/g,'');
+  l[i][field]=val;
+  clearTimeout(window._gbTimer); window._gbTimer=setTimeout(function(){ persist(); },500);
+  if(field==='amount') gbRefreshTotals(si);
+  if(field==='cat'||field==='name') gbRefreshGuide(si);
+}
+/* 우측 가이드만 새로 그린다 — 표 안의 커서를 건드리지 않기 위해서다 */
+function gbRefreshGuide(si){
+  const box=document.getElementById('gb-side-'+si);
+  if(!box) return;
+  const tmp=document.createElement('div');
+  tmp.innerHTML=gbGuideHtml(si);
+  const nw=tmp.firstChild;
+  if(nw && box.parentNode) box.parentNode.replaceChild(nw,box);
+}
+/* 분류를 다 고친 뒤(포커스가 빠질 때) — 분류별 보기일 때만 표를 다시 묶는다 */
+function gbCatChanged(si){
+  gbRefreshGuide(si);
+  if(_gbSort==='cat'){ const ae=document.activeElement; if(ae&&ae.blur) ae.blur(); dnRerender(); }
+}
+function gbSetKind(si,i,v){
+  const l=_gbList(si); if(!l[i]) return;
+  l[i].kind=(GB_KINDS.indexOf(v)>=0)?v:'';
+  const el=document.getElementById('gb-kd-'+si+'-'+i);
+  if(el) el.style.color = l[i].kind ? (GB_KCOL[l[i].kind]||'#12141C') : '#a8b1be';
+  clearTimeout(window._gbTimer); window._gbTimer=setTimeout(function(){ persist(); },500);
+  gbRefreshKinds(si);
+}
+function gbTogglePaid(si,i){
+  const l=_gbList(si); if(!l[i]) return;
+  l[i].paid=!l[i].paid; persist(); dnRerender();
+}
+
+/* ── 영수증 사진 — 줄마다 1장. 저장소에 올리고 경로만 기록한다(데이터가 무거워지지 않게) ── */
+const GB_RCPT_URL={};   // storage path → signed url
+function gbRcptClick(si,idx){
+  const l=_gbList(si); if(!l[idx]) return;
+  if(l[idx].rcpt) gbRcptOpen(si,idx); else gbRcptPick(si,idx);
+}
+function gbRcptPick(si,idx){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange=function(){ if(inp.files&&inp.files[0]) gbRcptUpload(si,idx,inp.files[0]); };
+  inp.click();
+}
+/* 사진은 긴 변 1400px · JPEG 로 줄여 올린다 — 영수증은 이 정도면 글씨가 읽힌다 */
+function gbShrink(f){
+  return new Promise(function(res){
+    try{
+      const img=new Image(), u=URL.createObjectURL(f);
+      img.onload=function(){
+        const M=1400; let w=img.width,h=img.height;
+        if(!w||!h){ URL.revokeObjectURL(u); return res(f); }
+        if(Math.max(w,h)>M){ const r=M/Math.max(w,h); w=Math.round(w*r); h=Math.round(h*r); }
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        c.toBlob(function(b){ URL.revokeObjectURL(u); res(b||f); },'image/jpeg',0.82);
+      };
+      img.onerror=function(){ URL.revokeObjectURL(u); res(f); };
+      img.src=u;
+    }catch(_){ res(f); }
+  });
+}
+async function gbRcptUpload(si,idx,f){
+  const l=_gbList(si); if(!l[idx]) return;
+  if(!TEAM||!USER){ alert('영수증 사진은 로그인한 뒤에 올릴 수 있습니다.'); return; }
+  if(!/^image\//.test(f.type||'')){ alert('사진 파일만 올릴 수 있습니다. (JPG · PNG · HEIC)'); return; }
+  if(f.size>MAX_FILE){ alert('사진 1장당 20MB까지 올릴 수 있습니다.'); return; }
+  const btn=document.getElementById('gb-rc-'+si+'-'+idx);
+  if(btn){ btn.classList.add('up'); btn.textContent='올림'; }
+  try{
+    const small=await gbShrink(f);
+    const ext=((small.type||'').indexOf('png')>=0)?'png':'jpg';
+    const uid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));
+    const path=TEAM.id+'/'+si+'/rcpt_'+uid+'.'+ext;
+    const up=await fetch(SUPABASE_URL+'/storage/v1/object/files/'+path,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':small.type||'image/jpeg'},
+      body:small
+    });
+    if(!up.ok){
+      const raw=await up.text(); let why=raw;
+      try{ const j=JSON.parse(raw); why=j.message||j.error||raw; }catch(_){}
+      if(/bucket not found/i.test(why)) throw new Error('저장소(files 버킷)가 아직 만들어지지 않았습니다.');
+      if(up.status===403||/policy|permission|denied/i.test(why)) throw new Error('저장소 접근 권한이 없습니다.');
+      throw new Error(why);
+    }
+    l[idx].rcpt=path;
+    persist();
+    if(btn){ btn.classList.remove('up'); btn.classList.add('has'); btn.textContent='🧾'; }
+    gbPaintRcpts(si);
+  }catch(err){
+    if(btn){ btn.classList.remove('up'); btn.textContent='＋'; }
+    alert('영수증 사진을 올리지 못했습니다.\n\n'+(err&&err.message?err.message:''));
+  }
+}
+async function gbRcptUrl(path){
+  if(GB_RCPT_URL[path]) return GB_RCPT_URL[path];
+  const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/files/'+path,{
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':'application/json'},
+    body: JSON.stringify({ expiresIn: 3600 })
+  });
+  const j=await r.json(); const u=(j.signedURL||j.signedUrl);
+  if(!u) throw new Error('링크를 만들지 못했습니다');
+  const full=SUPABASE_URL+'/storage/v1'+((''+u).charAt(0)==='/'?'':'/')+u;
+  GB_RCPT_URL[path]=full;
+  return full;
+}
+async function gbPaintRcpts(si){
+  const l=_gbList(si);
+  for(let i=0;i<l.length;i++){
+    if(!l[i]||!l[i].rcpt) continue;
+    const btn=document.getElementById('gb-rc-'+si+'-'+i);
+    if(!btn || btn.querySelector('img')) continue;
+    try{
+      const u=await gbRcptUrl(l[i].rcpt);
+      const b2=document.getElementById('gb-rc-'+si+'-'+i);
+      if(b2 && !b2.querySelector('img')) b2.innerHTML='<img src="'+u+'" alt="영수증">';
+    }catch(_){}
+  }
+}
+function gbRcptOpen(si,idx){
+  const l=_gbList(si), e=l[idx];
+  if(!e||!e.rcpt) return;
+  gbRcptClose();
+  const box=document.createElement('div');
+  box.id='gb-lb'; box.className='gb-lb';
+  const nm=((e.name||'').trim()||'영수증')+(_n(e.amount)?(' · ₩'+_n(e.amount).toLocaleString()):'');
+  box.innerHTML='<div class="gb-lb-t">'+esc(nm)+'</div>'
+    + '<img id="gb-lb-img" alt="영수증">'
+    + '<div class="gb-lb-bar"><button class="gb-lb-b" onclick="gbRcptClose()">닫기</button>'
+    + '<button class="gb-lb-b" onclick="gbRcptPick('+si+','+idx+');gbRcptClose()">사진 바꾸기</button>'
+    + '<button class="gb-lb-b d" onclick="gbRcptDel('+si+','+idx+')">사진 떼기</button></div>';
+  box.onclick=function(ev){ if(ev.target===box) gbRcptClose(); };
+  document.body.appendChild(box);
+  gbRcptUrl(e.rcpt).then(function(u){ const im=document.getElementById('gb-lb-img'); if(im) im.src=u; }).catch(function(){});
+}
+function gbRcptClose(){ const b=document.getElementById('gb-lb'); if(b) b.remove(); }
+function gbRcptDel(si,idx){
+  const l=_gbList(si); if(!l[idx]) return;
+  l[idx].rcpt=''; persist(); gbRcptClose();
+  const btn=document.getElementById('gb-rc-'+si+'-'+idx);
+  if(btn){ btn.classList.remove('has'); btn.innerHTML='＋'; }
+}
+/* 표 안에서 Ctrl+V — 커서가 놓인 줄에 사진을 붙인다 */
+function gbSheetPaste(si,ev){
+  const items=(ev.clipboardData&&ev.clipboardData.items)||[];
+  let f=null;
+  for(let i=0;i<items.length;i++){
+    if(items[i].type && items[i].type.indexOf('image/')===0){ f=items[i].getAsFile(); break; }
+  }
+  if(!f) return;
+  const t=(ev.target && ev.target.closest) ? ev.target.closest('[data-gbrow]') : null;
+  if(!t) return;
+  ev.preventDefault();
+  gbRcptUpload(si, parseInt(t.getAttribute('data-gbrow')), f);
+}
+function gbDel(si,i){ const l=_gbList(si); l.splice(i,1); persist(); dnRerender(); }
+function gbSetBudget(si,val){
+  const s=S.sites[si]; if(!s) return;
+  s.budget=String(val).replace(/[^0-9]/g,'');
+  clearTimeout(window._gbTimer); window._gbTimer=setTimeout(function(){ persist(); },500);
+  gbRefreshTotals(si);
+}
+function gbRefreshTotals(si){
+  const total=_gbSum(si), unpaid=_gbUnpaid(si), bud=_budget(si);
+  const set=function(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('gb-total-'+si,'₩'+total.toLocaleString());
+  set('gb-ft-'+si,'₩'+total.toLocaleString());
+  set('gb-ftu-'+si, unpaid>0?('아직 안 낸 돈 ₩'+unpaid.toLocaleString()):'');
+  gbRefreshKinds(si);
+  const rem=document.getElementById('gb-rem-'+si);
+  if(rem){
+    if(bud>0){ const left=bud-total;
+      rem.className='gb-rem'+(left<0?' over':'');
+      rem.textContent = left>=0 ? ('남은 예산 ₩'+left.toLocaleString()) : ('예산 ₩'+Math.abs(left).toLocaleString()+' 초과');
+    } else { rem.className='gb-rem none'; rem.textContent='예산은 안 넣어도 됩니다'; }
+  }
+  const bar=document.getElementById('gb-bar-'+si);
+  if(bar){
+    if(bud>0){ const pct=Math.min(100,Math.round(total/bud*100));
+      bar.style.display=''; bar.innerHTML='<div class="'+(total>bud?'over':'')+'" style="width:'+pct+'%"></div>';
+    } else bar.style.display='none';
+  }
+}
+
+/* ── 맨 아래 빈 줄(엑셀처럼 그냥 타이핑하면 새 줄이 된다) ── */
+function gbNewDraft(f,v){ _gbNewDraft[f]=v; }
+let _gbBusy=false;   /* 다시 그리는 도중 blur 가 또 들어오는 것을 막는다 */
+function gbCommitNew(si,keepFocus){
+  if(_gbBusy) return false;
+  const g=function(id){ const el=document.getElementById(id); return el?el.value:''; };
+  const name=(g('gb-n-name-'+si)||'').trim();
+  const amount=(g('gb-n-amt-'+si)||'').replace(/[^0-9]/g,'');
+  const cat=(g('gb-n-cat-'+si)||'').trim();
+  const kind0=(g('gb-n-kind-'+si)||'').trim();
+  const kind=(GB_KINDS.indexOf(kind0)>=0)?kind0:'';
+  const qty=(g('gb-n-qty-'+si)||'').replace(/[^0-9.]/g,'');
+  const unit=(g('gb-n-unit-'+si)||'').trim();
+  const date=g('gb-n-date-'+si)||'';
+  const vendor=(g('gb-n-vd-'+si)||'').trim();
+  const acct=(g('gb-n-ac-'+si)||'').trim();
+  if(!name && !amount){ return false; }
+  _gbBusy=true;
+  try{
+    _gbList(si).push({date:date,cat:cat,kind:kind,vendor:vendor,name:name,qty:qty,unit:unit,amount:amount,acct:acct,paid:false,rcpt:''});
+    _gbNewDraft={date:date,cat:cat,kind:kind,vendor:vendor,name:'',qty:'',unit:unit,amount:'',acct:acct};   // 분류·종류·거래처·계좌·단위·날짜는 이어서 쓰기 좋게 남긴다
+    const ae=document.activeElement; if(ae && ae.blur) ae.blur();
+    persist(); dnRerender();
+  } finally { _gbBusy=false; }
+  if(keepFocus) setTimeout(function(){ const el=document.getElementById('gb-n-name-'+si); if(el) el.focus(); },60);
+  return true;
+}
+function gbNewBlur(si,ev){
+  if(_gbBusy) return;
+  const wrap=document.getElementById('gb-newrow-'+si);
+  if(wrap && ev && ev.relatedTarget && wrap.contains(ev.relatedTarget)) return;
+  /* 다른 곳을 눌러 생긴 blur 는 그 클릭이 먼저 처리되도록 한 박자 늦춘다 */
+  setTimeout(function(){ if(!_gbBusy) gbCommitNew(si,false); },0);
+}
+/* 우측 가이드에서 한 줄 넣기 — 금액은 비워 두고 커서만 금액칸에 놓는다 */
+function gbAddFromGuide(si,cat,name,unit){
+  if(_gbBusy) return;
+  const l=_gbList(si);
+  l.push({date:_ymdToday(),cat:cat,kind:_gbGuessKind(name),vendor:'',name:name,qty:'',unit:unit||'',amount:'',acct:'',paid:false,rcpt:''});
+  const idx=l.length-1;
+  _gbBusy=true;
+  try{ persist(); dnRerender(); } finally { _gbBusy=false; }
+  setTimeout(function(){
+    const el=document.getElementById('gb-amt-'+si+'-'+idx);
+    if(el){ el.focus(); el.scrollIntoView({block:'center',behavior:'smooth'}); }
+  },80);
+}
+
+/* ── 표 한 줄 ── */
+function gbKindCell(id,val,onch){
+  const kv=(GB_KINDS.indexOf(val)>=0)?val:'';
+  let o='<option value=""'+(kv?'':' selected')+'>—</option>';
+  GB_KINDS.forEach(function(k){ o+='<option value="'+k+'"'+(kv===k?' selected':'')+'>'+k+'</option>'; });
+  return '<span class="gb-cell"><select id="'+id+'" class="gb-in kd" style="color:'+(kv?(GB_KCOL[kv]||'#12141C'):'#a8b1be')+'" title="자재비 · 인건비 · 외주비 · 경비" onchange="'+onch+'">'+o+'</select></span>';
+}
+function gbSheetRow(si,e,idx){
+  const catList='gb-cats-'+si, unitList='gb-units', vdList='gb-vds-'+si;
+  return '<div class="gb-row" data-gbrow="'+idx+'">'
+    + '<span class="gb-cell"><input class="gb-in dt" type="date" value="'+esc(e.date||'')+'" onchange="gbUpdate('+si+','+idx+',\'date\',this.value)"></span>'
+    + '<span class="gb-cell"><input class="gb-in cat" list="'+catList+'" value="'+esc(e.cat||'')+'" placeholder="미분류" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'cat\',this.value)" onchange="gbCatChanged('+si+')"></span>'
+    + gbKindCell('gb-kd-'+si+'-'+idx, e.kind||'', 'gbSetKind('+si+','+idx+',this.value)')
+    + '<span class="gb-cell"><input class="gb-in vd" list="'+vdList+'" value="'+esc(e.vendor||'')+'" placeholder="—" spellcheck="false" oninput="gbVendorIn('+si+','+idx+',this.value)"></span>'
+    + '<span class="gb-cell"><input class="gb-in" value="'+esc(e.name||'')+'" placeholder="내용" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'name\',this.value)"></span>'
+    + '<span class="gb-cell"><input class="gb-in num" value="'+esc(e.qty||'')+'" placeholder="—" inputmode="decimal" oninput="gbUpdate('+si+','+idx+',\'qty\',this.value)"></span>'
+    + '<span class="gb-cell"><input class="gb-in" list="'+unitList+'" value="'+esc(e.unit||'')+'" placeholder="—" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'unit\',this.value)"></span>'
+    + '<span class="gb-cell"><input id="gb-amt-'+si+'-'+idx+'" class="gb-in num amt" value="'+(_n(e.amount)?_n(e.amount).toLocaleString():'')+'" placeholder="0" inputmode="numeric"'
+    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';gbUpdate('+si+','+idx+',\'amount\',this.value)"></span>'
+    + '<span class="gb-cell"><input id="gb-ac-'+si+'-'+idx+'" class="gb-in ac" value="'+esc(e.acct||'')+'" placeholder="—" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'acct\',this.value)"></span>'
+    + '<span class="gb-cell"><button class="gb-paybtn'+(e.paid?' on':'')+'" onclick="gbTogglePaid('+si+','+idx+')" title="지불 여부">'+(e.paid?'지불함':'미지불')+'</button></span>'
+    + '<span class="gb-cell"><button id="gb-rc-'+si+'-'+idx+'" class="gb-rc'+(e.rcpt?' has':'')+'" onclick="gbRcptClick('+si+','+idx+')" title="'+(e.rcpt?'영수증 사진 보기':'영수증 사진 붙이기 (칸을 누르고 Ctrl+V 도 됩니다)')+'">'+(e.rcpt?'🧾':'＋')+'</button></span>'
+    + '<span class="gb-cell"><button class="gb-xbtn" onclick="gbDel('+si+','+idx+')" title="줄 삭제">✕</button></span>'
+    + '</div>';
+}
+function gbNewRow(si){
+  const catList='gb-cats-'+si, unitList='gb-units', vdList='gb-vds-'+si;
+  const ent="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();gbCommitNew("+si+",true);}";
+  return '<div class="gb-row new" id="gb-newrow-'+si+'" onfocusout="gbNewBlur('+si+',event)">'
+    + '<span class="gb-cell"><input id="gb-n-date-'+si+'" class="gb-in dt" type="date" value="'+esc(_gbNewDraft.date||_ymdToday())+'" onchange="gbNewDraft(\'date\',this.value)"></span>'
+    + '<span class="gb-cell"><input id="gb-n-cat-'+si+'" class="gb-in cat" list="'+catList+'" value="'+esc(_gbNewDraft.cat||'')+'" placeholder="분류" spellcheck="false" oninput="gbNewDraft(\'cat\',this.value)" onkeydown="'+ent+'"></span>'
+    + gbKindCell('gb-n-kind-'+si, _gbNewDraft.kind||'', 'gbNewDraft(\'kind\',this.value);this.style.color=this.value?(GB_KCOL[this.value]||\'#12141C\'):\'#a8b1be\'')
+    + '<span class="gb-cell"><input id="gb-n-vd-'+si+'" class="gb-in vd" list="'+vdList+'" value="'+esc(_gbNewDraft.vendor||'')+'" placeholder="거래처" spellcheck="false" oninput="gbNewVendorIn('+si+',this.value)" onkeydown="'+ent+'"></span>'
+    + '<span class="gb-cell"><input id="gb-n-name-'+si+'" class="gb-in" value="'+esc(_gbNewDraft.name||'')+'" placeholder="여기에 바로 적으세요" spellcheck="false" oninput="gbNewDraft(\'name\',this.value)" onkeydown="'+ent+'"></span>'
+    + '<span class="gb-cell"><input id="gb-n-qty-'+si+'" class="gb-in num" value="'+esc(_gbNewDraft.qty||'')+'" placeholder="—" inputmode="decimal" oninput="gbNewDraft(\'qty\',this.value)" onkeydown="'+ent+'"></span>'
+    + '<span class="gb-cell"><input id="gb-n-unit-'+si+'" class="gb-in" list="'+unitList+'" value="'+esc(_gbNewDraft.unit||'')+'" placeholder="—" spellcheck="false" oninput="gbNewDraft(\'unit\',this.value)" onkeydown="'+ent+'"></span>'
+    + '<span class="gb-cell"><input id="gb-n-amt-'+si+'" class="gb-in num amt" value="'+esc(_gbNewDraft.amount||'')+'" placeholder="0" inputmode="numeric"'
+    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';gbNewDraft(\'amount\',this.value)" onkeydown="'+ent+'"></span>'
+    + '<span class="gb-cell"><input id="gb-n-ac-'+si+'" class="gb-in ac" value="'+esc(_gbNewDraft.acct||'')+'" placeholder="—" spellcheck="false" oninput="gbNewDraft(\'acct\',this.value)" onkeydown="'+ent+'"></span>'
+    + '<span class="gb-cell"><button class="gb-paybtn" onclick="gbCommitNew('+si+',true)" title="줄 추가">+ 추가</button></span>'
+    + '<span class="gb-cell"><span class="gb-rc" style="cursor:default;color:#d8dee7" title="줄이 만들어진 뒤에 붙일 수 있습니다">🧾</span></span>'
+    + '<span class="gb-cell"></span>'
+    + '</div>';
+}
+
+/* ── 거래처 · 계좌 ── */
+/* 이 현장에서 이미 쓴 거래처 + 협력팀에 적어 둔 이름을 자동완성 목록으로 */
+function _gbVendors(si){
+  const out=[], seen={};
+  (_gbList(si)||[]).forEach(function(e){
+    const v=((e&&e.vendor)||'').trim();
+    if(v && !seen[v]){ seen[v]=1; out.push(v); }
+  });
+  (S.globalContacts||[]).forEach(function(c){
+    const v=((c&&c.name)||'').trim();
+    if(v && !seen[v]){ seen[v]=1; out.push(v); }
+  });
+  return out;
+}
+/* 같은 거래처로 마지막에 적었던 계좌를 찾아 온다 */
+function _gbAcctFor(si,vendor){
+  const v=(vendor||'').trim(); if(!v) return '';
+  const l=_gbList(si)||[];
+  for(let i=l.length-1;i>=0;i--){
+    const e=l[i];
+    if(e && ((e.vendor||'').trim()===v) && (e.acct||'').trim()) return e.acct;
+  }
+  return '';
+}
+/* 거래처를 적으면 계좌가 비어 있을 때만 지난 값을 채워 준다 (덮어쓰지 않음) */
+function gbVendorIn(si,idx,val){
+  gbUpdate(si,idx,'vendor',val);
+  const l=_gbList(si); if(!l[idx]) return;
+  if((l[idx].acct||'').trim()) return;
+  const a=_gbAcctFor(si,val); if(!a) return;
+  l[idx].acct=a;
+  const el=document.getElementById('gb-ac-'+si+'-'+idx);
+  if(el) el.value=a;
+}
+function gbNewVendorIn(si,val){
+  gbNewDraft('vendor',val);
+  if((_gbNewDraft.acct||'').trim()) return;
+  const a=_gbAcctFor(si,val); if(!a) return;
+  _gbNewDraft.acct=a;
+  const el=document.getElementById('gb-n-ac-'+si);
+  if(el) el.value=a;
+}
+
+/* ── 우측 기록 가이드 ── */
+function gbGuideHtml(si){
+  let done=0, all=0;
+  const groups=GB_GUIDE.map(function(g){
+    const items=g.items.map(function(it){
+      const ok=_gbHasItem(si,g.cat,it.n); all++; if(ok) done++;
+      return {n:it.n,u:it.u,ok:ok};
+    });
+    return {cat:g.cat, items:items, done:items.filter(function(x){return x.ok;}).length};
+  });
+  const pct=all>0?Math.round(done/all*100):0;
+  const body=groups.map(function(g){
+    const open=!!_gbGOpen[g.cat];
+    const col=gbColor(g.cat);
+    let h='<button class="gb-gh" onmousedown="event.preventDefault()" onclick="gbToggleGuide(\''+gbQ(g.cat)+'\')">'
+      + '<span class="gb-gdot" style="background:'+col+'"></span>'
+      + '<span class="gb-gn">'+esc(g.cat)+'</span>'
+      + '<span class="gb-gc'+(g.done===g.items.length?' done':'')+'">'+g.done+'/'+g.items.length+'</span>'
+      + '<span class="gb-ga">'+(open?'▲':'▼')+'</span></button>';
+    let l='';
+    if(open){
+      l='<div class="gb-gl">'+g.items.map(function(it){
+        return '<button class="gb-gi'+(it.ok?' done':'')+'" onmousedown="event.preventDefault()" onclick="gbAddFromGuide('+si+',\''+gbQ(g.cat)+'\',\''+gbQ(it.n)+'\',\''+gbQ(it.u)+'\')" title="표에 한 줄 넣기">'
+          + '<span class="gb-gi-n">'+esc(it.n)+'</span>'
+          + '<span class="gb-gi-u">'+esc(it.u)+'</span>'
+          + '<span class="gb-gi-plus">'+(it.ok?'✓ 적음':'＋')+'</span></button>';
+      }).join('')+'</div>';
+    }
+    return '<div class="gb-g">'+h+l+'</div>';
+  }).join('');
+  return '<div class="gb-side" id="gb-side-'+si+'"><div class="gb-side-box">'
+    + '<div class="gb-side-h"><div class="gb-side-t">📋 뭘 적어야 하나요</div>'
+    +   '<div class="gb-side-d">인테리어에서 돈이 나가는 자리를 공정 순서대로 모아 뒀습니다. 해당되는 것만 골라 적으시면 됩니다.</div>'
+    +   '<div class="gb-side-p"><span class="gb-side-pb"><div style="width:'+pct+'%"></div></span><span class="gb-side-pn">'+done+'/'+all+'</span></div></div>'
+    + '<div class="gb-side-body">'+body+'</div>'
+    + '<div class="gb-side-f">항목을 누르면 표에 <b>빈 줄 하나</b>가 들어갑니다. 금액만 채우시면 되고, 안 눌러도 그냥 표에 직접 적으셔도 됩니다.<br>여기 없는 지출은 <b>표에 직접</b> 쓰시면 그 분류가 새로 생깁니다.</div>'
+    + '</div></div>';
+}
+
+/* ── 본문 ── */
+function renderLedger(si){
+  const s=S.sites[si]; if(!s) return '';
+  const list=_gbList(si);
+  const total=_gbSum(si), unpaid=_gbUnpaid(si), bud=_budget(si);
+  const won=function(n){ return '₩'+(n||0).toLocaleString(); };
+
+  /* 상단 요약 */
+  const left=bud-total;
+  const remHtml = bud>0
+    ? '<span class="gb-rem'+(left<0?' over':'')+'" id="gb-rem-'+si+'">'+(left>=0?('남은 예산 '+won(left)):('예산 '+won(Math.abs(left))+' 초과'))+'</span>'
+    : '<span class="gb-rem none" id="gb-rem-'+si+'">예산은 안 넣어도 됩니다</span>';
+  const top='<div class="gb-top">'
+    + '<div class="gb-top-l"><div class="gb-top-k">지금까지 쓴 돈</div><div class="gb-top-v" id="gb-total-'+si+'">'+won(total)+'</div></div>'
+    + '<div class="gb-top-sub"><span class="gb-tag">기록 <b>'+list.length+'줄</b></span>'
+    +   (unpaid>0?'<span class="gb-tag due">아직 안 낸 돈 <b>'+won(unpaid)+'</b></span>':'')
+    +   (total-unpaid>0?'<span class="gb-tag">지불 완료 <b>'+won(total-unpaid)+'</b></span>':'')
+    + '</div>'
+    + '<div class="gb-bud"><span class="gb-bud-k">예산</span>'
+    +   '<input class="gb-bud-in" value="'+(bud?bud.toLocaleString():'')+'" placeholder="선택" inputmode="numeric"'
+    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';gbSetBudget('+si+',this.value)">'
+    +   '<span class="gb-won">원</span>'+remHtml+'</div>'
+    + '<div class="gb-bar" id="gb-bar-'+si+'"'+(bud>0?'':' style="display:none"')+'>'
+    +   (bud>0?'<div class="'+(total>bud?'over':'')+'" style="width:'+Math.min(100,Math.round(total/bud*100))+'%"></div>':'')+'</div>'
+    + '</div>';
+
+  /* 자동완성 목록 */
+  const dl='<datalist id="gb-cats-'+si+'">'+_gbKnownCats(si).map(function(k){ return '<option value="'+esc(k)+'">'; }).join('')+'</datalist>'
+    + '<datalist id="gb-vds-'+si+'">'+_gbVendors(si).map(function(v){ return '<option value="'+esc(v)+'">'; }).join('')+'</datalist>'
+    + '<datalist id="gb-units">'+GB_UNITS.map(function(u){ return '<option value="'+esc(u)+'">'; }).join('')+'</datalist>';
+
+  /* 표 본문 — 정렬 방식에 따라 줄 사이에 소계를 끼워 넣는다 */
+  const rows=list.map(function(e,idx){ return {e:e,idx:idx}; });
+  let bodyRows='';
+  if(!rows.length){
+    bodyRows='';
+  } else if(_gbSort==='input'){
+    bodyRows=rows.map(function(r){ return gbSheetRow(si,r.e,r.idx); }).join('');
+  } else {
+    const keyOf=(_gbSort==='cat') ? function(r){ return _gbCatKey(r.e); } : function(r){ return (r.e.date||''); };
+    const map={};
+    rows.forEach(function(r){ const k=keyOf(r); (map[k]=map[k]||[]).push(r); });
+    let keys=Object.keys(map);
+    if(_gbSort==='cat'){
+      keys.sort(function(a,b){
+        if(a===GB_UNCAT) return 1; if(b===GB_UNCAT) return -1;
+        const sa=map[a].reduce(function(x,r){ return x+_n(r.e.amount); },0);
+        const sb=map[b].reduce(function(x,r){ return x+_n(r.e.amount); },0);
+        return sb-sa;
+      });
+    } else {
+      keys.sort(function(a,b){ if(!a) return 1; if(!b) return -1; return a<b?1:-1; });
+    }
+    bodyRows=keys.map(function(k){
+      const sum=map[k].reduce(function(x,r){ return x+_n(r.e.amount); },0);
+      const label=(_gbSort==='cat') ? k : fmtLedgerDate(k);
+      const col=(_gbSort==='cat') ? gbColor(k) : '#94A3B8';
+      return '<div class="gb-row grp"><span class="gb-grp-n"><span class="gb-gdot" style="background:'+col+'"></span>'+esc(label)+' <span style="color:#7a8494;font-weight:600">'+map[k].length+'줄</span></span><span class="gb-grp-s">'+won(sum)+'</span></div>'
+        + map[k].map(function(r){ return gbSheetRow(si,r.e,r.idx); }).join('');
+    }).join('');
+  }
+
+  const tools='<div class="gb-tools"><span class="gb-tk">보기</span>'
+    + '<button class="gb-view'+(_gbSort==='input'?' on':'')+'" onclick="setGbSort(\'input\')">적은 순</button>'
+    + '<button class="gb-view'+(_gbSort==='cat'?' on':'')+'" onclick="setGbSort(\'cat\')">분류별</button>'
+    + '<button class="gb-view'+(_gbSort==='date'?' on':'')+'" onclick="setGbSort(\'date\')">날짜별</button>'
+    + '<span class="gb-hint">칸을 눌러 바로 고치고, 맨 아랫줄에 새로 적으세요</span></div>';
+
+  const sheet='<div class="gb-sheetwrap"><div class="gb-sheet" onpaste="gbSheetPaste('+si+',event)">'
+    + '<div class="gb-row gb-hd"><span>날짜</span><span>분류</span><span>종류</span><span>거래처</span><span>내용</span><span>물량</span><span>단위</span><span>금액</span><span>계좌</span><span>지불</span><span style="padding:10px 4px;font-size:10.5px">영수증</span><span></span></div>'
+    + bodyRows
+    + gbNewRow(si)
+    + '<div class="gb-ft"><span class="gb-ft-k">합계 <span id="gb-ftu-'+si+'" style="color:#c0451a;font-weight:700;margin-left:8px">'+(unpaid>0?('아직 안 낸 돈 ₩'+unpaid.toLocaleString()):'')+'</span></span>'
+    +   '<span class="gb-ft-v" id="gb-ft-'+si+'">'+won(total)+'</span></div>'
+    + '</div></div>';
+
+  const note = list.length
+    ? '<div class="gb-note">영수증은 <b>🧾 칸</b>을 눌러 사진을 고르거나, 그 줄의 아무 칸에 커서를 두고 <b>Ctrl+V</b> 로 붙이시면 됩니다.</div>'
+    : '<div class="gb-note">표는 <b>비어 있는 채로</b> 시작합니다. 맨 아랫줄에 금액만 적어도 한 줄이 만들어지고, 오른쪽 목록은 <b>참고용</b>이라 누르지 않으면 아무것도 생기지 않습니다.</div>';
+
+  setTimeout(function(){ gbPaintRcpts(si); },0);
+
+  return '<div class="gb-wrap">'+top+gbKindsHtml(si)+dl
+    + '<div class="gb-split"><div class="gb-main">'+tools+sheet+note+'</div>'
+    + gbGuideHtml(si)+'</div></div>';
+}
+
+/* ══════════ 가계부 탭 — 프로: 프로젝트별 서브탭 / 셀프: 단일 ══════════ */
+let _ledgerTab=null;   // 'all' 또는 사이트 인덱스(number)
+function setLedgerTab(v){ _ledgerTab=(v==='all')?'all':parseInt(v); dnRerender(); }
+function renderLedgerTab(){
+  const sites=S.sites||[];
+  const unit=isSelf()?'공간':'프로젝트';
+  if(!sites.length) return '<div class="lg-page"><div class="lg-head"><div class="lg-title">🧾 가계부</div></div><div class="lg-empty">'+unit+'이 없습니다. 먼저 '+unit+'을 추가해 주세요.</div></div>';
+  const multi = sites.length>1;
+  if(multi){
+    if(_ledgerTab==null) _ledgerTab='all';
+    if(_ledgerTab!=='all' && (isNaN(_ledgerTab)||_ledgerTab<0||_ledgerTab>=sites.length)) _ledgerTab='all';
+  } else { _ledgerTab=0; }
+
+  let subbar='';
+  if(multi){
+    let btns='<button class="lg-sub'+(_ledgerTab==='all'?' on':'')+'" onclick="setLedgerTab(\'all\')">전체 합계</button>';
+    sites.forEach(function(s,i){
+      const sc=SITE_COLORS[i%SITE_COLORS.length];
+      const nm=(s.name||'').trim()||('프로젝트 '+(i+1));
+      btns+='<button class="lg-sub'+(_ledgerTab===i?' on':'')+'" onclick="setLedgerTab('+i+')"><span class="lg-dot" style="background:'+sc+'"></span>'+esc(nm)+'</button>';
+    });
+    subbar='<div class="lg-subs">'+btns+'</div>';
+  }
+  const csi = multi?_ledgerTab:0;
+  const body = (multi && _ledgerTab==='all') ? renderLedgerAll() : renderLedger(csi);
+  return '<div class="lg-page">'
+    + '<div class="lg-head"><div class="lg-title">🧾 가계부</div>'
+    + '<div class="lg-desc">현장에서 <b>쓴 돈</b>을 적어 두는 곳입니다. 위에 <b>예산</b>을 넣어 두시면 얼마나 남았는지 함께 보여 드립니다.</div></div>'
+    + subbar
+    + '<div class="lg-body">'+body+'</div></div>';
+}
+function renderLedgerAll(){
+  const sites=S.sites||[];
+  let bud=0,total=0,unpaid=0;
+  sites.forEach(function(s,i){ bud+=_budget(i); total+=_gbSum(i); unpaid+=_gbUnpaid(i); });
+  const paid=Math.max(0,total-unpaid);
+  const won=function(n){ return '₩'+(n||0).toLocaleString(); };
+  const cards=sites.map(function(s,i){
+    const sc=SITE_COLORS[i%SITE_COLORS.length];
+    const nm=(s.name||'').trim()||('프로젝트 '+(i+1));
+    const t=_gbSum(i), b=_budget(i);
+    const rem = b>0 ? (b-t>=0? ('남은 ₩'+(b-t).toLocaleString()) : ('₩'+Math.abs(b-t).toLocaleString()+' 초과')) : '예산 미설정';
+    return '<button class="lg-pcard" onclick="setLedgerTab('+i+')">'
+      + '<div class="lg-pcard-h"><span class="lg-dot" style="background:'+sc+'"></span>'+esc(nm)+'</div>'
+      + '<div class="lg-pcard-t">'+won(t)+'</div>'
+      + '<div class="lg-pcard-r">'+esc(rem)+'</div></button>';
+  }).join('');
+  return '<div class="proc-panel st-panel">'
+    + '<div class="proc-panel-title"><span>전체 합계 <span style="font-size:12.5px;font-weight:400;color:#5f6b7c">— 모든 프로젝트 합산</span></span></div>'
+    + '<div class="lg-sum-grid">'
+    +   '<div class="lg-sum-c"><span>총 예산</span><b>'+won(bud)+'</b></div>'
+    +   '<div class="lg-sum-c strong"><span>총 지출</span><b>'+won(total)+'</b></div>'
+    +   '<div class="lg-sum-c"><span>지불 완료</span><b>'+won(paid)+'</b></div>'
+    +   '<div class="lg-sum-c"><span>아직 안 낸 돈</span><b>'+won(unpaid)+'</b></div>'
+    + '</div>'
+    + (bud>0?'<div class="st-total-row"><span>예산 대비</span><span class="st-total" style="color:'+(bud-total>=0?'#2f7a4d':'#DC2626')+'">'+(bud-total>=0?('남음 '+won(bud-total)):('초과 '+won(Math.abs(bud-total))))+'</span></div>':'')
+    + '<div class="lg-pcards-t">종류별</div>'
+    + (function(){
+        let all=[]; sites.forEach(function(s,i){ all=all.concat(_gbList(i)); });
+        const r=_gbKindStat(all);
+        return '<div class="gb-kinds">'+GB_KINDS.map(function(k,ki){
+          const c=r.st[k], pct=r.total>0?Math.round(c.sum/r.total*100):0;
+          return '<div class="gb-kind k'+ki+(c.sum?'':' zero')+'">'
+            + '<div class="gb-kind-k"><span class="gb-gdot" style="background:'+GB_KCOL[k]+'"></span>'+k+'<span class="gb-kind-n">'+c.n+'줄</span></div>'
+            + '<div class="gb-kind-v">₩'+c.sum.toLocaleString()+'</div>'
+            + '<div class="gb-kind-p">'+(r.total>0?(pct+'% 차지'):'아직 없음')+'</div></div>';
+        }).join('')+'</div>';
+      })()
+    + '<div class="lg-pcards-t">프로젝트별</div>'
+    + '<div class="lg-pcards">'+cards+'</div></div>';
+}
+
+
 /* ══════════ 프로 프로젝트 본문 패널 — 사진·자료 / 자재·구매 탭 ══════════ */
 let _projPanelTab = 'assets';   // 'assets' | 'buy'
 function setProjPanel(t){ _projPanelTab=t; dnRerender(); }
 function renderProjPanels(si){
-  const tab = _projPanelTab || 'assets';
-  const bar = `<div class="pj-tabs">
-    <button class="pj-tab${tab==='assets'?' on':''}" onclick="setProjPanel('assets')">📷 사진 · 자료</button>
-    <button class="pj-tab${tab==='buy'?' on':''}" onclick="setProjPanel('buy')">🧾 자재 · 구매</button>
-  </div>`;
-  const body = (tab==='buy') ? renderBuyList(si) : renderSiteAssets(si);
-  return bar + body;
+  // 자재·구매 목록은 가계부로 통합됨 → 프로젝트 본문은 사진·자료만
+  return renderSiteAssets(si);
 }
 
 /* ── 렌더 ── */
@@ -8964,6 +10007,102 @@ function addLibTask(si){
 }
 
 
+/* ══════════ 자주 쓰는 작업 — 프로젝트 안에서 골라 넣기 (큰 틀만) ══════════ */
+let _tkSi=0;         // 어느 프로젝트에 넣는 중인지
+let _tkPick=[];      // 누른 순서대로 담김
+let _tkCustom=[];    // 직접 적어 넣은 것
+
+function tkOpen(si){
+  _tkSi=si; _tkPick=[]; _tkCustom=[];
+  tkClose();
+  const box=document.createElement('div');
+  box.id='tk'; box.className='qm';
+  box.innerHTML='<div class="qm-box">'
+    + '<div class="qm-h"><div class="qm-t">자주 쓰는 작업 고르기</div>'
+    +   '<div class="qm-d">누른 <b>순서대로</b> 작업 목록에 들어갑니다. 나중에 이름을 고치거나 더 넣을 수 있으니 지금은 대충 골라도 됩니다.</div></div>'
+    + '<div class="qm-b"><div class="qm-l">'
+    +   '<div class="qm-grid" id="tk-grid"></div>'
+    +   '<div class="qm-add"><input id="tk-new" placeholder="목록에 없는 작업을 직접 적어 주세요" spellcheck="false"'
+    +     ' onkeydown="if(event.key===\'Enter\'&&!event.isComposing){event.preventDefault();tkAddCustom()}">'
+    +   '<button class="qt-b" onclick="tkAddCustom()">추가</button></div></div>'
+    + '<div class="qm-side"><div class="qm-side-t">고른 순서</div><div class="qm-pick" id="tk-pick"></div></div></div>'
+    + '<div class="qm-f"><div class="qm-f-d" id="tk-f-d"></div>'
+    +   '<button class="qt-b" onclick="tkClose()">닫기</button>'
+    +   '<button class="qt-b p" id="tk-ok" onclick="tkDone()">작업 넣기</button></div></div>';
+  box.onclick=function(ev){ if(ev.target===box) tkClose(); };
+  document.body.appendChild(box);
+  tkPaint();
+}
+function tkClose(){ const b=document.getElementById('tk'); if(b) b.remove(); }
+
+function _tkHas(name){
+  const s=S.sites[_tkSi]; if(!s) return false;
+  return (s.procs||[]).some(function(p){ return (p||'').trim()===name; });
+}
+function tkToggle(name){
+  if(_tkHas(name)) return;
+  const i=_tkPick.indexOf(name);
+  if(i>=0) _tkPick.splice(i,1); else _tkPick.push(name);
+  tkPaint();
+}
+function tkAddCustom(){
+  const el=document.getElementById('tk-new'); if(!el) return;
+  const v=(el.value||'').trim(); if(!v) return;
+  if(_tkHas(v)){ showToast('“'+v+'”은(는) 이미 있습니다'); el.value=''; return; }
+  if(_tkCustom.indexOf(v)<0) _tkCustom.push(v);
+  if(_tkPick.indexOf(v)<0) _tkPick.push(v);
+  el.value=''; tkPaint(); el.focus();
+}
+function tkPaint(){
+  const g=document.getElementById('tk-grid');
+  if(g){
+    g.innerHTML=TASK_LIBRARY.map(function(c){
+      const n=c.cat, has=_tkHas(n), i=_tkPick.indexOf(n);
+      // 어떤 세부 작업이 들어가는 큰 틀인지는 올려두면 보입니다
+      const tip=(c.items||[]).join(' · ');
+      return '<button class="qm-c'+(i>=0?' on':'')+(has?' tk-has':'')+'"'+(has?' disabled':'')
+        + ' title="'+esc(tip)+'" onclick="tkToggle(\''+gbQ(n)+'\')">'
+        + '<span class="qm-n">'+(i>=0?(i+1):'')+'</span>'+esc(n)
+        + (has?'<span class="tk-had">있음</span>':'')+'</button>';
+    }).join('');
+  }
+  const p=document.getElementById('tk-pick');
+  if(p){
+    p.innerHTML=_tkPick.length
+      ? _tkPick.map(function(n,i){
+          return '<div class="qm-p"><span class="qm-p-i">'+(i+1)+'</span>'+esc(n)
+            + '<button class="qm-p-x" onclick="tkToggle(\''+gbQ(n)+'\')" title="빼기">✕</button></div>';
+        }).join('')
+      : '<div class="qm-p-none">아직 고른 작업이 없습니다. 왼쪽에서 눌러 주세요.</div>';
+  }
+  const d=document.getElementById('tk-f-d');
+  if(d) d.textContent=_tkPick.length ? (_tkPick.length+'개 작업') : '세부 작업은 프로젝트 통합 → 자주 쓰는 작업에서 볼 수 있습니다';
+  const ok=document.getElementById('tk-ok');
+  if(ok){
+    ok.textContent=_tkPick.length ? (_tkPick.length+'개 작업 넣기') : '작업 넣기';
+    ok.disabled=!_tkPick.length;
+  }
+}
+function tkDone(){
+  const si=_tkSi, pick=_tkPick.slice();
+  if(!pick.length){ tkClose(); return; }
+  const s=S.sites[si];
+  if(!s){ tkClose(); return; }
+  if(!Array.isArray(s.procs)) s.procs=[];
+  let added=0;
+  pick.forEach(function(n){
+    if(s.procs.some(function(p){ return (p||'').trim()===n; })) return;
+    // 빈 줄이 있으면 먼저 채우고, 없으면 뒤에 붙임
+    const empty=s.procs.findIndex(function(p){ return !(p||'').trim(); });
+    if(empty>=0) s.procs[empty]=n; else s.procs.push(n);
+    added++;
+  });
+  tkClose();
+  persist(); renderAll();
+  showToast(added+'개 작업을 넣었습니다');
+}
+
+
 /* ══════════ 문의함 — 팀과 무관한 독립 화면 ══════════ */
 function openInbox(){
   _authView='inbox';
@@ -9220,6 +10359,30 @@ async function deleteInquiry(id){
 let MEMBERS=null;      // null = 아직 안 불러옴
 let MEMBERS_ERR='';
 
+/* ══════════ 팀 관리 — 팀원 / 협력팀 ══════════ */
+let _tmSub = 'members';   // 'members' | 'partners'
+function setTmSub(t){ _tmSub = (t==='partners')?'partners':'members'; dnRerender(); }
+
+function renderTeamTab(){
+  const n = (S.globalContacts||[]).length;
+  const bar = '<div class="lg-subs" style="margin-bottom:14px">'
+    + '<button class="lg-sub'+(_tmSub==='members'?' on':'')+'" onclick="setTmSub(\'members\')">팀원'
+    +   ((MEMBERS&&MEMBERS.length)?'<span class="tmb-n">'+MEMBERS.length+'</span>':'')+'</button>'
+    + '<button class="lg-sub'+(_tmSub==='partners'?' on':'')+'" onclick="setTmSub(\'partners\')">협력팀'
+    +   (n?'<span class="tmb-n">'+n+'</span>':'')+'</button>'
+    + '</div>';
+
+  if(_tmSub==='partners'){
+    return bar
+      + '<div class="tmb-wrap">'
+      +   '<div class="tmb-note">현장에서 함께 일하는 <b>업체·기사님 연락처</b>를 모아 두는 곳입니다. '
+      +   '여기에 적어 두시면 각 프로젝트의 <b>연락처</b>에서 골라 넣으실 수 있습니다.</div>'
+      +   renderContactsTab()
+      + '</div>';
+  }
+  return bar + renderMembersTab();
+}
+
 function renderMembersTab(){
   if(!TEAM) return `<div class="empty-hint">팀 정보를 불러오는 중입니다</div>`;
 
@@ -9327,7 +10490,8 @@ function renderEmptyPro(){
     <button class="es-blank" onclick="openAddWith('blank')">작업을 직접 입력하겠습니다 →</button>
     <div class="es-tip">
       템플릿을 고르면 <b>철거 · 설비 · 전기 · 목공…</b> 같은 표준 작업이 자동으로 채워집니다.<br>
-      나중에 <b>프로젝트 통합 → 자주 쓰는 작업</b>에서 80여 개를 더 꺼내 쓸 수 있습니다.
+      만든 뒤에는 프로젝트 안 <b>작업 목록 → 자주 쓰는 작업</b>에서 큰 틀 12가지를 꺼내 쓸 수 있고,<br>
+      어떤 세부 작업이 들어가는지는 <b>프로젝트 통합 → 자주 쓰는 작업</b>에서 보실 수 있습니다.
     </div>
   </div>`;
 }
@@ -9385,13 +10549,16 @@ function renderMain(){
 
   // 셀프 모드는 팀원 탭 접근 불가 (강제 호출도 차단)
   if(isSelf() && S.tab==='members'){ S.tab='all'; }
+  // 프로 모드는 연락처를 팀 관리 안으로 옮겼음 → 옛 탭으로 들어오면 넘겨 준다
+  if(!isSelf() && S.tab==='contacts'){ S.tab='members'; _tmSub='partners'; }
   // 셀프 모드는 통합 화면(타임라인·표)을 쓰지 않음 → 공간이 있으면 첫 공간으로
   if(isSelf() && S.tab==='all' && S.sites && S.sites.length){ S.tab='0'; }
 
-  if(S.tab==='members') return renderMembersTab();
+  if(S.tab==='members') return renderTeamTab();
   if(S.tab==='inquiries') return renderInquiriesTab();
   if(S.tab==='memo') return renderDailyNote();
   if(S.tab==='guide') return renderGuidePage();
+  if(S.tab==='ledger') return renderLedgerTab();
 
   // 프로젝트가 하나도 없으면 안내 화면
   if(S.sites.length===0 && S.tab!=='contacts') return renderEmptyState();
@@ -9462,7 +10629,7 @@ function renderMain(){
     // 셀프: 프로젝트 자료 대신 연락처를 넓은 본문에 크게 배치 / 프로: 기존 프로젝트 자료
     const isS = isSelf();
     const main = backBar + renderSpanBar(si) + (isS?renderSelfStartBanner(si):'') + renderColorPicker(si) + renderSiteTable(si,y,m,days,cw)
-      + (isS ? (renderSiteContacts(si) + renderBuyList(si) + renderSettle(si)) : renderProjPanels(si));
+      + (isS ? renderSiteContacts(si) : renderProjPanels(si));
     const _proAssetsShown = isS || (_projPanelTab||'assets')==='assets';   // 프로: 사진 탭일 때만 자료 로드/페인트
     setTimeout(()=>{
       if(!isS && _proAssetsShown){ qPaint(si); if(ASSETS[si]===undefined) loadAssets(si); else paintAssets(si); }
@@ -10133,6 +11300,7 @@ function renderSiteProcPanel(si){
     btnHtml+=`<button class="proc-tool-btn ghost" onclick="cancelSelectMode(${si})">취소</button>`;
   } else {
     if(isSelf()) btnHtml+=`<button class="proc-tool-btn primary" onclick="startProcTemplate(${si})">✨ 추천 공정</button>`;
+    btnHtml+=`<button class="proc-tool-btn primary" onclick="tkOpen(${si})">＋ 자주 쓰는 작업</button>`;
     btnHtml+=`<button class="proc-tool-btn" onclick="enterSelectMode(${si})">☑ 골라 삭제</button>`;
     btnHtml+=`<button class="proc-tool-btn danger" onclick="deleteAllProcs(${si})">전체 삭제</button>`;
   }
@@ -10524,7 +11692,12 @@ function renderSiteTable(si,y,m,days,cw){
 
   st.procs.forEach((proc,pi)=>{
     h+=`<tr class="gt-r">`;
-    h+=`<td class="gt-proc" data-si="${si}" data-pi="${pi}" style="width:${pw}px">${esc(proc)||'<i>작업명을 넣으세요</i>'}</td>`;
+    h+=`<td class="gt-proc" draggable="true" data-si="${si}" data-pi="${pi}" style="width:${pw}px" title="끌어서 순서를 바꿀 수 있습니다"
+      ><span class="gt-pn">${esc(proc)||'<i>작업명을 넣으세요</i>'}</span
+      ><span class="gt-mv"
+        ><button type="button" draggable="false" ${pi===0?'disabled':''} onclick="moveSiteProc(${si},${pi},-1)" title="위로">&#8593;</button
+        ><button type="button" draggable="false" ${pi===st.procs.length-1?'disabled':''} onclick="moveSiteProc(${si},${pi},1)" title="아래로">&#8595;</button
+      ></span></td>`;
 
     for(let d=1;d<=days;d++){
       const bg = st.cells[ck(si,pi,d)]||'';
@@ -10545,6 +11718,41 @@ function renderSiteTable(si,y,m,days,cw){
 
 
 function attachProcDrag(){
+  /* 일정표 왼쪽 작업 칸 — 끌어서 순서 바꾸기 */
+  document.querySelectorAll('table.gt-one tbody').forEach(tb=>{
+    let dragPi=null,dragSi=null,dropPos=null;
+    const cells=tb.querySelectorAll('td.gt-proc[data-pi]');
+    const clear=()=>cells.forEach(c=>c.classList.remove('drop-before','drop-after'));
+    cells.forEach(cell=>{
+      cell.addEventListener('dragstart',e=>{
+        dragPi=parseInt(cell.dataset.pi);
+        dragSi=parseInt(cell.dataset.si);
+        cell.classList.add('dragging');
+        try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragPi));}catch(_){}
+      });
+      cell.addEventListener('dragend',()=>{cell.classList.remove('dragging');clear();dragPi=dragSi=dropPos=null;});
+      cell.addEventListener('dragover',e=>{
+        e.preventDefault();
+        if(dragSi===null||parseInt(cell.dataset.si)!==dragSi)return;
+        const ti=parseInt(cell.dataset.pi);
+        const rect=cell.getBoundingClientRect();
+        const before=(e.clientY-rect.top)<rect.height/2;
+        dropPos=before?ti:ti+1;
+        clear();
+        cell.classList.add(before?'drop-before':'drop-after');
+      });
+      cell.addEventListener('drop',e=>{
+        e.preventDefault();
+        clear();
+        if(dragPi===null||dragSi===null||dropPos===null)return;
+        let from=dragPi,to=dropPos;
+        if(from<to)to-=1;
+        if(to!==from)reorderSiteProc(dragSi,from,to);
+        dragPi=dragSi=dropPos=null;
+      });
+    });
+  });
+
   document.querySelectorAll('.proc-list').forEach(list=>{
     let dragPi=null,dragSi=null,dropPos=null;
     const clear=()=>list.querySelectorAll('.proc-row').forEach(r=>r.classList.remove('drop-before','drop-after'));
@@ -10920,7 +12128,8 @@ function renameSiteProc(si,pi,val,live){
   // 테이블 작업명 실시간 업데이트 — 해당 현장·작업 셀만 정확히 갱신
   const has=val&&val.trim();
   document.querySelectorAll(`.gt-proc[data-si="${si}"][data-pi="${pi}"]`).forEach(el=>{
-    el.innerHTML = has ? esc(val) : '<i>작업명을 넣으세요</i>';
+    const t=el.querySelector('.gt-pn')||el;
+    t.innerHTML = has ? esc(val) : '<i>작업명을 넣으세요</i>';
   });
   // 저장
   clearTimeout(window._renameTimer);
@@ -12555,6 +13764,63 @@ function goToSettings(){
   openLogoutConfirm();
 }
 
+/* ══════════ 데이터 백업 · 복원 ══════════ */
+function openDataBackup(){
+  const area=document.getElementById('modal-area'); if(!area) return;
+  const unit=isSelf()?'공간':'프로젝트';
+  area.innerHTML=`
+  <div class="modal-overlay" style="z-index:120" onclick="if(event.target===this)closeDataBackup()">
+    <div class="modal-box" style="max-width:460px">
+      <div style="padding:24px">
+        <div style="font-size:19px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px">데이터 백업 · 복원</div>
+        <div style="font-size:13.5px;color:#59636f;line-height:1.65;margin-bottom:18px">지금 ${unit} 자료를 파일로 저장해 두면 문제가 생겨도 되돌릴 수 있어요. 베타 기간엔 <b>가끔 백업</b>해 두시길 권합니다.</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <button class="up-go" style="width:100%" onclick="exportData()">⬇ 백업 파일 내려받기</button>
+          <button class="up-go-alt" style="width:100%" onclick="triggerImport()">⬆ 백업 불러오기(복원)</button>
+          <input type="file" id="gj-import-file" accept=".gon,.json,application/json" style="display:none" onchange="doImportFile(this)">
+          <button style="width:100%;background:none;border:none;color:#59636f;padding:9px;cursor:pointer;font:inherit;font-size:14px" onclick="closeDataBackup()">닫기</button>
+        </div>
+        <div style="font-size:12px;color:#9098a6;line-height:1.6;margin-top:14px">※ 복원은 지금 화면(${isSelf()?'셀프':'프로'}) 자료를 백업 내용으로 덮어씁니다. 필요하면 먼저 현재 상태를 백업하세요.</div>
+      </div>
+    </div>
+  </div>`;
+}
+function closeDataBackup(){ const a=document.getElementById('modal-area'); if(a) a.innerHTML=''; }
+function exportData(){
+  try{
+    const t=new Date(); const pad=n=>String(n).padStart(2,'0');
+    const stamp=t.getFullYear()+pad(t.getMonth()+1)+pad(t.getDate())+'_'+pad(t.getHours())+pad(t.getMinutes());
+    const payload={ app:'공정온', kind:'backup', v:2, mode:APP_MODE, team:(TEAM&&TEAM.name)||null, exportedAt:t.toISOString(), data:S };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url;
+    a.download=`공정온_백업_${APP_MODE==='self'?'셀프':'프로'}_${stamp}.gon`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    try{ showToast('백업 파일을 내려받았어요'); }catch(_){}
+  }catch(e){ alert('백업에 실패했습니다. '+(e.message||'')); }
+}
+function triggerImport(){ const inp=document.getElementById('gj-import-file'); if(inp) inp.click(); }
+async function doImportFile(inputEl){
+  const f=inputEl.files&&inputEl.files[0]; if(!f) return;
+  try{
+    const text=await f.text();
+    const obj=JSON.parse(text);
+    const data=(obj&&obj.data&&obj.data.sites)?obj.data:((obj&&obj.sites)?obj:null);
+    if(!data||!data.sites){ alert('올바른 공정온 백업 파일이 아닙니다.'); inputEl.value=''; return; }
+    const modeLabel=obj&&obj.mode==='self'?'셀프':(obj&&obj.mode==='pro'?'프로':'');
+    const warn = (modeLabel && obj.mode!==APP_MODE) ? `\n\n(주의: 이 백업은 **${modeLabel} 모드**에서 만든 것입니다.)` : '';
+    const ok=await askConfirm(`백업을 불러오면 지금 ${isSelf()?'공간':'프로젝트'} 화면 내용이 백업 내용으로 **덮어써집니다.**\n\n계속할까요?${warn}`,'','불러와서 덮어쓰기',true);
+    if(!ok){ inputEl.value=''; return; }
+    Object.assign(S, data);
+    S.tab = isSelf()? '0' : 'all';
+    (S.sites||[]).forEach(s=>{ if(!s.memo)s.memo=''; if(!s.checklist)s.checklist=[]; if(!s.procs||!s.procs.length)s.procs=[...DEFAULT_PROCS]; if(!s.newProcName)s.newProcName=''; if(!s.selectedProcs)s.selectedProcs=[]; });
+    persist(); renderAll(); closeDataBackup();
+    try{ showToast('백업을 불러왔어요'); }catch(_){}
+  }catch(e){ alert('불러오기에 실패했습니다. 파일을 확인해 주세요.'); }
+  inputEl.value='';
+}
+
 /* ══════════════════════════════════════════════
    범용 확인 모달 — 브라우저 confirm 대체
    (confirm 은 오버레이 위에서 클릭이 안 먹는 문제가 있음)
@@ -12628,10 +13894,8 @@ function resetState(){
       procs:[...DEFAULT_PROCS], procColors:{}, newProcName:'', selectedProcs:[], cells:{}
     }];
   } else {
-    S.sites=[1,2].map(n=>({
-      name:'프로젝트 '+n, addr:'', pw:'', key:'', memo:'',
-      procs:[...DEFAULT_PROCS], procColors:{}, newProcName:'', selectedProcs:[], cells:{}
-    }));
+    // 프로 — 아무것도 미리 만들지 않습니다. 첫 프로젝트는 사용자가 직접 만듭니다.
+    S.sites=[];
   }
   if(S.schedule) S.schedule=null;
 }
@@ -12645,7 +13909,7 @@ function migrateNames(){
   pruneUntouchedDefaults();
 }
 
-/* 한 번도 손대지 않은 기본 프로젝트를 뒤에서부터 정리 (최소 2개는 유지) */
+/* 한 번도 손대지 않은 기본 프로젝트를 뒤에서부터 정리 (남길 최소 개수 없음) */
 function isUntouched(s){
   if(!s) return false;
   const name=(s.name||'').trim();
@@ -12660,7 +13924,7 @@ function isUntouched(s){
 }
 function pruneUntouchedDefaults(){
   // 뒤에서부터만 제거 → 앞 프로젝트의 셀 키 인덱스가 어긋나지 않음
-  while(S.sites.length>2 && isUntouched(S.sites[S.sites.length-1])){
+  while(S.sites.length>0 && isUntouched(S.sites[S.sites.length-1])){
     S.sites.pop();
   }
 }
@@ -12701,6 +13965,8 @@ async function startupLoad(){
     setSyncStatus('ing','서버 연결 중...');
     const rows=await dbLoad();
     const raw=(rows&&rows[0]&&rows[0].data)?rows[0].data:null;
+    _baselineAt=(rows&&rows[0]&&rows[0].updated_at)||null;   // 충돌 감지 기준 버전
+    _unsaved=false; _conflict=false; hideConflictBar();
 
     // 모드별 봉투 구성
     DATA_ENV={self:null,pro:null};
