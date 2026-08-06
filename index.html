@@ -8911,6 +8911,7 @@ function _gbCatKey(e){ const k=((e&&e.cat)||'').trim(); return k||GB_UNCAT; }
 function _gbKnownCats(si){
   const used=[];
   _gbList(si).forEach(function(e){ const k=_gbCatKey(e); if(k!==GB_UNCAT && used.indexOf(k)<0) used.push(k); });
+  PROC_LIB.forEach(function(p){ if(used.indexOf(p.cat)<0) used.push(p.cat); });
   GB_GUIDE.forEach(function(g){ if(used.indexOf(g.cat)<0) used.push(g.cat); });
   GB_SUGGEST.forEach(function(k){ if(used.indexOf(k)<0) used.push(k); });
   return used;
@@ -9796,31 +9797,11 @@ function qtCmpHtml(si){
 }
 /* ══════════ 견적서 작업명 목록 — 공정별 (고객이 보는 단위) ══════════ */
 /* 자재명이 아니라 '무엇을 해 드리는지'를 적는 자리입니다. 자재는 지출 쪽으로 갑니다. */
-const QT_TASKS=[
-  {cat:'목공', items:[
-    {n:'경량벽체',u:'㎡'},{n:'가벽',u:'개소'},{n:'천장틀',u:'㎡'},{n:'우물천장',u:'개소'},
-    {n:'등박스',u:'m'},{n:'커튼박스',u:'m'},{n:'벽체 석고 마감',u:'㎡'},{n:'아트월',u:'개소'},
-    {n:'문틀 설치',u:'개'},{n:'도어 설치',u:'개'},{n:'몰딩',u:'m'},{n:'걸레받이',u:'m'},
-    {n:'창틀 마감',u:'개소'},{n:'붙박이장 짜기',u:'개소'},{n:'선반·수납 제작',u:'개소'},
-    {n:'목공 인건비',u:'명'},{n:'목공 자재 일체',u:'식'}
-  ]},
-  {cat:'도장', items:[
-    {n:'보양',u:'식'},{n:'면정리·퍼티',u:'㎡'},{n:'프라이머',u:'㎡'},
-    {n:'벽면 도장',u:'㎡'},{n:'천장 도장',u:'㎡'},{n:'문·문틀 도장',u:'개'},
-    {n:'몰딩·걸레받이 도장',u:'m'},{n:'목재 스테인',u:'㎡'},{n:'철재 도장',u:'㎡'},
-    {n:'우레탄 도장',u:'㎡'},{n:'에폭시 도장',u:'㎡'},{n:'실리콘 마감',u:'식'},
-    {n:'도장 인건비',u:'명'},{n:'도장 자재 일체',u:'식'}
-  ]},
-];
-
 /* 공정 이름이 조금 달라도 찾아 준다 ('도장·필름' → '도장') */
 function _qtTaskBase(cat){
-  const c=String(cat||'').trim(); if(!c) return null;
-  for(let i=0;i<QT_TASKS.length;i++){
-    const k=QT_TASKS[i].cat;
-    if(c===k || c.indexOf(k)>=0 || k.indexOf(c)>=0) return QT_TASKS[i];
-  }
-  return null;
+  const p=_procFind(cat);
+  if(!p || !(p.tasks||[]).length) return null;
+  return {cat:p.cat, items:p.tasks};
 }
 /* 예전에 이 공정으로 적으신 품명을 많이 쓴 순서로 */
 function _qtUsedNames(cat){
@@ -9829,7 +9810,7 @@ function _qtUsedNames(cat){
   (S.sites||[]).forEach(function(st){
     ((st&&st.quotes)||[]).forEach(function(q){
       ((q&&q.groups)||[]).forEach(function(g){
-        if(String(g.cat||'').trim()!==c) return;
+        if(procName(g.cat)!==procName(c)) return;
         ((g.items)||[]).forEach(function(it){
           const n=String((it&&it.n)||'').trim(); if(!n) return;
           cnt[n]=(cnt[n]||0)+1;
@@ -10559,20 +10540,133 @@ function buildPrintArea(){
 }
 
 /* ══════════ 자주 쓰는 작업 (공정 사전) ══════════ */
-const TASK_LIBRARY=[
-  {cat:'준비 · 가설',  items:['현장 정리','가설 울타리','비계 설치','안전 시설','자재 반입','먹매김']},
-  {cat:'철거',        items:['철거','폐기물 반출','석면 해체','바닥 갈아내기']},
-  {cat:'골조 · 구조',  items:['토공','기초','철근','거푸집','콘크리트 타설','조적','미장','철골']},
-  {cat:'방수 · 단열',  items:['방수','단열재','결로 방지','우레탄 도막']},
-  {cat:'설비',        items:['급수 배관','오배수 배관','난방 배관','위생기구','가스 배관','스프링클러']},
-  {cat:'전기 · 통신',  items:['전기 배선','전선관','분전반','조명','콘센트·스위치','통신·인터넷','CCTV','소방']},
-  {cat:'공조',        items:['덕트','환기','냉난방기','후드']},
-  {cat:'목공',        items:['경량벽체','석고보드','천장틀','가벽','문틀','몰딩','걸레받이']},
-  {cat:'창호',        items:['샤시','유리','도어','자동문','방화문']},
-  {cat:'마감',        items:['타일','도장','도배','필름','바닥재','마루','데코타일','석재','금속']},
-  {cat:'가구 · 기구',  items:['주방가구','붙박이장','싱크대','상판','위생도기','조명기구']},
-  {cat:'마무리',      items:['간판','사인물','조경','청소','준공청소','검수','준공','하자 보수']},
+/* ══════════════════════════════════════════════════════════════
+   공정 목록 — 단일 출처(single source)
+   여기 하나만 고치면 일정표 · 자주 쓰는 작업 · 견적 · 지출 · 협력팀이 모두 따라옵니다.
+     cat   : 큰 틀 공정 이름 (화면에 보이는 이름)
+     alias : 예전에 쓰던 이름. 이름을 바꿔도 이미 적어 두신 자료가 안 끊깁니다.
+     sub   : 이 공정에 들어가는 세부 작업 (일정표 · 자주 쓰는 작업에서 안내용)
+     tasks : 견적서 작업명 + 단위 (고객이 보는 단위)
+   ══════════════════════════════════════════════════════════════ */
+const PROC_LIB=[
+  {cat:'준비·가설', alias:['준비 · 가설','준비','가설'],
+   sub:['현장 정리','가설 울타리','비계 설치','안전 시설','자재 반입','먹매김'], tasks:[]},
+
+  {cat:'철거', alias:[],
+   sub:['철거','폐기물 반출','석면 해체','바닥 갈아내기'], tasks:[]},
+
+  {cat:'골조·구조', alias:['골조 · 구조','골조'],
+   sub:['토공','기초','철근','거푸집','콘크리트 타설','철골'], tasks:[]},
+
+  {cat:'미장·조적', alias:['미장','조적'],
+   sub:['조적','미장','방통','셀프레벨링'], tasks:[]},
+
+  {cat:'방수·단열', alias:['방수 · 단열','방수','단열'],
+   sub:['방수','단열재','결로 방지','우레탄 도막'], tasks:[]},
+
+  {cat:'설비·배관', alias:['설비','배관','설비 · 배관'],
+   sub:['급수 배관','오배수 배관','난방 배관','위생기구','가스 배관','보일러'], tasks:[]},
+
+  {cat:'전기', alias:['전기 · 통신'],
+   sub:['전기 배선','전선관','분전반','콘센트·스위치','승압'], tasks:[]},
+
+  {cat:'통신·소방', alias:['통신','소방','통신 · 보안'],
+   sub:['통신·인터넷','CCTV','소방','스프링클러','비상조명'], tasks:[]},
+
+  {cat:'공조·환기', alias:['공조','환기'],
+   sub:['덕트','환기','냉난방기','후드','시스템에어컨'], tasks:[]},
+
+  {cat:'목공', alias:[],
+   sub:['경량벽체','천장틀','가벽','문틀','몰딩','걸레받이','석고보드'],
+   tasks:[
+     {n:'경량벽체',u:'m'},{n:'가벽',u:'개소'},{n:'천장틀',u:'㎡'},{n:'우물천장',u:'㎡'},
+     {n:'등박스',u:'m'},{n:'커튼박스',u:'m'},{n:'아트월',u:'개소'},
+     {n:'ABS도어 설치',u:'식'},{n:'몰딩',u:'m'},{n:'걸레받이',u:'m'},
+     {n:'창틀 마감',u:'m'},{n:'계단',u:'m'},{n:'데크',u:'㎡'},
+     {n:'선반·수납 제작',u:'개소'},{n:'목공 인건비',u:'명'}
+   ]},
+
+  {cat:'창호(샷시)', alias:['창호','샷시','샤시'],
+   sub:['샤시','도어','자동문','방화문','중문'], tasks:[]},
+
+  {cat:'유리·거울', alias:['유리','거울'],
+   sub:['유리','거울','파티션 유리'], tasks:[]},
+
+  {cat:'타일', alias:[],
+   sub:['타일','줄눈','방수 미장'], tasks:[]},
+
+  {cat:'도장·필름', alias:['도장','필름','도장 · 필름'],
+   sub:['도장','필름','스테인'],
+   tasks:[
+     {n:'보양',u:'식'},{n:'면정리·퍼티',u:'㎡'},{n:'프라이머',u:'㎡'},
+     {n:'벽면 도장',u:'㎡'},{n:'천장 도장',u:'㎡'},{n:'문·문틀 도장',u:'개'},
+     {n:'몰딩·걸레받이 도장',u:'m'},{n:'목재 스테인',u:'㎡'},{n:'철재 도장',u:'㎡'},
+     {n:'우레탄 도장',u:'㎡'},{n:'에폭시 도장',u:'㎡'},{n:'실리콘 마감',u:'식'},
+     {n:'도장 인건비',u:'명'},{n:'도장 자재 일체',u:'식'}
+   ]},
+
+  {cat:'도배', alias:[],
+   sub:['도배','초배','부직포'], tasks:[]},
+
+  {cat:'바닥재', alias:['바닥'],
+   sub:['바닥재','마루','데코타일','장판','카펫'], tasks:[]},
+
+  {cat:'석재', alias:[],
+   sub:['석재','인조대리석','현관 디딤석'], tasks:[]},
+
+  {cat:'욕실', alias:[],
+   sub:['양변기','세면대','수전','욕실장','거울','액세서리'], tasks:[]},
+
+  {cat:'주방·가구', alias:['가구','주방','가구 · 기구','가구·붙박이'],
+   sub:['주방가구','붙박이장','싱크대','상판','신발장'], tasks:[]},
+
+  {cat:'조명', alias:[],
+   sub:['조명기구','매입등','간접등','레일등'], tasks:[]},
+
+  {cat:'금속·철물', alias:['금속','철물'],
+   sub:['난간','계단 논슬립','철재 프레임','앵글','도어록·경첩'], tasks:[]},
+
+  {cat:'사인·간판', alias:['간판','사인물'],
+   sub:['간판','사인물','시트 커팅'], tasks:[]},
+
+  {cat:'청소·준공', alias:['마무리','청소','준공'],
+   sub:['청소','준공청소','검수','준공','하자 보수'], tasks:[]},
 ];
+
+/* 이름이 바뀌거나 예전 이름으로 적혀 있어도 같은 공정으로 찾아 준다 */
+function _procFind(name){
+  const c=String(name||'').trim();
+  if(!c) return null;
+  for(let i=0;i<PROC_LIB.length;i++){
+    if(PROC_LIB[i].cat===c) return PROC_LIB[i];
+  }
+  for(let i=0;i<PROC_LIB.length;i++){
+    if((PROC_LIB[i].alias||[]).indexOf(c)>=0) return PROC_LIB[i];
+  }
+  /* 그래도 못 찾으면 느슨하게 (점·공백을 지우고 비교) */
+  const norm=function(x){ return String(x||'').replace(/[\s·・()]/g,''); };
+  const n=norm(c);
+  for(let i=0;i<PROC_LIB.length;i++){
+    const p=PROC_LIB[i];
+    if(norm(p.cat)===n) return p;
+    if((p.alias||[]).some(function(a){ return norm(a)===n; })) return p;
+  }
+  for(let i=0;i<PROC_LIB.length;i++){
+    const p=PROC_LIB[i];
+    if(n && (norm(p.cat).indexOf(n)>=0 || n.indexOf(norm(p.cat))>=0)) return p;
+  }
+  return null;
+}
+/* 예전 이름으로 적힌 것을 지금 이름으로 (없으면 적으신 그대로 둔다) */
+function procName(name){
+  const p=_procFind(name);
+  return p ? p.cat : String(name||'').trim();
+}
+
+/* ── 아래 두 목록은 위 PROC_LIB 에서 자동으로 만들어집니다 ── */
+const TASK_LIBRARY = PROC_LIB.map(function(p){ return {cat:p.cat, items:p.sub||[]}; });
+const QT_TASKS     = PROC_LIB.filter(function(p){ return (p.tasks||[]).length; })
+                             .map(function(p){ return {cat:p.cat, items:p.tasks}; });
 
 let LIB_PICK=null;   // 선택한 작업명 (프로젝트를 고르는 중)
 
@@ -11275,7 +11369,7 @@ function renderMain(){
     const side=
       section('today','오늘의 작업', renderTodayAll(y,m)) +
       section('summary','날짜별 작업 현황', renderDateSummary(y,m,days)) +
-      section('lib','자주 쓰는 작업', renderTaskLibrary(), '75개') +
+      section('lib','자주 쓰는 작업', renderTaskLibrary(), TASK_LIBRARY.reduce(function(a,g){return a+g.items.length;},0)+'개') +
       notepad('데일리 노트', renderDailyNoteCompact(), dnBadge());
 
     h+=`<div class="layout">
