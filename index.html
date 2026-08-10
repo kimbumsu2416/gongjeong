@@ -14037,7 +14037,23 @@ function showLanding(){
 }
 function routeView(){
   const l=document.getElementById('landing');
-  const onLanding = l.style.display==='block';
+  const onLanding = l && l.style.display==='block';
+
+  /* 로그인해서 앱을 쓰고 있는 중이면 주소에 #app 이 없어도 앱을 보여 준다.
+     (새로고침 F5 로 소개 화면이나 로그인 화면으로 튕기던 문제) */
+  if(_appView==='app'){
+    if(location.hash!=='#app'){
+      try{ history.replaceState(null,'','#app'); }catch(e){ location.hash='#app'; }
+    }
+    enterAppView();
+    window.scrollTo(0,0);
+    return;
+  }
+  /* 로그인은 됐는데 모드·팀을 아직 안 고른 경우 — 소개 화면으로 튕기지 않는다 */
+  if(USER && _appView==='onboarding' && _authView && _authView!=='pick'){
+    showOnboarding();
+    return;
+  }
   if(location.hash==='#app'){
     enterAppView();
     window.scrollTo(0,0);
@@ -15878,7 +15894,11 @@ async function handleRecoveryReturn(){
     _appView='onboarding'; _authView= isSelf()?'mode':'team';
   }
   routeView();
-})();
+})().catch(function(e){
+  /* 무슨 일이 있어도 빈 화면으로 두지 않습니다 */
+  try{ console.warn('boot 실패', e); }catch(_){}
+  try{ routeView(); }catch(_){}
+});
 
 /* ── 랜딩 섹션 이동 (해시를 쓰지 않음 — 앱 라우팅과 충돌 방지) ── */
 /* ── 로고 클릭 → 첫 화면(랜딩 맨 위) ── */
@@ -15916,8 +15936,10 @@ function scrollToSec(id){
 
 })();
 
-/* ── 첫 진입은 홈페이지(랜딩)부터 ── */
-routeView();
+/* ── 첫 진입 ──
+   로그인 토큰이 남아 있으면 boot() 가 확인한 뒤에 화면을 정합니다.
+   여기서 미리 그리면 새로고침할 때마다 로그인 화면이 한 번 번쩍입니다. */
+if(!ACCESS_TOKEN) routeView();
 
 /* ── 랜딩 스크롤 등장 · 일정표 막대 애니메이션 ── */
 (function(){
