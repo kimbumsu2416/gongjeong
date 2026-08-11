@@ -609,25 +609,40 @@ input[data-dl]{background-image:linear-gradient(45deg,transparent 50%,#b0b8c4 50
 input[data-dl]:focus{background-image:linear-gradient(45deg,transparent 50%,#2f9e5e 50%),linear-gradient(135deg,#2f9e5e 50%,transparent 50%);background-position:calc(100% - 11px) calc(50% + 1px),calc(100% - 7px) calc(50% + 1px);background-size:4px 4px,4px 4px;background-repeat:no-repeat}
 
 
-/* 견적서부터 시작 화면 */
-.qs-hero{background:#fff;border:1px solid #dfe5ee;border-radius:18px;padding:52px 28px;text-align:center;
+/* 시작 화면 — 두 갈래 */
+.qs-hero{background:#fff;border:1px solid #dfe5ee;border-radius:18px;padding:44px 26px 34px;text-align:center;
   box-shadow:0 2px 10px rgba(14,20,32,.05)}
-.qs-ic{font-size:44px;margin-bottom:14px}
-.qs-t{font-size:24px;font-weight:800;color:#12141C;letter-spacing:-0.03em;margin-bottom:12px}
-.qs-d{font-size:14px;color:#5f6b7c;line-height:1.8;margin-bottom:30px}
+.qs-t{font-size:23px;font-weight:800;color:#12141C;letter-spacing:-0.03em;margin-bottom:10px}
+.qs-d{font-size:13.5px;color:#5f6b7c;line-height:1.75;margin-bottom:26px}
 .qs-d b{color:#1f6b45}
-.qs-steps{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px}
-.qs-s{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#3d4757;
-  background:#f4f7fb;border-radius:11px;padding:11px 15px}
-.qs-n{width:20px;height:20px;border-radius:50%;background:#2f9e5e;color:#fff;font-size:11px;font-weight:800;
-  display:flex;align-items:center;justify-content:center;flex:0 0 auto}
-.qs-a{color:#c8d0da;font-size:14px;font-weight:800}
-.qs-go{font-size:15px;font-weight:800;font-family:inherit;color:#fff;background:#2f9e5e;border:none;
-  border-radius:12px;padding:15px 34px;cursor:pointer;box-shadow:0 3px 10px rgba(47,158,94,.28)}
+.qs-two{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;text-align:left}
+.qs-card{flex:1 1 280px;max-width:330px;background:#fbfcfe;border:1px solid #e3e9f1;border-radius:15px;
+  padding:24px 20px;display:flex;flex-direction:column;gap:9px;transition:border-color .16s,box-shadow .16s}
+.qs-card:hover{border-color:#cfe0d6;box-shadow:0 4px 14px rgba(14,20,32,.07)}
+.qs-ic{font-size:30px;line-height:1}
+.qs-ct{font-size:18px;font-weight:800;color:#12141C;letter-spacing:-0.02em}
+.qs-cd{font-size:13px;color:#5f6b7c}
+.qs-cd b{color:#12141C;font-weight:700}
+.qs-flow{font-size:11.5px;color:#8a94a6;background:#eef1f6;border-radius:9px;padding:9px 11px;line-height:1.6}
+.qs-go{margin-top:6px;font-size:14.5px;font-weight:800;font-family:inherit;color:#fff;background:#2f9e5e;
+  border:none;border-radius:11px;padding:13px 20px;cursor:pointer;box-shadow:0 3px 9px rgba(47,158,94,.26)}
 .qs-go:hover{background:#278a51}
-.qs-alt{margin-top:20px;font-size:12.5px;color:#8a94a6}
-.qs-alt b{color:#5f6b7c}
-@media(max-width:600px){.qs-hero{padding:38px 18px}.qs-t{font-size:20px}.qs-steps{flex-direction:column;gap:7px}.qs-a{transform:rotate(90deg)}}
+.qs-go.alt{background:#4F46E5;box-shadow:0 3px 9px rgba(79,70,229,.26)}
+.qs-go.alt:hover{background:#4038c9}
+.qs-who{font-size:11.5px;color:#a8b1be;text-align:center}
+.qs-alt{margin-top:24px;font-size:12.5px;color:#8a94a6;line-height:1.7}
+.qs-alt b{color:#4F46E5;font-weight:700}
+@media(max-width:600px){.qs-hero{padding:32px 16px 26px}.qs-t{font-size:20px}.qs-two{flex-direction:column}.qs-card{max-width:none}}
+
+/* 공사 종류 고르기 */
+.st-box{max-width:560px}
+.st-list{display:flex;flex-direction:column;gap:9px;max-height:52vh;overflow-y:auto;padding:2px}
+.st-c{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;font-family:inherit;cursor:pointer;
+  background:#fff;border:1px solid #dfe5ee;border-radius:12px;padding:14px 16px}
+.st-c:hover{border-color:#2f9e5e;background:#f7fdf9}
+.st-l{font-size:15px;font-weight:800;color:#12141C}
+.st-d{font-size:12px;color:#5f6b7c}
+.st-p{font-size:11.5px;color:#8a94a6;line-height:1.6}
 
 /* 날짜 잡으러 가기 안내 */
 .qt-nudge{display:flex;align-items:center;gap:11px;background:#eef7f2;border:1px solid #cfe9db;
@@ -4475,27 +4490,33 @@ tr.divider td{background:#EEF0F3!important}
 #intro{position:fixed;inset:0;z-index:2147483647;background:#0E1420;display:flex;flex-direction:column;
   align-items:center;justify-content:center;overflow:hidden;
   transition:opacity .55s ease;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif}
-#intro.hide{opacity:0;pointer-events:none}
+#intro.hide{opacity:0;pointer-events:none;transition:opacity .45s ease .16s}
+#intro-stage.out{animation:introSlideOut .62s cubic-bezier(.55,0,.3,1) forwards}
+@keyframes introSlideOut{
+  0%{transform:translateX(0) scale(1);opacity:1;filter:blur(0)}
+  100%{transform:translateX(-26vw) scale(.94);opacity:0;filter:blur(3px)}}
+#intro-glow.out{opacity:0;transition:opacity .5s ease}
 #intro-glow{position:absolute;width:70vmin;height:70vmin;border-radius:50%;
   background:radial-gradient(circle, rgba(79,70,229,.28) 0%, rgba(79,70,229,0) 68%);
   opacity:0;transition:opacity .8s ease}
 #intro-glow.on{opacity:1}
-#intro-stage{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px}
+#intro-stage{position:relative;z-index:1;display:flex;flex-direction:row;align-items:center;gap:clamp(18px,3.4vmin,34px)}
+#intro-txt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  opacity:0;transform:translateX(-12px);transition:opacity .34s ease, transform .44s cubic-bezier(.2,1.25,.3,1)}
+#intro-txt.in{opacity:1;transform:none}
+@media(max-width:520px){#intro-stage{gap:16px}}
 #intro-stage.pulse{animation:introPulse .5s cubic-bezier(.2,1.3,.3,1)}
 @keyframes introPulse{0%{transform:scale(1)}40%{transform:scale(1.045)}100%{transform:scale(1)}}
 #intro-logo{width:clamp(120px,20vmin,168px);height:auto;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
-#intro-logo .ib{opacity:0;transform:scale(1.9);transform-origin:center;
-  transition:opacity .16s ease, transform .34s cubic-bezier(.18,1.5,.3,1)}
+#intro-logo .ib{opacity:0;transform:scale(1.6);transform-origin:center;
+  transition:opacity .2s ease, transform .42s cubic-bezier(.16,1.35,.3,1)}
 #intro-logo .ib.in{opacity:1;transform:scale(1)}
 #intro-word{font-size:clamp(34px,6.6vmin,58px);font-weight:900;letter-spacing:-.03em;line-height:1;display:flex}
-#intro-word span{opacity:0;transform:translateY(16px);display:inline-block;
-  transition:opacity .22s ease, transform .32s cubic-bezier(.2,1.35,.3,1)}
-#intro-word span.in{opacity:1;transform:none}
+#intro-word span{display:inline-block}
 #intro-word .iw1{color:#fff}
 #intro-word .iw2{color:#6366F1}
 #intro-sub{font-family:'IBM Plex Mono',monospace;font-size:clamp(9px,1.6vmin,12px);letter-spacing:.42em;
-  color:rgba(255,255,255,.5);opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
-#intro-sub.in{opacity:1;transform:none}
+  color:rgba(255,255,255,.5)}
 #intro-hint{position:absolute;bottom:11%;z-index:2;color:rgba(255,255,255,.62);font-size:13px;letter-spacing:.01em;
   opacity:0;transition:opacity .4s ease}
 #intro-hint.show{opacity:1;animation:introHint 1.5s ease-in-out infinite}
@@ -4509,8 +4530,10 @@ tr.divider td{background:#EEF0F3!important}
       <rect class="ib ib2" x="35" y="53" width="88" height="26" rx="13" fill="#ffffff" opacity=".55"/>
       <rect class="ib ib3" x="20" y="86" width="57" height="26" rx="13" fill="#4F46E5"/>
     </svg>
-    <div id="intro-word"><span class="iw1">공정</span><span class="iw2">온</span></div>
-    <div id="intro-sub">GONGJEONG&nbsp;ON</div>
+    <div id="intro-txt">
+      <div id="intro-word"><span class="iw1">공정</span><span class="iw2">온</span></div>
+      <div id="intro-sub">GONGJEONG&nbsp;ON</div>
+    </div>
   </div>
   <div id="intro-hint">🔊 화면을 눌러 시작</div>
   <audio id="intro-audio" preload="auto" playsinline>
@@ -4531,16 +4554,18 @@ tr.divider td{background:#EEF0F3!important}
   var stage=document.getElementById('intro-stage');
   var hint=document.getElementById('intro-hint');
   var bars=[].slice.call(intro.querySelectorAll('.ib'));
-  var w1=intro.querySelector('.iw1'), w2=intro.querySelector('.iw2'), sub=document.getElementById('intro-sub');
+  var w1=intro.querySelector('.iw1'), w2=intro.querySelector('.iw2');
   /* 사운드 타격 지점(초)에 맞춘 모션 큐 — 타·타·타 → 워드마크 → 마무리 */
+  var txt=document.getElementById('intro-txt');
+  /* 음원에서 재어 낸 강조음에 하나씩 맞춤
+     0.05 뚜룬 · 0.16 띠익 · 1.20 솨아(고음 스윕) · 2.30 딸깍(가장 큰 타) */
   var cues=[
-    [0.02, function(){ glow.classList.add('on'); bars[0].classList.add('in'); }],
-    [0.26, function(){ bars[1].classList.add('in'); }],
-    [0.46, function(){ bars[2].classList.add('in'); }],
-    [0.70, function(){ w1.classList.add('in'); }],
-    [0.98, function(){ w2.classList.add('in'); }],
-    [1.22, function(){ sub.classList.add('in'); }],
-    [2.05, function(){ stage.classList.remove('pulse'); void stage.offsetWidth; stage.classList.add('pulse'); }]
+    [0.05, function(){ glow.classList.add('on'); bars[0].classList.add('in'); }],
+    [0.16, function(){ bars[1].classList.add('in'); }],
+    [1.20, function(){ bars[2].classList.add('in'); }],
+    [2.30, function(){ txt.classList.add('in');
+                       stage.classList.remove('pulse'); void stage.offsetWidth; stage.classList.add('pulse'); }],
+    [3.10, function(){ stage.classList.add('out'); glow.classList.add('out'); }]
   ];
   var started=false, ended=false, timers=[];
   function finish(){
@@ -4561,7 +4586,7 @@ tr.divider td{background:#EEF0F3!important}
     if(started)return; started=true; hint.classList.remove('show');
     /* 각 모션 큐를 시작 시점 기준 setTimeout으로 예약 (rAF 스로틀링에 강함) */
     for(var k=0;k<cues.length;k++){ (function(c){ timers.push(setTimeout(function(){ try{c[1]();}catch(e){} }, Math.round(c[0]*1000))); })(cues[k]); }
-    timers.push(setTimeout(finish, 3200));
+    timers.push(setTimeout(finish, 3560));
   }
   function waitGesture(){
     hint.classList.add('show');
@@ -5752,6 +5777,11 @@ function renderAll(){
 function setTab(newTab){
   // 셀프 모드는 팀원 탭 차단
   if(isSelf() && newTab==='members'){ openUpgrade(); return; }
+  // 공정을 안 고르고 나가면 방금 만든 빈 프로젝트는 없앤다
+  if(typeof _qtDropTemp==='function' && _qtTempSi!==null){
+    qmClose(true);
+    if(_qtDropTemp() && (newTab==='ledger'||newTab===String(_qtTempSi))) { S.tab='ledger'; renderTabs(); dnRerender(); return; }
+  }
   // 숫자로 들어와도 문자열로 통일 (탭 강조 비교가 문자열 기준)
   if(newTab!=='all' && newTab!=='contacts') newTab=String(newTab);
   if(newTab===S.tab)return;
@@ -9530,22 +9560,76 @@ function renderLedger(si){
 function renderQuoteStart(){
   const unit=isSelf()?'공간':'프로젝트';
   return '<div class="lg-page"><div class="qs-hero">'
-    + '<div class="qs-ic">🧾</div>'
-    + '<div class="qs-t">견적서부터 시작해 보세요</div>'
-    + '<div class="qs-d">공정을 골라 견적을 만들면 <b>'+unit+'과 일정표가 저절로 만들어집니다.</b><br>'
-    +   '따로 '+unit+'을 먼저 만드실 필요가 없습니다.</div>'
-    + '<div class="qs-steps">'
-    +   '<div class="qs-s"><span class="qs-n">1</span>공정 고르기</div>'
-    +   '<div class="qs-a">→</div>'
-    +   '<div class="qs-s"><span class="qs-n">2</span>견적서 적기</div>'
-    +   '<div class="qs-a">→</div>'
-    +   '<div class="qs-s"><span class="qs-n">3</span>일정표에 날짜 칠하기</div>'
+    + '<div class="qs-t">어떻게 시작할까요?</div>'
+    + '<div class="qs-d">둘 다 <b>'+unit+'과 일정표가 함께 만들어집니다.</b> 나중에 서로 오갈 수 있으니 편한 쪽으로 고르십시오.</div>'
+    + '<div class="qs-two">'
+    /* ① 견적서부터 */
+    +   '<div class="qs-card">'
+    +     '<div class="qs-ic">🧾</div>'
+    +     '<div class="qs-ct">견적서부터</div>'
+    +     '<div class="qs-cd"><b>얼마 드는지</b>부터 잡고 싶을 때</div>'
+    +     '<div class="qs-flow">공정 고르기 → 금액 적기 → 일정표 자동</div>'
+    +     '<button class="qs-go" onclick="qtStartNew()">견적서 만들기</button>'
+    +     '<div class="qs-who">공사를 맡기시는 분 · 견적을 내는 분</div>'
+    +   '</div>'
+    /* ② 일정표부터 */
+    +   '<div class="qs-card">'
+    +     '<div class="qs-ic">📅</div>'
+    +     '<div class="qs-ct">일정표부터</div>'
+    +     '<div class="qs-cd"><b>언제 뭘 하는지</b>부터 잡고 싶을 때</div>'
+    +     '<div class="qs-flow">공사 종류 고르기 → 작업이 저절로 채워짐</div>'
+    +     '<button class="qs-go alt" onclick="schedStart()">일정표 만들기</button>'
+    +     '<div class="qs-who">공정을 잘 모르셔도 됩니다</div>'
+    +   '</div>'
     + '</div>'
-    + '<button class="qs-go" onclick="qtStartNew()">＋ 견적서 만들기</button>'
-    + '<div class="qs-alt">이미 '+unit+'부터 만드시려면 위 <b>＋ '+unit+'</b> 을 눌러 주세요.</div>'
+    + '<div class="qs-alt">공정이 뭔지 모르시겠으면 <b>일정표부터</b>를 고르십시오. 공사 종류만 고르면 필요한 작업이 알아서 들어갑니다.</div>'
     + '</div></div>';
 }
+/* ── 일정표부터 시작 — 공사 종류만 고르면 작업이 채워집니다 ── */
+function schedStart(){
+  const list=(typeof PROC_TEMPLATES!=='undefined'?PROC_TEMPLATES:[])
+    .filter(function(t){ return t.key!=='blank' && (isSelf()? !!t.self : !t.self); });
+  qmClose(true);
+  const box=document.createElement('div');
+  box.id='qm'; box.className='qm';
+  box.innerHTML='<div class="qm-box st-box">'
+    + '<div class="qm-h"><div class="qm-t">어떤 공사인가요?</div>'
+    +   '<div class="qm-d">고르시면 그 공사에 <b>흔히 들어가는 작업</b>이 일정표에 한 번에 채워집니다. 나중에 빼거나 더할 수 있습니다.</div></div>'
+    + '<div class="st-list">'
+    +   list.map(function(t){
+          return '<button type="button" class="st-c" onclick="schedPick(\''+gbQ(t.key)+'\')">'
+            + '<span class="st-l">'+esc(t.label)+'</span>'
+            + '<span class="st-d">'+esc(t.desc||'')+'</span>'
+            + '<span class="st-p">'+esc((t.procs||[]).filter(Boolean).join(' · '))+'</span>'
+            + '</button>';
+        }).join('')
+    + '</div>'
+    + '<div class="qm-f"><div class="qm-f-d">고른 뒤에 얼마든지 고칠 수 있습니다</div>'
+    +   '<button class="qt-b" onclick="qmClose()">닫기</button>'
+    +   '<button class="qt-b" onclick="schedPick(\'\')">직접 적겠습니다</button></div></div>';
+  box.onclick=function(ev){ if(ev.target===box) qmClose(); };
+  document.body.appendChild(box);
+}
+function schedPick(key){
+  const t=(typeof PROC_TEMPLATES!=='undefined'?PROC_TEMPLATES:[]).find(function(x){ return x.key===key; });
+  const procs=(t&&t.procs)?t.procs.filter(Boolean).slice():[];
+  qmClose(true); _qtTempSi=null;
+  if(!Array.isArray(S.sites)) S.sites=[];
+  S.sites.push({
+    name:'', addr:'', pw:'', key:'', memo:'',
+    procs: procs.length?procs:[...DEFAULT_PROCS],
+    procColors:{}, newProcName:'', selectedProcs:[], cells:{},
+    ldMig:'v3', ledger:[], quotes:[], budget:'', procAuto:true
+  });
+  const si=S.sites.length-1;
+  persist();
+  S.tab=String(si); _ledgerTab=si;
+  renderTabs(); dnRerender();
+  showToast(procs.length ? (procs.length+'개 작업으로 일정표를 만들었습니다') : '빈 일정표를 만들었습니다');
+}
+
 /* 견적을 만들면서 프로젝트도 함께 만듭니다 */
+let _qtTempSi=null;   /* 견적서 만들기로 방금 만든 프로젝트 (아직 확정 전) */
 function qtStartNew(){
   if(!Array.isArray(S.sites)) S.sites=[];
   S.sites.push({
@@ -9554,10 +9638,30 @@ function qtStartNew(){
     ldMig:'v3', ledger:[], quotes:[], budget:'', procAuto:true
   });
   const si=S.sites.length-1;
+  _qtTempSi=si;
   _ledgerTab=si;
   _lgMode='quote';
-  persist(); dnRerender(); renderTabs();
+  dnRerender(); renderTabs();
   setTimeout(function(){ qmOpen(si,'new'); },0);
+}
+/* 손도 안 댄 임시 프로젝트는 지웁니다 — 공정을 고르기 전엔 아무것도 만들지 않습니다 */
+function _qtDropTemp(){
+  if(_qtTempSi===null) return false;
+  const si=_qtTempSi; _qtTempSi=null;
+  const st=S.sites[si];
+  if(!st) return false;
+  const untouched =
+      !String(st.name||'').trim()
+   && !((st.quotes||[]).length)
+   && !((st.ledger||[]).length)
+   && !Object.keys(st.cells||{}).length
+   && !((st.procs||[]).some(function(p){ return String((typeof p==='string'?p:(p&&p.name))||'').trim(); }));
+  if(!untouched) return false;
+  S.sites.splice(si,1);
+  if(_ledgerTab===si) _ledgerTab=null;
+  if(String(S.tab)===String(si)) S.tab='ledger';
+  dnRerender(); renderTabs();
+  return true;
 }
 /* 공사명을 적으면 프로젝트 이름이 아직 비어 있을 때 따라갑니다 */
 function qtSyncSiteName(si){
@@ -9904,7 +10008,7 @@ function _qmSiteProcs(si){
 function qtNew(si){
   const procs=_qmSiteProcs(si);
   if(!procs.length){ qmOpen(si,'new'); return; }
-  qmClose();
+  qmClose(true);
   const box=document.createElement('div');
   box.id='qm'; box.className='qm';
   box.innerHTML='<div class="qm-box qs-box">'
@@ -9925,8 +10029,8 @@ function qtNew(si){
   box.onclick=function(ev){ if(ev.target===box) qmClose(); };
   document.body.appendChild(box);
 }
-function qtNewFromSite(si){ const p=_qmSiteProcs(si); qmClose(); qtCreate(si,p); }
-function qtNewEmpty(si){ qmClose(); qtCreate(si,[]); }
+function qtNewFromSite(si){ const p=_qmSiteProcs(si); qmClose(true); _qtTempSi=null; qtCreate(si,p); }
+function qtNewEmpty(si){ qmClose(true); _qtTempSi=null; qtCreate(si,[]); }
 /* 일정표에서 그 작업에 칠한 색 — 견적서와 일정표를 같은 색으로 잇는다 */
 function _qtDotColor(si,cat){
   const st=S.sites[si]; if(!st) return '#c8d0da';
@@ -9939,7 +10043,7 @@ function _qtDotColor(si,cat){
 
 function qmOpen(si,mode){
   _qmSi=si; _qmMode=(mode==='add')?'add':'new'; _qmPick=[]; _qmCustom=[];
-  qmClose();
+  qmClose(true);
   const box=document.createElement('div');
   box.id='qm'; box.className='qm';
   box.innerHTML='<div class="qm-box">'
@@ -9957,7 +10061,10 @@ function qmOpen(si,mode){
   document.body.appendChild(box);
   qmPaint();
 }
-function qmClose(){ const b=document.getElementById('qm'); if(b) b.remove(); }
+function qmClose(keep){
+  const b=document.getElementById('qm'); if(b) b.remove();
+  if(!keep && typeof _qtDropTemp==='function') _qtDropTemp();
+}
 function qmToggle(c){
   const i=_qmPick.indexOf(c);
   if(i>=0) _qmPick.splice(i,1); else _qmPick.push(c);
@@ -9993,10 +10100,10 @@ function qmPaint(){
     ? (_qmPick.length+'개 공정으로 '+(_qmMode==='add'?'더하기':'만들기'))
     : (_qmMode==='add'?'더하기':'견적 만들기');
 }
-function qmSkip(){ const si=_qmSi; qmClose(); qtCreate(si,[]); }
+function qmSkip(){ const si=_qmSi; qmClose(true); _qtTempSi=null; qtCreate(si,[]); }
 function qmDone(){
   const si=_qmSi, mode=_qmMode, pick=_qmPick.slice();
-  qmClose();
+  qmClose(true); _qtTempSi=null;
   if(mode==='add'){
     const q=_qtCurQ(si); if(!q) return;
     pick.forEach(function(c){ q.groups.push({cat:c, items:[_qtBlankItem()]}); });
