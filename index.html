@@ -339,6 +339,8 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .gb-tk{font-size:12px;font-weight:700;color:#7a8494;margin-right:2px}
 .gb-view{font-size:12.5px;font-weight:700;color:#59636f;background:#eef1f6;border:none;border-radius:8px;padding:7px 13px;cursor:pointer;font-family:inherit}
 .gb-view.on{background:#12141C;color:#fff}
+.gb-view.xl{margin-left:10px;background:#fff;border:1px solid #dfe5ee;color:#3d4757}
+.gb-view.xl:hover{border-color:#2f9e5e;color:#1f6b45;background:#f7fdf9}
 .gb-hint{margin-left:auto;font-size:12px;color:#5f6b7c;font-weight:600}
 
 /* 엑셀 표 */
@@ -673,8 +675,17 @@ input[data-dl]:focus{background-image:linear-gradient(45deg,transparent 50%,#2f9
 .qc-b:hover{background:#fff;border-color:var(--pc,#2f9e5e);color:#12141C}
 .qc-b.d:hover{border-color:#DC2626;color:#DC2626;background:#fff}
 .qc-wrap{overflow-x:auto}
-.qc-tbl{min-width:760px}
-.qc-row{display:grid;grid-template-columns:38px minmax(160px,1.3fr) minmax(95px,0.9fr) 62px 66px 98px 116px minmax(95px,0.9fr) 34px;
+.qc-imgc{padding:4px}
+.qc-img{width:100%;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:14px;color:#c8d0da;background:#f4f7fb;border:1.5px dashed #dfe5ee;border-radius:7px;
+  overflow:hidden;transition:border-color .14s, background .14s}
+.qc-img:hover{border-color:var(--pc,#2f9e5e);color:var(--pc,#2f9e5e);background:#fff}
+.qc-img.has{border-style:solid;border-color:#e3e9f1;background:#fff}
+.qc-img.has img{width:100%;height:100%;object-fit:cover;display:block}
+.qc-img.up{border-color:var(--pc,#2f9e5e);color:var(--pc,#2f9e5e);background:#fff}
+.qc-img.drop{border-color:var(--pc,#2f9e5e);border-style:solid;background:#eef7f2}
+.qc-tbl{min-width:820px}
+.qc-row{display:grid;grid-template-columns:34px 46px minmax(150px,1.3fr) minmax(90px,0.9fr) 58px 62px 94px 112px minmax(90px,0.9fr) 32px;
   align-items:stretch;border-bottom:1px solid #f2f5fa}
 .qc-row:last-child{border-bottom:none}
 .qc-hd{background:#f4f7fb;border-bottom:1.5px solid #dfe5ee}
@@ -4510,7 +4521,10 @@ tr.divider td{background:#EEF0F3!important}
 #intro-logo{width:clamp(120px,20vmin,168px);height:auto;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
 #intro-logo .ib{opacity:0;transform:scale(1.6);transform-origin:center;
   transition:opacity .2s ease, transform .42s cubic-bezier(.16,1.35,.3,1)}
-#intro-logo .ib.in{opacity:1;transform:scale(1)}
+/* 앱 로고와 같은 짙기 — 첫 막대 .95, 가운데 .55, 아래 파랑 */
+#intro-logo .ib1.in{opacity:.95;transform:scale(1)}
+#intro-logo .ib2.in{opacity:.55;transform:scale(1)}
+#intro-logo .ib3.in{opacity:1;transform:scale(1)}
 #intro-word{font-size:clamp(34px,6.6vmin,58px);font-weight:900;letter-spacing:-.03em;line-height:1;display:flex}
 #intro-word span{display:inline-block}
 #intro-word .iw1{color:#fff}
@@ -4526,7 +4540,7 @@ tr.divider td{background:#EEF0F3!important}
   <div id="intro-glow"></div>
   <div id="intro-stage">
     <svg id="intro-logo" viewBox="0 0 132 132" fill="none" aria-hidden="true">
-      <rect class="ib ib1" x="9"  y="20" width="70" height="26" rx="13" fill="#ffffff"/>
+      <rect class="ib ib1" x="9"  y="20" width="70" height="26" rx="13" fill="#ffffff" opacity=".95"/>
       <rect class="ib ib2" x="35" y="53" width="88" height="26" rx="13" fill="#ffffff" opacity=".55"/>
       <rect class="ib ib3" x="20" y="86" width="57" height="26" rx="13" fill="#4F46E5"/>
     </svg>
@@ -8974,7 +8988,7 @@ function renderSettle(si){
 const GB_SUGGEST=['철거','설비·배관','전기','목공','창호(샷시)','타일','욕실','도배','바닥재','도장·필름','조명','가구·붙박이','폐기물·운반','인건비','기타'];
 const GB_COLORS=['#8C6D46','#0E7490','#B45309','#7C3AED','#2563EB','#0891B2','#0D9488','#DB2777','#CA8A04','#9333EA','#EA580C','#4F46E5','#57606A','#DC2626','#64748B'];
 const GB_UNCAT='미분류';
-const GB_UNITS=['㎡','평','m','장','롤','개','개소','통','자','식','말','포','회','명','M/D','일','대','세트','차'];
+const GB_UNITS=['㎡','㎥','평','m','장','롤','개','개소','통','자','식','말','포','회','명','M/D','일','대','세트','차','ton','box','단','조'];
 /* 종류 — 분류(공정)와 달리 회계상 성격이라 4가지로 고정한다. 안 골라도 저장은 된다. */
 const GB_KINDS=['자재비','인건비','외주비','경비'];
 const GB_KCOL={'자재비':'#2563EB','인건비':'#B45309','외주비':'#7C3AED','경비':'#0D9488'};
@@ -9535,6 +9549,7 @@ function renderLedger(si){
     + '<button class="gb-view'+(_gbSort==='input'?' on':'')+'" onclick="setGbSort(\'input\')">적은 순</button>'
     + '<button class="gb-view'+(_gbSort==='cat'?' on':'')+'" onclick="setGbSort(\'cat\')">분류별</button>'
     + '<button class="gb-view'+(_gbSort==='date'?' on':'')+'" onclick="setGbSort(\'date\')">날짜별</button>'
+    + '<button class="gb-view xl" onclick="gbXlsxOpen('+si+')">📗 엑셀로 내보내기</button>'
     + '<span class="gb-hint">칸을 눌러 바로 고치고, 맨 아랫줄에 새로 적으세요</span></div>';
 
   const sheet='<div class="gb-sheetwrap"><div class="gb-sheet" onpaste="gbSheetPaste('+si+',event)">'
@@ -9675,6 +9690,209 @@ function qtSyncSiteName(si){
 /* ══════════ 공사대금 탭 — 프로: 프로젝트별 서브탭 / 셀프: 단일 ══════════ */
 let _ledgerTab=null;   // 'all' 또는 사이트 인덱스(number)
 function setLedgerTab(v){ _ledgerTab=(v==='all')?'all':parseInt(v); dnRerender(); }
+/* ── 지출은 대표(팀 만든 분)만 봅니다 ─────────────
+   팀원에게는 견적만 보이고 지출 화면은 아예 그리지 않습니다.
+   혼자 쓰시거나 셀프 모드면 제한이 없습니다. */
+function canSeeSpend(){
+  if(isSelf()) return true;          /* 셀프는 혼자 쓰는 공간 */
+  if(!TEAM || !USER) return true;    /* 로그인 전에는 그냥 보여 줍니다 */
+  return MY_ROLE==='owner' || isOwner();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   지출 내역 엑셀 — 대표만 씁니다
+   ══════════════════════════════════════════════════════════════ */
+function _gbXlName(si){
+  const st=S.sites[si]||{};
+  const base=(String(st.name||'').trim()||'지출내역');
+  const d=new Date();
+  const ymd=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  return _xlSafeName(base+'_지출내역_'+ymd);
+}
+function gbXlsxOpen(si){
+  if(!canSeeSpend()){ showToast('지출 내역은 대표님만 보실 수 있습니다'); return; }
+  const l=_gbList(si)||[];
+  if(!l.length){ showToast('아직 적으신 지출이 없습니다'); return; }
+  qmClose(true);
+  const box=document.createElement('div');
+  box.id='qm'; box.className='qm';
+  box.innerHTML='<div class="qm-box xl-box">'
+    + '<div class="qm-h"><div class="qm-t">지출 내역 엑셀로 내보내기</div>'
+    +   '<div class="qm-d"><b>'+l.length+'줄</b>을 엑셀로 만듭니다. 공정별 소계와 종류별 합계가 함께 들어갑니다.</div></div>'
+    + '<div class="xl-warn">실제로 나간 돈이 담긴 파일입니다. 다루실 때 조심해 주십시오.</div>'
+    + '<div class="xl-body">'
+    +   '<label class="co-l">파일 이름</label>'
+    +   '<div class="xl-row"><input class="co-in" id="xl-name" value="'+esc(_gbXlName(si))+'" spellcheck="false"'
+    +     ' onkeydown="if(event.key===\'Enter\'&&!event.isComposing){event.preventDefault();gbXlsxGo('+si+')}">'
+    +     '<span class="xl-ext">.xlsx</span></div>'
+    + '</div>'
+    + '<div class="qm-f"><div class="qm-f-d" id="xl-msg"></div>'
+    +   '<button class="qt-b" onclick="qmClose()">닫기</button>'
+    +   '<button class="qt-b p" id="xl-go" onclick="gbXlsxGo('+si+')">내려받기</button></div></div>';
+  box.onclick=function(ev){ if(ev.target===box) qmClose(); };
+  document.body.appendChild(box);
+  const el=document.getElementById('xl-name');
+  if(el){ el.focus(); el.select(); }
+}
+async function gbXlsxGo(si){
+  const nameEl=document.getElementById('xl-name');
+  const fname=_xlSafeName(nameEl?nameEl.value:'') || _gbXlName(si);
+  const btn=document.getElementById('xl-go'), msg=document.getElementById('xl-msg');
+  const say=function(t){ if(msg) msg.textContent=t; };
+  if(btn){ btn.disabled=true; btn.textContent='만드는 중...'; }
+  try{
+    say('엑셀 도구를 불러오는 중입니다...');
+    await _xlLoad();
+    say('표를 만드는 중입니다...');
+    const buf=await _gbBuildXlsx(si);
+    const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=fname+'.xlsx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+    qmClose();
+    showToast('"'+fname+'.xlsx" 를 내려받았습니다');
+  }catch(e){
+    say(String((e&&e.message)||e));
+    if(btn){ btn.disabled=false; btn.textContent='다시 시도'; }
+  }
+}
+
+async function _gbBuildXlsx(si){
+  const st=S.sites[si]||{}, co=S.company||{};
+  const rows=(_gbList(si)||[]).slice();
+  const wb=new ExcelJS.Workbook();
+  wb.creator=(co.name||'공정온'); wb.created=new Date();
+
+  const FN='맑은 고딕';
+  const INK='FF111827';
+  const HAIR={style:'hair',color:{argb:'FF9CA3AF'}};
+  const THIN={style:'thin',color:{argb:'FF9CA3AF'}};
+  const HB={top:HAIR,left:HAIR,bottom:HAIR,right:HAIR};
+  const TB={top:THIN,left:THIN,bottom:THIN,right:THIN};
+  const fl=function(a){ return {type:'pattern',pattern:'solid',fgColor:{argb:a}}; };
+  const HEAD=fl('FFE4E4E4'), SUBT=fl('FFFFFB95'), TOTAL=fl('FFD9D9D9'), BAND=fl('FFDAEEF4');
+  const F=function(sz,bold,color){ return {name:FN,size:sz,bold:!!bold,color:{argb:color||INK}}; };
+  const M ={vertical:'middle'};
+  const MC={vertical:'middle',horizontal:'center',wrapText:true};
+  const ML={vertical:'middle',horizontal:'left',wrapText:true};
+  const MR={vertical:'middle',horizontal:'right'};
+  const WON='#,##0';
+  const NC=9;   /* 날짜 · 공정 · 종류 · 거래처 · 내용 · 수량 · 단위 · 금액 · 지불 */
+
+  const ws=wb.addWorksheet('지출내역',{pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,
+    margins:{left:0.4,right:0.4,top:0.5,bottom:0.4,header:0.2,footer:0.2}}});
+  ws.columns=[{width:12},{width:18},{width:9},{width:16},{width:26},{width:8},{width:7},{width:15},{width:9}];
+
+  const put=function(r,c,v,o){
+    o=o||{};
+    const cell=ws.getCell(r,c);
+    cell.value=(v===''||v===undefined||v===null)?null:v;
+    cell.font=o.font||F(9.5);
+    cell.border=(o.border===null)?undefined:(o.border||TB);
+    cell.alignment=o.align||M;
+    if(o.fill) cell.fill=o.fill;
+    if(typeof v==='number'){ cell.numFmt=WON; if(!o.align) cell.alignment=MR; }
+    return cell;
+  };
+  const band=function(r,label,val,o){
+    o=o||{};
+    ws.mergeCells(r,1,r,NC-2);
+    put(r,1,label,{font:o.font||F(10,true),align:MC,fill:o.fill});
+    put(r,NC-1,val,{font:o.font||F(10,true),fill:o.fill});
+    put(r,NC,'',{fill:o.fill});
+    ws.getRow(r).height=o.h||20;
+  };
+
+  const N=function(v){ return _n(v)||0; };
+  const total=rows.reduce(function(a,e){ return a+N(e.amount); },0);
+  const paid =rows.reduce(function(a,e){ return a+(e.paid?N(e.amount):0); },0);
+  const KINDS=(typeof GB_KINDS!=='undefined')?GB_KINDS:['자재비','인건비','외주비','경비'];
+  const budget=N(st.budget);
+  let r=1;
+
+  /* 제목 */
+  ws.mergeCells(r,1,r,NC);
+  put(r,1,'지  출  내  역  서',{font:F(18,true),align:MC,border:null});
+  ws.getRow(r).height=38; r++;
+  ws.mergeCells(r,1,r,NC);
+  put(r,1,[(st.name||'').trim(), (co.name||'').trim(), _ymdToday()].filter(Boolean).join('   |   '),
+     {font:F(10,false,'FF64748B'),align:MC,border:null});
+  ws.getRow(r).height=20; r+=2;
+
+  /* 요약 — 왼쪽은 돈 흐름, 오른쪽은 종류별 */
+  const sumTop=r;
+  const left=[['예    산',budget],['지금까지 쓴 돈',total],['지 불 완 료',paid],['아직 안 낸 돈',total-paid]];
+  if(budget) left.push(['남 은  예 산',budget-total]);
+  left.forEach(function(c,i){
+    put(r+i,1,c[0],{font:F(9.5,true),align:MC,fill:HEAD});
+    ws.mergeCells(r+i,2,r+i,3);
+    put(r+i,2,c[1],{font:F(11,true)});
+    ws.getRow(r+i).height=21;
+  });
+  const kinds=KINDS.map(function(k){
+    return [k, rows.reduce(function(a,e){ return a+((String(e.kind||'').trim()===k)?N(e.amount):0); },0)];
+  });
+  const etc=rows.reduce(function(a,e){ return a+(String(e.kind||'').trim()?0:N(e.amount)); },0);
+  if(etc) kinds.push(['미 분 류',etc]);
+  kinds.forEach(function(c,i){
+    const rr=sumTop+i;
+    put(rr,5,c[0],{font:F(9.5,true),align:MC,fill:BAND});
+    ws.mergeCells(rr,6,rr,7);
+    put(rr,6,c[1]||null,{font:F(10.5,true)});
+    ws.getRow(rr).height=21;
+  });
+  r = sumTop + Math.max(left.length, kinds.length) + 1;
+
+  /* 표 머리글 */
+  const HD=['날짜','계좌','종류','거래처','내       용','수량','단위','금       액','지불'];
+  for(let i=0;i<NC;i++) put(r,i+1,HD[i],{font:F(10,true),align:MC,fill:HEAD});
+  ws.getRow(r).height=24;
+  ws.views=[{state:'frozen',ySplit:r}];
+  r++;
+
+  /* 공정별로 묶어서 */
+  const order=[], byCat={};
+  rows.forEach(function(e){
+    const c=(String(e.cat||'').trim())||'미분류';
+    if(!byCat[c]){ byCat[c]=[]; order.push(c); }
+    byCat[c].push(e);
+  });
+  order.forEach(function(cat){
+    const list=byCat[cat];
+    const tint=fl(_xlTint((typeof gbColor==='function'?gbColor(cat):'#2f9e5e'),0.86));
+    ws.mergeCells(r,1,r,NC);
+    put(r,1,'  '+cat+'   ('+list.length+'줄)',{font:F(10.5,true),align:ML,fill:tint});
+    ws.getRow(r).height=22; r++;
+    list.forEach(function(e){
+      put(r,1,String(e.date||''),{align:MC});
+      put(r,2,String(e.acct||''),{align:ML,font:F(8.5,false,'FF64748B')});
+      put(r,3,String(e.kind||''),{align:MC});
+      put(r,4,String(e.vendor||''),{align:ML});
+      put(r,5,String(e.name||''),{align:ML});
+      put(r,6,_n(e.qty)||null,{align:MC});
+      put(r,7,String(e.unit||''),{align:MC});
+      put(r,8,N(e.amount)||null,{});
+      put(r,9,(e.paid?'지불함':'미지불'),{align:MC,font:F(9,true,e.paid?'FF1F6B45':'FFB45309')});
+      ws.getRow(r).height=19; r++;
+    });
+    const sub=list.reduce(function(a,e){ return a+N(e.amount); },0);
+    ws.mergeCells(r,1,r,7);
+    put(r,1,'소    계',{font:F(9.5,true),align:MC,fill:SUBT});
+    put(r,8,sub,{font:F(9.5,true),fill:SUBT});
+    put(r,9,'',{fill:SUBT});
+    ws.getRow(r).height=20; r+=2;
+  });
+
+  band(r,'지 출 합 계',total,{fill:TOTAL,h:24}); r++;
+  band(r,'지 불 완 료',paid,{font:F(9.5)}); r++;
+  band(r,'아직 안 낸 돈',total-paid,{font:F(9.5)}); r++;
+  if(budget){ band(r,'예 산 대 비  남은 돈',budget-total,{fill:BAND}); r++; }
+
+  return await wb.xlsx.writeBuffer();
+}
+
 function renderLedgerTab(){
   const sites=S.sites||[];
   const unit=isSelf()?'공간':'프로젝트';
@@ -9685,9 +9903,13 @@ function renderLedgerTab(){
     if(_ledgerTab!=='all' && (isNaN(_ledgerTab)||_ledgerTab<0||_ledgerTab>=sites.length)) _ledgerTab='all';
   } else { _ledgerTab=0; }
 
+  if(_lgMode==='spend' && !canSeeSpend()) _lgMode='quote';
+  if(multi && _ledgerTab==='all' && !canSeeSpend()) _ledgerTab=0;
   let subbar='';
   if(multi){
-    let btns='<button class="lg-sub'+(_ledgerTab==='all'?' on':'')+'" onclick="setLedgerTab(\'all\')">전체 합계</button>';
+    let btns = canSeeSpend()
+      ? '<button class="lg-sub'+(_ledgerTab==='all'?' on':'')+'" onclick="setLedgerTab(\'all\')">전체 합계</button>'
+      : '';
     sites.forEach(function(s,i){
       const sc=SITE_COLORS[i%SITE_COLORS.length];
       const nm=(s.name||'').trim()||('프로젝트 '+(i+1));
@@ -9700,7 +9922,9 @@ function renderLedgerTab(){
     : ( _lgMode==='quote' ? renderQuoteView(csi) : renderLedger(csi) );
   return '<div class="lg-page">'
     + '<div class="lg-head"><div class="lg-title">🧾 공사대금</div>'
-    + '<div class="lg-desc"><b>받을 돈</b>은 견적에, <b>쓴 돈</b>은 지출에 적으시면 됩니다. 견적 합계는 그대로 지출 화면의 <b>예산</b>으로 넘길 수 있습니다.</div></div>'
+    + '<div class="lg-desc">'+(canSeeSpend()
+        ? '<b>받을 돈</b>은 견적에, <b>쓴 돈</b>은 지출에 적으시면 됩니다. 견적 합계는 그대로 지출 화면의 <b>예산</b>으로 넘길 수 있습니다.'
+        : '고객에게 드릴 <b>견적서</b>를 만드는 곳입니다. 실제로 나간 돈은 대표님만 보실 수 있습니다.')+'</div></div>'
     + subbar
     + ((multi && _ledgerTab==='all') ? '' : lgModeBar(csi))
     + '<div class="lg-body">'+body+'</div></div>';
@@ -9752,7 +9976,10 @@ function renderLedgerAll(){
 let _lgMode='spend';        // 'quote' | 'spend'
 let _qtCur={};              // 사이트 인덱스 → 선택한 견적 id
 
-function setLgMode(m){ _lgMode=(m==='quote')?'quote':'spend'; dnRerender(); }
+function setLgMode(m){
+  if(m==='spend' && !canSeeSpend()){ showToast('지출 내역은 대표님만 보실 수 있습니다'); return; }
+  _lgMode=(m==='quote')?'quote':'spend'; dnRerender();
+}
 function qtRe(){
   try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(_){}
   setTimeout(function(){ dnRerender(); },0);
@@ -10116,14 +10343,17 @@ function qmDone(){
 /* ── 그리기 ── */
 function lgModeBar(si){
   const qn=_qtList(si).length, ln=_gbList(si).length;
-  return '<div class="lg-mode">'
+  let h='<div class="lg-mode">'
     + '<button class="lg-mode-b'+(_lgMode==='quote'?' on':'')+'" onclick="setLgMode(\'quote\')">견적'
-    +   (qn?'<span class="lg-mode-n">'+qn+'</span>':'')+'</button>'
-    + '<button class="lg-mode-b'+(_lgMode==='spend'?' on':'')+'" onclick="setLgMode(\'spend\')">지출'
-    +   (ln?'<span class="lg-mode-n">'+ln+'</span>':'')+'</button>'
-    + '</div>';
+    +   (qn?'<span class="lg-mode-n">'+qn+'</span>':'')+'</button>';
+  if(canSeeSpend()){
+    h+= '<button class="lg-mode-b'+(_lgMode==='spend'?' on':'')+'" onclick="setLgMode(\'spend\')">지출'
+      +   (ln?'<span class="lg-mode-n">'+ln+'</span>':'')+'</button>';
+  }
+  return h+'</div>';
 }
 function qtCmpHtml(si){
+  if(!canSeeSpend()) return '';   /* 실제 지출은 대표만 봅니다 */
   const q=_qtCurQ(si);
   const est=_qtGrand(q), act=_gbSum(si);
   const pct=est>0?Math.min(100,Math.round(act/est*100)):0;
@@ -10144,7 +10374,7 @@ function _qtTaskBase(cat){
   if(!p || !(p.tasks||[]).length) return null;
   return {cat:p.cat, items:p.tasks};
 }
-/* 예전에 이 공정으로 적으신 품명을 많이 쓴 순서로 */
+/* 예전에 이 공정으로 적으신 내용을 많이 쓴 순서로 */
 function _qtUsedNames(cat){
   const c=String(cat||'').trim(); if(!c) return [];
   const cnt={}, unit={};
@@ -10180,9 +10410,9 @@ function _qtTaskList(cat){
   if(base) base.items.forEach(function(x){ if(!seen[x.n]){ seen[x.n]=1; out.push(x); } });
   return out;
 }
-/* 품명 칸에서 쓸 목록 id — 공정마다 하나 */
+/* 내용 칸에서 쓸 목록 id — 공정마다 하나 */
 function _qtTaskListId(si,gi){ return 'qt-t-'+si+'-'+gi; }
-/* 품명을 고르면 단위가 비어 있을 때만 채워 준다 */
+/* 내용을 고르면 단위를 맞춰 준다 */
 function qtNameIn(si,gi,ii,val){
   qtItemUp(si,gi,ii,'n',val);
   const q=_qtCurQ(si); if(!q) return;
@@ -10199,14 +10429,158 @@ function qtNameIn(si,gi,ii,val){
   if(el) el.value=hit.u;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   견적 항목 사진 — 마감재가 어떤 제품인지 보여 주는 자리
+   사진을 끌어다 놓거나, 칸을 눌러 고르거나, 그 줄에서 Ctrl+V 로 붙입니다.
+   저장 방식은 영수증 사진과 같습니다 (긴 변 1400px JPEG → Supabase Storage).
+   ══════════════════════════════════════════════════════════════ */
+function _qtItemAt(si,gi,ii){
+  const q=_qtCurQ(si); if(!q) return null;
+  const g=(q.groups||[])[gi]; if(!g) return null;
+  return (g.items||[])[ii]||null;
+}
+function qtPhotoClick(si,gi,ii){
+  const it=_qtItemAt(si,gi,ii); if(!it) return;
+  if(it.img) qtPhotoOpen(si,gi,ii); else qtPhotoPick(si,gi,ii);
+}
+function qtPhotoPick(si,gi,ii){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange=function(){ if(inp.files&&inp.files[0]) qtPhotoUp(si,gi,ii,inp.files[0]); };
+  inp.click();
+}
+async function qtPhotoUp(si,gi,ii,f){
+  const it=_qtItemAt(si,gi,ii); if(!it) return;
+  if(!TEAM||!USER){ alert('사진은 로그인한 뒤에 올릴 수 있습니다.'); return; }
+  if(!/^image\//.test(f.type||'')){ alert('사진 파일만 올릴 수 있습니다. (JPG · PNG · HEIC)'); return; }
+  if(f.size>MAX_FILE){ alert('사진 1장당 20MB까지 올릴 수 있습니다.'); return; }
+  const cell=document.getElementById('qt-img-'+si+'-'+gi+'-'+ii);
+  if(cell){ cell.classList.add('up'); cell.textContent='…'; }
+  try{
+    const small=await gbShrink(f);
+    const ext=((small.type||'').indexOf('png')>=0)?'png':'jpg';
+    const uid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));
+    const path=TEAM.id+'/'+si+'/mat_'+uid+'.'+ext;
+    const up=await fetch(SUPABASE_URL+'/storage/v1/object/files/'+path,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':small.type||'image/jpeg'},
+      body:small
+    });
+    if(!up.ok){
+      const raw=await up.text(); let why=raw;
+      try{ const j=JSON.parse(raw); why=j.message||j.error||raw; }catch(_){}
+      if(/bucket not found/i.test(why)) throw new Error('저장소(files 버킷)가 아직 만들어지지 않았습니다.');
+      if(up.status===403||/policy|permission|denied/i.test(why)) throw new Error('저장소 접근 권한이 없습니다.');
+      throw new Error(why);
+    }
+    it.img=path; qtSave();
+    qtPhotoPaint(si,gi,ii);
+    showToast('사진을 넣었습니다');
+  }catch(e){
+    if(cell){ cell.classList.remove('up'); }
+    qtPhotoPaint(si,gi,ii);
+    alert('사진을 올리지 못했습니다.\n'+((e&&e.message)||e));
+  }
+}
+/* 사진 칸만 다시 그립니다 — 화면 전체를 건드리지 않아 커서가 안 날아갑니다 */
+function qtPhotoPaint(si,gi,ii){
+  const it=_qtItemAt(si,gi,ii);
+  const cell=document.getElementById('qt-img-'+si+'-'+gi+'-'+ii);
+  if(!cell||!it) return;
+  cell.classList.remove('up');
+  if(it.img){
+    cell.classList.add('has');
+    cell.innerHTML='<img alt="자재 사진">';
+    cell.title='사진 크게 보기';
+    gbRcptUrl(it.img).then(function(u){
+      const im=cell.querySelector('img'); if(im) im.src=u;
+    }).catch(function(){});
+  } else {
+    cell.classList.remove('has');
+    cell.innerHTML='＋';
+    cell.title='사진을 끌어다 놓거나 눌러서 고르세요';
+  }
+}
+function qtPhotoDel(si,gi,ii){
+  const it=_qtItemAt(si,gi,ii); if(!it) return;
+  it.img=''; qtSave(); qtPhotoClose();
+  qtPhotoPaint(si,gi,ii);
+}
+function qtPhotoClose(){ const b=document.getElementById('qt-lb'); if(b) b.remove(); }
+function qtPhotoOpen(si,gi,ii){
+  const it=_qtItemAt(si,gi,ii);
+  if(!it||!it.img) return;
+  qtPhotoClose();
+  const box=document.createElement('div');
+  box.id='qt-lb'; box.className='gb-lb';
+  const nm=[(it.n||'').trim(),(it.spec||'').trim()].filter(Boolean).join(' · ')||'자재 사진';
+  box.innerHTML='<div class="gb-lb-t">'+esc(nm)+'</div>'
+    + '<img id="qt-lb-img" alt="자재 사진">'
+    + '<div class="gb-lb-bar"><button class="gb-lb-b" onclick="qtPhotoClose()">닫기</button>'
+    + '<button class="gb-lb-b" onclick="qtPhotoPick('+si+','+gi+','+ii+');qtPhotoClose()">사진 바꾸기</button>'
+    + '<button class="gb-lb-b d" onclick="qtPhotoDel('+si+','+gi+','+ii+')">사진 떼기</button></div>';
+  box.onclick=function(ev){ if(ev.target===box) qtPhotoClose(); };
+  document.body.appendChild(box);
+  gbRcptUrl(it.img).then(function(u){ const im=document.getElementById('qt-lb-img'); if(im) im.src=u; }).catch(function(){});
+}
+
+/* 끌어다 놓기 · 붙여넣기 — 화면을 다시 그려도 계속 먹도록 문서에 한 번만 겁니다 */
+(function qtPhotoInit(){
+  const cellOf=function(t){ return t && t.closest ? t.closest('.qc-img[data-qi]') : null; };
+  const rowOf =function(t){ return t && t.closest ? t.closest('.qc-row[data-qi]') : null; };
+  const parse =function(el){
+    const v=(el.getAttribute('data-qi')||'').split('-');
+    return v.length===3 ? {si:+v[0],gi:+v[1],ii:+v[2]} : null;
+  };
+  document.addEventListener('dragover', function(e){
+    const c=cellOf(e.target); if(!c) return;
+    e.preventDefault(); c.classList.add('drop');
+  });
+  document.addEventListener('dragleave', function(e){
+    const c=cellOf(e.target); if(c) c.classList.remove('drop');
+  });
+  document.addEventListener('drop', function(e){
+    const c=cellOf(e.target); if(!c) return;
+    e.preventDefault(); c.classList.remove('drop');
+    const p=parse(c); if(!p) return;
+    const dt=e.dataTransfer; if(!dt) return;
+    let f=null;
+    if(dt.files && dt.files.length) f=dt.files[0];
+    else if(dt.items){
+      for(let i=0;i<dt.items.length;i++){
+        if(dt.items[i].kind==='file'){ f=dt.items[i].getAsFile(); break; }
+      }
+    }
+    if(f) qtPhotoUp(p.si,p.gi,p.ii,f);
+  });
+  /* 줄 안에 커서를 두고 Ctrl+V */
+  document.addEventListener('paste', function(e){
+    const r=rowOf(document.activeElement)||rowOf(e.target);
+    if(!r) return;
+    const p=parse(r); if(!p) return;
+    const items=(e.clipboardData&&e.clipboardData.items)||[];
+    for(let i=0;i<items.length;i++){
+      if(items[i].type && items[i].type.indexOf('image')===0){
+        const f=items[i].getAsFile();
+        if(f){ e.preventDefault(); qtPhotoUp(p.si,p.gi,p.ii,f); }
+        return;
+      }
+    }
+  });
+})();
+
 function qtItemRow(si,gi,ii,it,no){
   const a=_qtItemAmt(it);
   const u='qt-units';
   const tl=_qtTaskListId(si,gi);
-  return '<div class="qc-row">'
+  const hasImg=(it&&it.img)?' has':'';
+  return '<div class="qc-row" data-qi="'+si+'-'+gi+'-'+ii+'">'
     + '<span class="qc-c qc-no">'+no+'</span>'
-    + '<span class="qc-c"><input class="qc-in" data-dl="'+tl+'" value="'+esc(it.n||'')+'" placeholder="품명" spellcheck="false" oninput="qtNameIn('+si+','+gi+','+ii+',this.value)"></span>'
-    + '<span class="qc-c"><input class="qc-in" value="'+esc(it.spec||'')+'" placeholder="규격" spellcheck="false" oninput="qtItemUp('+si+','+gi+','+ii+',\'spec\',this.value)"></span>'
+    + '<span class="qc-c qc-imgc"><span class="qc-img'+hasImg+'" id="qt-img-'+si+'-'+gi+'-'+ii+'" data-qi="'+si+'-'+gi+'-'+ii+'"'
+    +   ' onclick="qtPhotoClick('+si+','+gi+','+ii+')" title="사진">'
+    +   ((it&&it.img)?'<img alt="자재 사진">':'＋')+'</span></span>'
+    + '<span class="qc-c"><input class="qc-in" data-dl="'+tl+'" value="'+esc(it.n||'')+'" placeholder="내용" spellcheck="false" oninput="qtNameIn('+si+','+gi+','+ii+',this.value)"></span>'
+    + '<span class="qc-c"><input class="qc-in" value="'+esc(it.spec||'')+'" placeholder="규격·자재" spellcheck="false" oninput="qtItemUp('+si+','+gi+','+ii+',\'spec\',this.value)"></span>'
     + '<span class="qc-c"><input class="qc-in num" value="'+esc(it.q||'')+'" placeholder="0" inputmode="decimal" oninput="qtItemUp('+si+','+gi+','+ii+',\'q\',this.value)"></span>'
     + '<span class="qc-c"><input id="qt-u-'+si+'-'+gi+'-'+ii+'" class="qc-in ctr" data-dl="'+u+'" value="'+esc(it.u||'')+'" placeholder="단위" spellcheck="false" oninput="qtItemUp('+si+','+gi+','+ii+',\'u\',this.value)"></span>'
     + '<span class="qc-c"><input class="qc-in num" value="'+(_n(it.p)?_n(it.p).toLocaleString():'')+'" placeholder="단가" inputmode="numeric" oninput="qtFmtPrice('+si+','+gi+','+ii+',this)"></span>'
@@ -10361,9 +10735,12 @@ function qtSheetHtml(si,q){
       + '</div>'
       /* 카드 안 표 */
       + '<div class="qc-wrap"><div class="qc-tbl">'
-      +   '<div class="qc-row qc-hd"><span>#</span><span>품명</span><span>규격</span><span>수량</span><span>단위</span><span>단가</span>'
+      +   '<div class="qc-row qc-hd"><span>#</span><span>사진</span><span>내용</span><span>규격·자재</span><span>수량</span><span>단위</span><span>단가</span>'
       +   '<span style="justify-content:flex-end">금액</span><span>비고</span><span></span></div>';
-    (g.items||[]).forEach(function(it,ii){ h+=qtItemRow(si,gi,ii,it,ii+1); });
+    (g.items||[]).forEach(function(it,ii){
+      h+=qtItemRow(si,gi,ii,it,ii+1);
+      if(it&&it.img) setTimeout((function(a,b,c){ return function(){ qtPhotoPaint(a,b,c); }; })(si,gi,ii),0);
+    });
     if(!(g.items||[]).length){
       h+='<div class="qc-none">아직 줄이 없습니다. <b>＋ 줄</b> 을 눌러 주세요.</div>';
     }
@@ -10769,10 +11146,27 @@ async function _qtBuildXlsx(si,q){
          {font:F(10,true),fill:FINAL,center:true});
   if(vatOn) feeRow('부  가  세  액',undefined,vat,'',{font:F(9),center:true});
 
+  /* 사진을 미리 받아 둡니다 — 엑셀에 넣으려면 실제 그림 자료가 필요합니다 */
+  const shots={};
+  for(let gi=0; gi<groups.length; gi++){
+    const its=(groups[gi].items||[]);
+    for(let ii=0; ii<its.length; ii++){
+      const path=(its[ii]&&its[ii].img)||'';
+      if(!path) continue;
+      try{
+        const u=await gbRcptUrl(path);
+        const rr=await fetch(u);
+        if(!rr.ok) continue;
+        const buf=await rr.arrayBuffer();
+        shots[gi+'-'+ii]=wb.addImage({buffer:buf, extension:(/\.png$/i.test(path)?'png':'jpeg')});
+      }catch(_){}
+    }
+  }
+
   /* ══════════ 3. 을지 ══════════ */
   const s3=wb.addWorksheet('을지_세부내역',{pageSetup:{paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,
     margins:{left:0.4,right:0.4,top:0.5,bottom:0.4,header:0.2,footer:0.2}}});
-  s3.columns=[{width:6},{width:20},{width:20},{width:6},{width:5},{width:10},{width:13},{width:12}];
+  s3.columns=[{width:8},{width:19},{width:19},{width:6},{width:5},{width:10},{width:13},{width:12}];
   const P3=mk(s3).put;
   let r3=1;
   s3.mergeCells(r3,1,r3,8);
@@ -10794,8 +11188,15 @@ async function _qtBuildXlsx(si,q){
     s3.mergeCells(r3,2,r3,8);
     P3(r3,2,procName(g.cat||''),{font:F(9,true),align:ML,fill:tint});
     s3.getRow(r3).height=20; r3++;
-    (g.items||[]).forEach(function(it){
+    (g.items||[]).forEach(function(it,ii){
+      const im=shots[gi+'-'+ii];
       P3(r3,1,'',{});
+      if(im!==undefined){
+        s3.addImage(im,{ tl:{col:0.10, row:r3-1+0.08}, ext:{width:44, height:32} });
+        s3.getRow(r3).height=28;
+      } else {
+        s3.getRow(r3).height=17;
+      }
       P3(r3,2,String((it&&it.n)||''),{font:F(8),align:ML});
       P3(r3,3,String((it&&it.spec)||''),{font:F(8),align:ML});
       P3(r3,4,_n(it&&it.q)||null,{align:MC});
@@ -10803,7 +11204,7 @@ async function _qtBuildXlsx(si,q){
       P3(r3,6,_n(it&&it.p)||null,{});
       P3(r3,7,_qtItemAmt(it)||null,{});
       P3(r3,8,String((it&&it.note)||''),{font:F(8),align:ML});
-      s3.getRow(r3).height=17; r3++;
+      r3++;
     });
     P3(r3,1,'',{fill:SUBT});
     s3.mergeCells(r3,2,r3,6);
@@ -10867,7 +11268,7 @@ function renderQuoteView(si){
     + '<div class="qt-f w1"><span class="qt-f-k">공사규모</span><input class="qt-f-in" value="'+esc(q.size||'')+'" placeholder="100㎡ (30평)" spellcheck="false" oninput="qtUp('+si+',\'size\',this.value)"></div>'
     + '<div class="qt-f w2"><span class="qt-f-k">공사기간</span><input class="qt-f-in" value="'+esc(q.period||'')+'" placeholder="2026-07-01 ~ 2026-07-20" spellcheck="false" oninput="qtUp('+si+',\'period\',this.value)"></div>'
     + '<div class="qt-f w2"><span class="qt-f-k">공급자 상호</span><input class="qt-f-in" value="'+esc((S.company&&S.company.name)||'')+'" placeholder="우리 회사 상호" spellcheck="false" oninput="coUp(\'name\',this.value)"></div>'
-    + '<div class="qt-f w2"><span class="qt-f-k">공급자 사업자번호</span><input class="qt-f-in" value="'+esc((S.company&&S.company.bizno)||'')+'" placeholder="000-00-00000" spellcheck="false" oninput="coUp(\'bizno\',this.value)"></div>'
+    + '<div class="qt-f w2"><span class="qt-f-k">공급자 사업자번호</span><input class="qt-f-in" value="'+esc((S.company&&S.company.bizno)||'')+'" placeholder="1234567890 (숫자만)" inputmode="numeric" spellcheck="false" oninput="bizIn(this)"></div>'
     + '<div class="qt-f w3"><span class="qt-f-k">특기사항</span><input class="qt-f-in" value="'+esc(q.notes||'')+'" placeholder="예) VAT 별도 · 견적 외 공사 별도 (줄바꿈은 · 로 구분)" spellcheck="false" oninput="qtUp('+si+',\'notes\',this.value)"></div>'
     + '<div class="qt-f gr"><span class="qt-f-k">공사명</span><input class="qt-f-in" value="'+esc(q.name||(s.name||''))+'" placeholder="예: ○○아파트 101동 전체 리모델링" spellcheck="false" oninput="qtUp('+si+',\'name\',this.value)"></div>'
     + '<div class="qt-f w1"><span class="qt-f-k">상태</span><select class="qt-f-in" onchange="qtUp('+si+',\'status\',this.value);qtRe()">'
@@ -10881,7 +11282,7 @@ function renderQuoteView(si){
     + '<button class="qt-b p" onclick="qmOpen('+si+',\'add\')">＋ 공정 묶음</button>'
     + '<button class="qt-b" onclick="qtXlsxOpen('+si+')">📗 엑셀로 내보내기</button>'
     + '<button class="qt-b" onclick="qtToSchedule('+si+')">📅 일정표에 넣기</button>'
-    + '<button class="qt-b" onclick="qtToBudget('+si+')">지출 예산으로 넣기</button>'
+    + (canSeeSpend() ? '<button class="qt-b" onclick="qtToBudget('+si+')">지출 예산으로 넣기</button>' : '')
     + '<button class="qt-b" onclick="qtDup('+si+')">이 견적 복제</button>'
     + '<button class="qt-b" onclick="qtDel('+si+')">견적 지우기</button>'
     + '</div>';
@@ -11404,7 +11805,7 @@ function buildPrintArea(){
       /* 직접 입력 */
       if(items.length){
         qh+=`<table class="pq-tbl"><thead><tr>
-          <th style="width:20mm">공정</th><th style="min-width:26mm">품명</th><th>규격</th>
+          <th style="width:20mm">공정</th><th style="min-width:26mm">내용</th><th>규격·자재</th>
           <th style="width:16mm">수량</th><th style="width:12mm">단위</th><th style="min-width:30mm">비고</th>
         </tr></thead><tbody>`;
         items.forEach(it=>{
@@ -11501,31 +11902,67 @@ function buildPrintArea(){
    ══════════════════════════════════════════════════════════════ */
 const PROC_LIB=[
   {cat:'준비·가설', alias:['준비 · 가설','준비','가설'],
-   sub:['현장 정리','가설 울타리','비계 설치','안전 시설','자재 반입','먹매김'], tasks:[]},
+   sub:['현장 정리','가설 울타리','비계 설치','안전 시설','자재 반입','먹매김'], tasks:[
+     {n:'현장 보양',u:'식'},{n:'가설 울타리',u:'m'},{n:'비계 설치',u:'㎡'},{n:'안전 시설',u:'식'},
+     {n:'가설 전기·조명',u:'식'},{n:'가설 화장실',u:'대'},{n:'먹매김',u:'식'},{n:'자재 소운반',u:'식'},
+     {n:'양중비',u:'식'},{n:'가설 인건비',u:'명'}
+   ]},
 
   {cat:'철거', alias:[],
-   sub:['철거','폐기물 반출','석면 해체','바닥 갈아내기'], tasks:[]},
+   sub:['철거','폐기물 반출','석면 해체','바닥 갈아내기'], tasks:[
+     {n:'벽체 철거',u:'㎡'},{n:'경량벽체 철거',u:'㎡'},{n:'천장 철거',u:'㎡'},{n:'바닥 철거',u:'㎡'},
+     {n:'타일 철거',u:'㎡'},{n:'도배 철거',u:'㎡'},{n:'창호 철거',u:'개소'},{n:'문 철거',u:'개'},
+     {n:'싱크대 철거',u:'식'},{n:'욕실 전체 철거',u:'개소'},{n:'바닥 갈아내기',u:'㎡'},{n:'석면 해체',u:'㎡'},
+     {n:'폐기물 반출',u:'대'},{n:'철거 인건비',u:'명'}
+   ]},
 
   {cat:'골조·구조', alias:['골조 · 구조','골조'],
-   sub:['토공','기초','철근','거푸집','콘크리트 타설','철골'], tasks:[]},
+   sub:['토공','기초','철근','거푸집','콘크리트 타설','철골'], tasks:[
+     {n:'토공',u:'㎥'},{n:'기초 콘크리트',u:'㎥'},{n:'철근 배근',u:'ton'},{n:'거푸집',u:'㎡'},
+     {n:'콘크리트 타설',u:'㎥'},{n:'철골 설치',u:'ton'},{n:'데크 플레이트',u:'㎡'},{n:'보강 공사',u:'식'},
+     {n:'골조 인건비',u:'명'}
+   ]},
 
   {cat:'미장·조적', alias:['미장','조적'],
-   sub:['조적','미장','방통','셀프레벨링'], tasks:[]},
+   sub:['조적','미장','방통','셀프레벨링'], tasks:[
+     {n:'벽돌 조적',u:'㎡'},{n:'블록 조적',u:'㎡'},{n:'벽 미장',u:'㎡'},{n:'바닥 미장',u:'㎡'},
+     {n:'방통 미장',u:'㎡'},{n:'셀프레벨링',u:'㎡'},{n:'사춤·메지',u:'식'},{n:'턱 제거·보수',u:'식'},
+     {n:'미장 인건비',u:'명'}
+   ]},
 
   {cat:'방수·단열', alias:['방수 · 단열','방수','단열'],
-   sub:['방수','단열재','결로 방지','우레탄 도막'], tasks:[]},
+   sub:['방수','단열재','결로 방지','우레탄 도막'], tasks:[
+     {n:'욕실 방수',u:'㎡'},{n:'발코니 방수',u:'㎡'},{n:'옥상 우레탄 방수',u:'㎡'},{n:'시트 방수',u:'㎡'},
+     {n:'액체 방수',u:'㎡'},{n:'단열재 시공',u:'㎡'},{n:'결로 방지 시공',u:'㎡'},{n:'아이소핑크',u:'㎡'},
+     {n:'방수 인건비',u:'명'}
+   ]},
 
   {cat:'설비·배관', alias:['설비','배관','설비 · 배관'],
-   sub:['급수 배관','오배수 배관','난방 배관','위생기구','가스 배관','보일러'], tasks:[]},
+   sub:['급수 배관','오배수 배관','난방 배관','위생기구','가스 배관','보일러'], tasks:[
+     {n:'급수 배관',u:'개소'},{n:'오배수 배관',u:'개소'},{n:'난방 배관',u:'㎡'},{n:'배관 이설',u:'개소'},
+     {n:'보일러 설치',u:'대'},{n:'온수기 설치',u:'대'},{n:'가스 배관',u:'m'},{n:'트랩·유가',u:'개'},
+     {n:'수압 시험',u:'식'},{n:'설비 인건비',u:'명'}
+   ]},
 
   {cat:'전기', alias:['전기 · 통신'],
-   sub:['전기 배선','전선관','분전반','콘센트·스위치','승압'], tasks:[]},
+   sub:['전기 배선','전선관','분전반','콘센트·스위치','승압'], tasks:[
+     {n:'전기 배선',u:'개소'},{n:'콘센트 설치',u:'개'},{n:'스위치 설치',u:'개'},{n:'분전반 교체',u:'개'},
+     {n:'전선관 배관',u:'m'},{n:'승압 공사',u:'식'},{n:'접지 공사',u:'식'},{n:'인덕션 전용선',u:'개소'},
+     {n:'전기 인건비',u:'명'}
+   ]},
 
   {cat:'통신·소방', alias:['통신','소방','통신 · 보안'],
-   sub:['통신·인터넷','CCTV','소방','스프링클러','비상조명'], tasks:[]},
+   sub:['통신·인터넷','CCTV','소방','스프링클러','비상조명'], tasks:[
+     {n:'인터넷 배선',u:'개소'},{n:'TV 단자',u:'개'},{n:'인터폰 설치',u:'대'},{n:'CCTV 설치',u:'대'},
+     {n:'감지기 설치',u:'개'},{n:'스프링클러 이설',u:'개'},{n:'비상조명등',u:'개'},{n:'소방 필증',u:'식'},
+     {n:'통신 인건비',u:'명'}
+   ]},
 
   {cat:'공조·환기', alias:['공조','환기'],
-   sub:['덕트','환기','냉난방기','후드','시스템에어컨'], tasks:[]},
+   sub:['덕트','환기','냉난방기','후드','시스템에어컨'], tasks:[
+     {n:'덕트 배관',u:'m'},{n:'환기 팬 설치',u:'대'},{n:'후드 설치',u:'대'},{n:'시스템에어컨 설치',u:'대'},
+     {n:'실외기 배관',u:'m'},{n:'디퓨저 설치',u:'개'},{n:'전열교환기',u:'대'},{n:'공조 인건비',u:'명'}
+   ]},
 
   {cat:'목공', alias:[],
    sub:['경량벽체','천장틀','가벽','문틀','몰딩','걸레받이','석고보드'],
@@ -11538,13 +11975,24 @@ const PROC_LIB=[
    ]},
 
   {cat:'창호(샷시)', alias:['창호','샷시','샤시'],
-   sub:['샤시','도어','자동문','방화문','중문'], tasks:[]},
+   sub:['샤시','도어','자동문','방화문','중문'], tasks:[
+     {n:'샷시 교체',u:'㎡'},{n:'발코니 확장 샷시',u:'㎡'},{n:'중문 설치',u:'개소'},{n:'현관문 교체',u:'개'},
+     {n:'방화문 설치',u:'개'},{n:'자동문 설치',u:'개소'},{n:'방충망',u:'개'},{n:'실리콘 코킹',u:'식'},
+     {n:'창호 인건비',u:'명'}
+   ]},
 
   {cat:'유리·거울', alias:['유리','거울'],
-   sub:['유리','거울','파티션 유리'], tasks:[]},
+   sub:['유리','거울','파티션 유리'], tasks:[
+     {n:'강화유리',u:'㎡'},{n:'파티션 유리',u:'㎡'},{n:'거울 시공',u:'㎡'},{n:'유리 도어',u:'개소'},
+     {n:'시트지 부착',u:'㎡'},{n:'유리 인건비',u:'명'}
+   ]},
 
   {cat:'타일', alias:[],
-   sub:['타일','줄눈','방수 미장'], tasks:[]},
+   sub:['타일','줄눈','방수 미장'], tasks:[
+     {n:'욕실 벽타일',u:'㎡'},{n:'욕실 바닥타일',u:'㎡'},{n:'현관 타일',u:'㎡'},{n:'주방 벽타일',u:'㎡'},
+     {n:'발코니 타일',u:'㎡'},{n:'덧방 시공',u:'㎡'},{n:'젠다이 시공',u:'개소'},{n:'코너비트',u:'m'},
+     {n:'줄눈 시공',u:'식'},{n:'타일 부자재',u:'식'},{n:'타일 인건비',u:'명'}
+   ]},
 
   {cat:'도장·필름', alias:['도장','필름','도장 · 필름'],
    sub:['도장','필름','스테인'],
@@ -11557,31 +12005,62 @@ const PROC_LIB=[
    ]},
 
   {cat:'도배', alias:[],
-   sub:['도배','초배','부직포'], tasks:[]},
+   sub:['도배','초배','부직포'], tasks:[
+     {n:'실크벽지',u:'㎡'},{n:'합지벽지',u:'㎡'},{n:'천장 도배',u:'㎡'},{n:'초배 작업',u:'㎡'},
+     {n:'부직포 시공',u:'㎡'},{n:'포인트 벽지',u:'㎡'},{n:'도배 부자재',u:'식'},{n:'도배 인건비',u:'명'}
+   ]},
 
   {cat:'바닥재', alias:['바닥'],
-   sub:['바닥재','마루','데코타일','장판','카펫'], tasks:[]},
+   sub:['바닥재','마루','데코타일','장판','카펫'], tasks:[
+     {n:'강마루',u:'㎡'},{n:'강화마루',u:'㎡'},{n:'원목마루',u:'㎡'},{n:'데코타일',u:'㎡'},
+     {n:'장판',u:'㎡'},{n:'타일카펫',u:'㎡'},{n:'걸레받이 시공',u:'m'},{n:'바닥 보양',u:'식'},
+     {n:'바닥 인건비',u:'명'}
+   ]},
 
   {cat:'석재', alias:[],
-   sub:['석재','인조대리석','현관 디딤석'], tasks:[]},
+   sub:['석재','인조대리석','현관 디딤석'], tasks:[
+     {n:'현관 디딤석',u:'개소'},{n:'인조대리석 상판',u:'m'},{n:'대리석 시공',u:'㎡'},{n:'문지방석',u:'개'},
+     {n:'창대석',u:'m'},{n:'석재 인건비',u:'명'}
+   ]},
 
   {cat:'욕실', alias:[],
-   sub:['양변기','세면대','수전','욕실장','거울','액세서리'], tasks:[]},
+   sub:['양변기','세면대','수전','욕실장','거울','액세서리'], tasks:[
+     {n:'양변기 설치',u:'개'},{n:'세면대 설치',u:'개'},{n:'샤워 수전',u:'개'},{n:'세면 수전',u:'개'},
+     {n:'욕실장 설치',u:'개'},{n:'거울 설치',u:'개'},{n:'선반·액세서리',u:'식'},{n:'환풍기 설치',u:'개'},
+     {n:'천장재(SMC)',u:'개소'},{n:'파티션 설치',u:'개소'},{n:'욕실 인건비',u:'명'}
+   ]},
 
   {cat:'주방·가구', alias:['가구','주방','가구 · 기구','가구·붙박이'],
-   sub:['주방가구','붙박이장','싱크대','상판','신발장'], tasks:[]},
+   sub:['주방가구','붙박이장','싱크대','상판','신발장'], tasks:[
+     {n:'싱크대 상하부장',u:'m'},{n:'상판 시공',u:'m'},{n:'붙박이장',u:'개소'},{n:'신발장',u:'개소'},
+     {n:'현관장',u:'개소'},{n:'책장·수납장',u:'개소'},{n:'아일랜드 식탁',u:'개소'},{n:'쿡탑·후드',u:'식'},
+     {n:'가구 인건비',u:'명'}
+   ]},
 
   {cat:'조명', alias:[],
-   sub:['조명기구','매입등','간접등','레일등'], tasks:[]},
+   sub:['조명기구','매입등','간접등','레일등'], tasks:[
+     {n:'거실등',u:'개'},{n:'방등',u:'개'},{n:'주방등',u:'개'},{n:'욕실등',u:'개'},
+     {n:'매입등',u:'개'},{n:'간접등',u:'m'},{n:'레일등',u:'m'},{n:'센서등',u:'개'},
+     {n:'식탁등',u:'개'},{n:'조명 인건비',u:'명'}
+   ]},
 
   {cat:'금속·철물', alias:['금속','철물'],
-   sub:['난간','계단 논슬립','철재 프레임','앵글','도어록·경첩'], tasks:[]},
+   sub:['난간','계단 논슬립','철재 프레임','앵글','도어록·경첩'], tasks:[
+     {n:'난간 시공',u:'m'},{n:'계단 논슬립',u:'m'},{n:'철재 프레임',u:'식'},{n:'앵글 선반',u:'개소'},
+     {n:'도어록 설치',u:'개'},{n:'경첩·손잡이',u:'식'},{n:'스텐 손잡이',u:'m'},{n:'금속 인건비',u:'명'}
+   ]},
 
   {cat:'사인·간판', alias:['간판','사인물'],
-   sub:['간판','사인물','시트 커팅'], tasks:[]},
+   sub:['간판','사인물','시트 커팅'], tasks:[
+     {n:'채널 간판',u:'㎡'},{n:'돌출 간판',u:'개소'},{n:'시트 커팅',u:'㎡'},{n:'현판·사인물',u:'개'},
+     {n:'LED 모듈',u:'식'},{n:'간판 인건비',u:'명'}
+   ]},
 
   {cat:'청소·준공', alias:['마무리','청소','준공'],
-   sub:['청소','준공청소','검수','준공','하자 보수'], tasks:[]},
+   sub:['청소','준공청소','검수','준공','하자 보수'], tasks:[
+     {n:'입주 청소',u:'평'},{n:'공사 중 청소',u:'식'},{n:'폐기물 처리',u:'대'},{n:'보양재 철거',u:'식'},
+     {n:'준공 검수',u:'식'},{n:'하자 보수',u:'식'},{n:'청소 인건비',u:'명'}
+   ]},
 ];
 
 /* 이름이 바뀌거나 예전 이름으로 적혀 있어도 같은 공정으로 찾아 준다 */
@@ -12076,7 +12555,7 @@ function setTmSub(t){ _tmSub = (t==='partners'||t==='company') ? t : 'members'; 
 const CO_FIELDS=[
   {k:'name',  t:'상호명',        ph:'예) 공정온인테리어',        w:2},
   {k:'rep',   t:'대표자',        ph:'예) 김범수',                w:1},
-  {k:'bizno', t:'사업자등록번호', ph:'예) 688-33-01597',         w:1},
+  {k:'bizno', t:'사업자등록번호', ph:'6883301597 (숫자만)',      w:1, biz:true},
   {k:'biztype',t:'업태',         ph:'예) 건설업',                w:1},
   {k:'bizitem',t:'종목',         ph:'예) 실내건축공사업',        w:1},
   {k:'addr',  t:'사업장 소재지',  ph:'예) 경기도 고양시 …',       w:3},
@@ -12088,6 +12567,29 @@ const CO_FIELDS=[
 ];
 function _co(){ if(!S.company) S.company={}; return S.company; }
 function _coFilled(){ const c=S.company||{}; return !!((c.name||'').trim() && (c.bizno||'').trim()); }
+/* 사업자등록번호 — 숫자만 치시면 123-45-67890 으로 알아서 나눕니다 */
+function _bizFmt(v){
+  const d=String(v||'').replace(/[^0-9]/g,'').slice(0,10);
+  if(d.length<=3) return d;
+  if(d.length<=5) return d.slice(0,3)+'-'+d.slice(3);
+  return d.slice(0,3)+'-'+d.slice(3,5)+'-'+d.slice(5);
+}
+/* 적는 동안 커서가 튀지 않게 — 앞쪽 숫자 개수를 세어 자리를 되돌립니다 */
+function bizIn(el){
+  const before=el.value, pos=el.selectionStart||0;
+  const digitsBefore=before.slice(0,pos).replace(/[^0-9]/g,'').length;
+  const out=_bizFmt(before);
+  el.value=out;
+  let seen=0, np=out.length;
+  for(let i=0;i<out.length;i++){
+    if(/[0-9]/.test(out[i])) seen++;
+    if(seen===digitsBefore){ np=i+1; break; }
+  }
+  if(digitsBefore===0) np=0;
+  try{ el.setSelectionRange(np,np); }catch(_){}
+  coUp('bizno', out);
+}
+
 function coUp(k,v){ _co()[k]=v; persist(); }
 
 function renderCompanyTab(){
@@ -12099,7 +12601,8 @@ function renderCompanyTab(){
   CO_FIELDS.forEach(function(f){
     h+='<div class="co-f w'+f.w+'"><label class="co-l">'+esc(f.t)+'</label>'
       + '<input class="co-in" value="'+esc(c[f.k]||'')+'" placeholder="'+esc(f.ph)+'" spellcheck="false"'
-      + ' oninput="coUp(\''+f.k+'\',this.value)"></div>';
+      + (f.biz?' inputmode="numeric" oninput="bizIn(this)"':(' oninput="coUp(\''+f.k+'\',this.value)"'))
+      + '></div>';
   });
   h+='</div>';
   h+= _coFilled()
