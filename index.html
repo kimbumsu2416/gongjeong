@@ -14729,6 +14729,7 @@ function commitRange(si,pi,a,b,snapshot){
 
 /* ── 드래그 ── */
 function beginDrag(el){
+  if(typeof clearErasePeek==='function') clearErasePeek();
   const si=+el.dataset.si, pi=+el.dataset.pi, d=+el.dataset.d;
   DRAG={ si, pi, startDay:d, moved:false,
          snapshot:JSON.parse(JSON.stringify(S.sites[si].cells||{})) };
@@ -14766,6 +14767,8 @@ function handleCellClick(si,pi,d,snapshot){
     ANCHOR={si,pi,day:d};
     if(prev) repaintRow(prev.si,prev.pi);
     repaintRow(si,pi);
+    /* 구간을 고르는 중에는 지우기 미리보기를 걷어 냅니다 — 겹쳐 보이면 헷갈립니다 */
+    if(typeof clearErasePeek==='function') clearErasePeek();
     const proc=(S.sites[si].procs||[])[pi]||'작업';
     showToast(`${proc} · 시작 ${S.month}/${d} — 종료일을 클릭하세요`);
     return;
@@ -14773,6 +14776,7 @@ function handleCellClick(si,pi,d,snapshot){
   // 같은 줄 → 종료일 확정 (같은 칸이면 1일)
   const a=ANCHOR.day;
   ANCHOR=null;
+  if(typeof clearErasePeek==='function') clearErasePeek();
   applyRange(si,pi,a,d,snapshot);
   commitRange(si,pi,a,d,snapshot);
 }
@@ -14781,6 +14785,7 @@ function cancelAnchor(){
   const A=ANCHOR; ANCHOR=null;
   repaintRow(A.si,A.pi);
   clearGhost();
+  if(typeof clearErasePeek==='function') clearErasePeek();
 }
 function clearGhost(){
   clearErasePeek();
@@ -14799,6 +14804,8 @@ function _runAt(si,pi,d){
 /* 지우기 모드에서 마우스만 올려도 어디까지 지워지는지 보여 줍니다 */
 function eraseHover(el){
   clearErasePeek();
+  /* 시작일을 눌러 구간을 고르는 중이면 미리보기를 띄우지 않습니다.
+     띄우면 「어디를 고르는 중인지」가 가려집니다. */
   if(!ERASE_MODE || S.dragging || ANCHOR) return;
   const si=+el.dataset.si, pi=+el.dataset.pi, d=+el.dataset.d;
   const run=_runAt(si,pi,d);
