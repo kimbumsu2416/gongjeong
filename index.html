@@ -1184,6 +1184,44 @@ body.printing .no-print{display:none!important}
 .pn-note{display:flex;flex-direction:column;gap:9px}
 .pn-note-h{font-size:12.5px;color:#59636f;line-height:1.55}
 .pn-note-h b{color:#4F46E5}
+
+/* 준비물 체크 목록 */
+.pn-h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.pn-h.mt{margin-top:18px;padding-top:15px;border-top:1px solid #eef1f6}
+.pn-h-t{font-size:13px;font-weight:800;color:#12141C}
+.pn-badge{font-size:11px;font-weight:800;color:#8a94a6;background:#f2f5fa;border-radius:20px;padding:2px 8px}
+.pn-badge.all{color:#1f6b45;background:#eef7f2}
+.pn-empty{padding:16px 0;text-align:center;font-size:12.5px;color:#a8b1be;line-height:1.8}
+.pn-empty span{font-size:11.5px;color:#c8d0da}
+.pn-list{display:flex;flex-direction:column;gap:2px;max-height:230px;overflow-y:auto}
+.pn-r{display:flex;align-items:center;gap:8px;padding:2px 0}
+.pn-ck{flex:0 0 auto;width:20px;height:20px;border:1.5px solid #cfd7e3;border-radius:6px;background:#fff;
+  cursor:pointer;font-size:11px;font-weight:800;color:transparent;font-family:inherit;padding:0;
+  display:flex;align-items:center;justify-content:center;transition:all .12s}
+.pn-ck:hover{border-color:#2f9e5e}
+.pn-ck.on{background:#2f9e5e;border-color:#2f9e5e;color:#fff}
+.pn-in{flex:1 1 auto;min-width:0;font-size:13px;padding:6px 8px;border:1.5px solid transparent;
+  border-radius:7px;font-family:inherit;color:#12141C;outline:none;background:transparent}
+.pn-in:hover{background:#f8fafc}
+.pn-in:focus{border-color:#2f9e5e;background:#fff}
+.pn-r.done .pn-in{color:#a8b1be;text-decoration:line-through}
+.pn-x{flex:0 0 auto;width:22px;height:22px;border:none;background:transparent;color:#d8dfe8;
+  font-size:11px;cursor:pointer;font-family:inherit;border-radius:6px}
+.pn-x:hover{background:#fdeceb;color:#DC2626}
+.pn-bar{height:5px;background:#eef1f6;border-radius:4px;overflow:hidden;margin:11px 0 7px}
+.pn-bar-f{height:100%;background:#2f9e5e;border-radius:4px;transition:width .25s}
+.pn-sum{display:flex;align-items:center;gap:10px;font-size:11.5px;color:#8a94a6}
+.pn-sum b{color:#12141C;font-weight:800}
+.pn-clear{margin-left:auto;font-size:11px;font-weight:700;font-family:inherit;color:#8a94a6;
+  background:transparent;border:1px solid #e3e9f1;border-radius:20px;padding:3px 9px;cursor:pointer}
+.pn-clear:hover{border-color:#DC2626;color:#DC2626;background:#fff}
+.pn-add{display:flex;gap:7px;margin-top:11px}
+.pn-add-in{flex:1 1 auto;min-width:0;font-size:12.5px;padding:9px 11px;border:1.5px solid #e3e9f1;
+  border-radius:9px;font-family:inherit;outline:none}
+.pn-add-in:focus{border-color:#2f9e5e}
+.pn-add-b{flex:0 0 auto;font-size:12px;font-weight:800;font-family:inherit;color:#fff;background:#2f9e5e;
+  border:none;border-radius:9px;padding:9px 13px;cursor:pointer;white-space:nowrap}
+.pn-add-b:hover{background:#278a51}
 .pn-note-area{width:100%;box-sizing:border-box;min-height:120px;resize:vertical;border:1px solid #dde3ee;border-radius:11px;padding:12px 13px;font-size:14px;line-height:1.7;color:#12141C;font-family:inherit;outline:none;background:#fcfdff}
 .pn-note-area::placeholder{color:#9aa5b1}
 .pn-note-area:focus{border-color:#4F46E5;background:#fff}
@@ -9234,13 +9272,124 @@ function renderProcGuide(si){
 }
 
 /* ══════════ 프로젝트/공간 노트 — 준비물·메모 자유 기록 ══════════ */
+/* ══════════════════════════════════════════════════════════════
+   준비물 — 미리 적어 두고, 산 것은 체크합니다.
+   기존 메모는 그대로 두고 아래에 목록을 붙였습니다.
+   ══════════════════════════════════════════════════════════════ */
+function _pnList(si){
+  const s=S.sites[si]; if(!s) return [];
+  if(!Array.isArray(s.buyList)) s.buyList=[];
+  return s.buyList;
+}
+function _pnStat(si){
+  const l=_pnList(si);
+  return {all:l.length, done:l.filter(function(x){ return x && x.done; }).length};
+}
+function pnAdd(si){
+  const el=document.getElementById('pn-new-'+si);
+  const v=el?String(el.value||'').trim():'';
+  if(!v) return;
+  /* 쉼표·가운뎃점으로 여러 개를 한 번에 */
+  const parts=v.split(/[,·]/).map(function(x){ return x.trim(); }).filter(Boolean);
+  const l=_pnList(si);
+  parts.forEach(function(t){ l.push({t:t, done:false, memo:''}); });
+  if(el){ el.value=''; }
+  persist(); pnPaint(si);
+  if(el) setTimeout(function(){ el.focus(); },20);
+}
+function pnToggle(si,i){
+  const l=_pnList(si); if(!l[i]) return;
+  l[i].done=!l[i].done; persist(); pnPaint(si);
+}
+function pnText(si,i,v){
+  const l=_pnList(si); if(!l[i]) return;
+  l[i].t=v;
+  clearTimeout(window._pnT); window._pnT=setTimeout(function(){ persist(); },400);
+}
+function pnDel(si,i){
+  const l=_pnList(si); if(!l[i]) return;
+  l.splice(i,1); persist(); pnPaint(si);
+}
+async function pnClearDone(si){
+  const l=_pnList(si);
+  const n=l.filter(function(x){ return x&&x.done; }).length;
+  if(!n){ showToast('산 것이 아직 없습니다'); return; }
+  const ok=await askConfirm('산 것을 목록에서 뺄까요?','**'+n+'개**를 지웁니다. 되돌릴 수 없습니다.','지우기',true);
+  if(!ok) return;
+  S.sites[si].buyList=l.filter(function(x){ return !(x&&x.done); });
+  persist(); pnPaint(si);
+  showToast(n+'개를 뺐습니다');
+}
+/* 목록만 다시 그립니다 — 옆 메모 칸의 커서가 안 날아갑니다 */
+function pnPaint(si){
+  const box=document.getElementById('pn-box-'+si);
+  if(box) box.innerHTML=pnInner(si);
+  const b=document.getElementById('pn-badge-'+si);
+  if(b){
+    const st=_pnStat(si);
+    b.textContent = st.all ? (st.done+' / '+st.all) : '';
+    b.className='pn-badge'+(st.all&&st.done===st.all?' all':'');
+  }
+}
+function pnInner(si){
+  const l=_pnList(si);
+  const st=_pnStat(si);
+  let h='';
+  if(!l.length){
+    h+='<div class="pn-empty">아직 없습니다. 아래에 적어 보세요.<br>'
+      + '<span>쉼표로 나누면 한 번에 여러 개가 들어갑니다</span></div>';
+  } else {
+    h+='<div class="pn-list">'
+      + l.map(function(x,i){
+          const done=!!(x&&x.done);
+          return '<div class="pn-r'+(done?' done':'')+'">'
+            + '<button class="pn-ck'+(done?' on':'')+'" onclick="pnToggle('+si+','+i+')" title="'+(done?'아직 안 삼':'샀습니다')+'">'
+            +   (done?'✓':'')+'</button>'
+            + '<input class="pn-in" value="'+esc((x&&x.t)||'')+'" spellcheck="false"'
+            +   ' oninput="pnText('+si+','+i+',this.value)">'
+            + '<button class="pn-x" onclick="pnDel('+si+','+i+')" title="줄 지우기">✕</button>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+    if(st.all){
+      const pct=Math.round(st.done/st.all*100);
+      h+='<div class="pn-bar"><div class="pn-bar-f" style="width:'+pct+'%"></div></div>'
+        + '<div class="pn-sum"><span>'+st.done+'개 샀고, <b>'+(st.all-st.done)+'개</b> 남았습니다</span>'
+        + (st.done?'<button class="pn-clear" onclick="pnClearDone('+si+')">산 것 빼기</button>':'')
+        + '</div>';
+    }
+  }
+  return h;
+}
+
+/* 옆 패널 제목에 붙는 배지 */
+function _pnBadge(si){
+  const st=_pnStat(si);
+  if(st.all) return st.done+' / '+st.all;
+  return (String((S.sites[si]||{}).memo||'').trim())?'작성됨':'';
+}
+
 function renderProjectNote(si){
   const s=S.sites[si];
   const unit=isSelf()?'공간':'프로젝트';
-  return `<div class="pn-note">
-    <div class="pn-note-h">이 ${unit}에 필요한 <b>준비물·메모</b>를 자유롭게 적어두세요. 무엇이 필요한지 한눈에 파악할 수 있어요.</div>
-    <textarea class="pn-note-area" placeholder="예) 벽지 3롤 · 실리콘 건 · 콘센트 커버 5개 · 사다리 대여 예약 · 폐기물 마대 구입…" oninput="updateProjMemo(${si},this.value)">${esc(s.memo||'')}</textarea>
-  </div>`;
+  const st=_pnStat(si);
+  const ent="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();pnAdd("+si+");}";
+  return '<div class="pn-note">'
+    /* 준비물 목록 */
+    + '<div class="pn-h"><span class="pn-h-t">준비물</span>'
+    +   '<span class="pn-badge'+(st.all&&st.done===st.all?' all':'')+'" id="pn-badge-'+si+'">'
+    +     (st.all?(st.done+' / '+st.all):'')+'</span></div>'
+    + '<div id="pn-box-'+si+'">'+pnInner(si)+'</div>'
+    + '<div class="pn-add">'
+    +   '<input class="pn-add-in" id="pn-new-'+si+'" placeholder="예) 벽지 3롤, 실리콘 건, 콘센트 커버 5개"'
+    +     ' spellcheck="false" onkeydown="'+ent+'">'
+    +   '<button class="pn-add-b" onclick="pnAdd('+si+')">＋ 추가</button>'
+    + '</div>'
+    /* 자유 메모 */
+    + '<div class="pn-h mt"><span class="pn-h-t">메모</span></div>'
+    + '<textarea class="pn-note-area" placeholder="예) 사다리 대여 예약 · 폐기물 마대는 관리실에 문의 · 엘리베이터 보양 필요"'
+    +   ' oninput="updateProjMemo('+si+',this.value)">'+esc(s.memo||'')+'</textarea>'
+    + '</div>';
 }
 function updateProjMemo(si,val){
   if(!S.sites[si]) return;
@@ -13748,7 +13897,7 @@ function renderMain(){
       (isS ? section('span','공사 기간', renderSiteSpanCard(si)) : '') +
       section('procs', isS?'할 일 관리':'작업 관리', renderSiteProcPanel(si), (s.procs||[]).filter(p=>p).length+'개') +
       (isS ? '' : section('contacts','연락처', renderSiteContacts(si), nContacts?`${nContacts}명`:'')) +
-      section('note', isS?'공간 노트':'프로젝트 노트', renderProjectNote(si), (s.memo||'').trim()?'작성됨':'') +
+      section('note', isS?'공간 노트':'프로젝트 노트', renderProjectNote(si), _pnBadge(si)) +
       section('docs','서류 · 검사', renderDocSteps(si), dsBadge(si)) +
       notepad('데일리 노트', renderDailyNoteCompact(), dnBadge()) +
       `<div class="side-foot"><button class="btn-danger" onclick="deleteSite(${si})">${isSelf()?'공간 삭제':'프로젝트 삭제'}</button></div>`;
