@@ -698,6 +698,17 @@ button.hk-x:hover{background:#fdeceb;color:#DC2626}
 
 
 /* ── 가이드 · 상담 기록 ─────────────────────────── */
+.nt-dl{display:flex;align-items:center;gap:18px;background:#fff;border:1px solid #dfe5ee;
+  border-radius:14px;padding:18px 20px;margin-bottom:16px;flex-wrap:wrap}
+.nt-dl-l{flex:1 1 260px;min-width:0}
+.nt-dl-t{font-size:15px;font-weight:800;color:#12141C;margin-bottom:5px}
+.nt-dl-d{font-size:12.5px;color:#5f6b7c;line-height:1.7}
+.nt-dl-b{flex:0 0 auto;font-size:13.5px;font-weight:800;font-family:inherit;color:#fff;background:#2f9e5e;
+  border:none;border-radius:11px;padding:13px 20px;cursor:pointer;white-space:nowrap;
+  box-shadow:0 3px 9px rgba(47,158,94,.26)}
+.nt-dl-b:hover{background:#278a51}
+.nt-dl-b:disabled{opacity:.6;cursor:default}
+@media(max-width:620px){.nt-dl-b{width:100%;text-align:center}}
 .nt-why{background:#12141C;color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px}
 .nt-why-t{font-size:17px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
 .nt-why-t b{color:#8FE3B4}
@@ -14124,6 +14135,295 @@ const NT_ROWS=[
   {c:'기타',    ex:'도시가스 옮기기, 입구 데크(출입구 부분만)',            note:''},
 ];
 
+/* ══════════════════════════════════════════════════════════════
+   상담지 엑셀 — 내려받아 손으로 채우거나 컴퓨터로 채워 쓰십시오.
+   ExcelJS 는 단추를 누를 때만 내려받습니다 (index.html 용량과 무관).
+   ══════════════════════════════════════════════════════════════ */
+const XL_CDN='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+let _xlLoading=null;
+function _xlLoad(){
+  if(typeof ExcelJS!=='undefined') return Promise.resolve();
+  if(_xlLoading) return _xlLoading;
+  _xlLoading=new Promise(function(res,rej){
+    const s=document.createElement('script');
+    s.src=XL_CDN;
+    s.onload=function(){ res(); };
+    s.onerror=function(){ _xlLoading=null; rej(new Error('엑셀 만들기 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.')); };
+    document.head.appendChild(s);
+  });
+  return _xlLoading;
+}
+
+async function cnXlsx(btn){
+  const b=btn||document.getElementById('cn-xl');
+  const old=b?b.textContent:'';
+  if(b){ b.disabled=true; b.textContent='만드는 중...'; }
+  try{
+    await _xlLoad();
+    const buf=await _cnBuildXlsx();
+    const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='공정온_상담지.xlsx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+    showToast('상담지를 내려받았습니다');
+  }catch(e){
+    alert('내려받지 못했습니다.\n'+((e&&e.message)||e));
+  }finally{
+    if(b){ b.disabled=false; b.textContent=old||'⬇ 상담지 엑셀 내려받기'; }
+  }
+}
+
+async function _cnBuildXlsx(){
+  const co=S.company||{};
+  const wb=new ExcelJS.Workbook();
+  wb.creator=(co.name||'공정온'); wb.created=new Date();
+  const ws=wb.addWorksheet('상담지',{pageSetup:{paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:1,
+    margins:{left:0.4,right:0.4,top:0.4,bottom:0.4,header:0.2,footer:0.2}}});
+
+  const FN='맑은 고딕';
+  const INK='FF111827', GRAY='FF9CA3AF', LIGHT='FFD1D5DB';
+  const HAIR={style:'thin',color:{argb:GRAY}};
+  const FINE={style:'hair',color:{argb:LIGHT}};
+  const MED ={style:'medium',color:{argb:INK}};
+  const BOX={top:HAIR,left:HAIR,bottom:HAIR,right:HAIR};
+  const fl=function(a){ return {type:'pattern',pattern:'solid',fgColor:{argb:a}}; };
+  const CREAM=fl('FFFCF3D9'), SOFT=fl('FFF3F4F6'), WHITE=fl('FFFFFFFF');
+  const F=function(sz,bold,color){ return {name:FN,size:sz,bold:!!bold,color:{argb:color||INK}}; };
+  const M ={vertical:'middle'};
+  const MC={vertical:'middle',horizontal:'center',wrapText:true};
+  const ML={vertical:'middle',horizontal:'left',wrapText:true};
+
+  /* 24칸 격자 — A4 폭에 맞춰 잘게 나눕니다 */
+  const cols=[];
+  for(let i=0;i<24;i++) cols.push({width:4.2});
+  ws.columns=cols;
+
+  const put=function(r,c,v,o){
+    o=o||{};
+    const cell=ws.getCell(r,c);
+    cell.value=(v===''||v===undefined||v===null)?null:v;
+    cell.font=o.font||F(9);
+    cell.border=(o.border===null)?undefined:(o.border||BOX);
+    cell.alignment=o.align||M;
+    if(o.fill) cell.fill=o.fill;
+    return cell;
+  };
+  /* 이미 합친 칸은 다시 합치지 않습니다 */
+  const _mg={};
+  const _merge=function(r1,c1,r2,c2){
+    for(let r=r1;r<=r2;r++) for(let c=c1;c<=c2;c++){
+      if(_mg[r+'_'+c]) return false;
+    }
+    for(let r=r1;r<=r2;r++) for(let c=c1;c<=c2;c++) _mg[r+'_'+c]=1;
+    if(r1===r2 && c1===c2) return true;
+    ws.mergeCells(r1,c1,r2,c2);
+    return true;
+  };
+  /* 가로로 합쳐서 한 칸 */
+  const span=function(r,c1,c2,v,o){
+    _merge(r,c1,r,c2);
+    put(r,c1,v,o);
+    for(let c=c1+1;c<=c2;c++){
+      const x=ws.getCell(r,c);
+      x.border=(o&&o.border===null)?undefined:((o&&o.border)||BOX);
+      if(o&&o.fill) x.fill=o.fill;
+    }
+  };
+  /* 세로로도 합쳐서 */
+  const block=function(r1,c1,r2,c2,v,o){
+    _merge(r1,c1,r2,c2);
+    put(r1,c1,v,o);
+    for(let r=r1;r<=r2;r++) for(let c=c1;c<=c2;c++){
+      const x=ws.getCell(r,c);
+      x.border=(o&&o.border===null)?undefined:((o&&o.border)||BOX);
+      if(o&&o.fill) x.fill=o.fill;
+    }
+  };
+  const hRow=function(r,h){ ws.getRow(r).height=h; };
+  const sec=function(r,n,t){
+    span(r,1,24,n+'_'+t,{font:F(11,true),align:ML,border:null});
+    hRow(r,20);
+  };
+
+  let r=1;
+  /* ── 제목 띠 ── */
+  /* 먼저 바탕만 칠하고, 합치기는 아래에서 한 번씩만 합니다 */
+  for(let rr=r;rr<=r+2;rr++) for(let cc=1;cc<=24;cc++){
+    const x=ws.getCell(rr,cc);
+    x.fill=CREAM;
+    x.border={ top:(rr===r?MED:undefined), bottom:(rr===r+2?MED:undefined),
+               left:(cc===1?MED:undefined), right:(cc===24?MED:undefined) };
+  }
+  block(r,1,r+1,6,'',{fill:CREAM,border:null});
+  block(r,7,r+1,18,'상 담 지',{font:F(22,true),align:MC,fill:CREAM,border:null});
+  block(r,19,r+1,24,'',{fill:CREAM,border:null});
+  span(r+2,7,18,'For commercial interior',{font:F(8,false,'FF8A7A4A'),align:MC,fill:CREAM,border:null});
+  span(r+2,1,6,'  현장명',{font:F(9,true,'FF6B5B2A'),align:ML,fill:CREAM,border:null});
+  put(r+2,19,'일자',{font:F(9,true,'FF6B5B2A'),align:MC,fill:CREAM,border:null});
+  span(r+2,20,21,'년',{font:F(9,false,'FF8A7A4A'),align:MC,fill:CREAM,border:null});
+  span(r+2,22,23,'월',{font:F(9,false,'FF8A7A4A'),align:MC,fill:CREAM,border:null});
+  put(r+2,24,'일',{font:F(9,false,'FF8A7A4A'),align:MC,fill:CREAM,border:null});
+  hRow(r,14); hRow(r+1,20); hRow(r+2,16);
+  r+=4;
+
+  /* ── 1 기본정보 ── */
+  sec(r,'1','기본정보'); r++;
+  const b0=r;
+  block(r,1,r+4,2,'고 객 정 보',{font:F(9,true),align:MC});
+  block(r,9,r+4,10,'현 장 정 보',{font:F(9,true),align:MC});
+  block(r,17,r+4,18,'부 가 정 보',{font:F(9,true),align:MC});
+  const L=[['고객명',''],['연락처',''],['주소','']];
+  const C=[['업종',''],['평수/면적',''],['공사유형',''],['공사예정','']];
+  const R=[['주차',''],['식당',''],['화장실',''],['층수',''],['양중','']];
+  for(let i=0;i<5;i++){
+    /* 왼쪽 — 주소는 두 줄 */
+    if(i<2){ span(r+i,3,4,L[i][0],{font:F(9),align:MC}); span(r+i,5,8,'',{}); }
+    else if(i===2){ block(r+i,3,r+i+1,4,'주소',{font:F(9),align:MC}); block(r+i,5,r+i+1,8,'',{}); }
+    /* 가운데 */
+    if(i<4){ span(r+i,11,12,C[i][0],{font:F(9),align:MC}); span(r+i,13,16,'',{}); }
+    else { span(r+i,11,12,'',{}); span(r+i,13,16,'',{}); }
+    /* 오른쪽 */
+    span(r+i,19,20,R[i][0],{font:F(9),align:MC});
+    span(r+i,21,24,'',{});
+    hRow(r+i,17);
+  }
+  r+=6;
+
+  /* ── 2 탐색단계 ── */
+  sec(r,'2','탐색단계'); r++;
+  const e0=r;
+  for(let i=0;i<3;i++){
+    span(r+i,2,4,'질문:',{font:F(9,false,GRAY),align:ML,border:{bottom:HAIR}});
+    span(r+i,5,12,'',{border:{bottom:HAIR}});
+    hRow(r+i,16);
+  }
+  /* 기구 SPEC CHECK */
+  const s0=r+3;
+  block(s0,2,s0+3,3,'기구\nSPEC\nCHECK',{font:F(8,false,'FF6B7280'),align:MC,fill:SOFT});
+  ['명칭','사이즈','전력','설비'].forEach(function(t,i){
+    const c=[4,7,10,11][i], c2=[6,9,10,12][i];
+    span(s0,c,c2,t,{font:F(8),align:MC,fill:SOFT});
+  });
+  for(let k=1;k<=3;k++){
+    span(s0+k,4,6,'',{fill:WHITE}); span(s0+k,7,9,'',{fill:WHITE});
+    put(s0+k,10,'',{fill:WHITE}); span(s0+k,11,12,'',{fill:WHITE});
+    hRow(s0+k,15);
+  }
+  hRow(s0,15);
+  /* 모눈 — 칸마다 옅은 선을 그려 격자처럼 보이게 합니다 */
+  const grid=function(r1,c1,r2,c2){
+    for(let rr=r1;rr<=r2;rr++) for(let cc=c1;cc<=c2;cc++){
+      const x=ws.getCell(rr,cc);
+      x.fill=WHITE;
+      x.border={top:FINE,left:FINE,bottom:FINE,right:FINE};
+    }
+  };
+  grid(s0,13,s0+3,15);
+  /* 빠른 레이아웃 */
+  block(e0,16,s0+3,16,'빠 른 레 이 아 웃',{font:F(8),align:MC,border:null});
+  grid(e0,17,s0+3,24);
+  /* 바깥 테두리 */
+  for(let rr=e0;rr<=s0+3;rr++) for(let cc=1;cc<=24;cc++){
+    const x=ws.getCell(rr,cc);
+    const bd=Object.assign({},x.border||{});
+    if(rr===e0) bd.top=MED;
+    if(rr===s0+3) bd.bottom=MED;
+    if(cc===1) bd.left=MED;
+    if(cc===24) bd.right=MED;
+    x.border=bd;
+  }
+  r=s0+5;
+
+  /* ── 3 공사내용정리 ── */
+  sec(r,'3','공사내용정리'); r++;
+  put(r,1,'NO',{font:F(9),align:MC});
+  span(r,2,6,'공사명',{font:F(9),align:MC});
+  span(r,7,18,'내용',{font:F(9),align:MC});
+  span(r,19,24,'비고',{font:F(9),align:MC});
+  hRow(r,17); r++;
+  for(let i=1;i<=10;i++){
+    put(r,1,i,{font:F(9,false,'FF6B7280'),align:MC});
+    span(r,2,6,'',{}); span(r,7,18,'',{}); span(r,19,24,'',{});
+    hRow(r,17); r++;
+  }
+  r++;
+
+  /* ── 4 취향분석 ── */
+  sec(r,'4','취향분석'); r++;
+  span(r,1,9,'선호스타일',{font:F(9),align:MC});
+  span(r,10,15,'선호색상',{font:F(9),align:MC});
+  span(r,16,19,'선호소재',{font:F(9),align:MC});
+  span(r,20,24,'MEMO',{font:F(9),align:MC});
+  hRow(r,17); r++;
+  const STY=[['모 던','빈 티 지','인더스트리얼'],['프 렌 치','북 유 럽','캐 주 얼'],['클 래 식','어 반','']];
+  const COL=[['화 이 트','그 레 이'],['파 스 텔','원 색'],['블랙 & 화이트','']];
+  const MAT=['원목느낌','금 속','타 일'];
+  for(let i=0;i<3;i++){
+    span(r+i,1,3,STY[i][0],{font:F(9,false,'FF9CA3AF'),align:MC});
+    span(r+i,4,6,STY[i][1],{font:F(9,false,'FF9CA3AF'),align:MC});
+    span(r+i,7,9,STY[i][2],{font:F(9,false,'FF9CA3AF'),align:MC});
+    if(i<2){
+      span(r+i,10,12,COL[i][0],{font:F(9,false,'FF9CA3AF'),align:MC});
+      span(r+i,13,15,COL[i][1],{font:F(9,false,'FF9CA3AF'),align:MC});
+    } else {
+      span(r+i,10,15,COL[i][0],{font:F(9,false,'FF9CA3AF'),align:MC});
+    }
+    span(r+i,16,19,MAT[i],{font:F(9,false,'FF9CA3AF'),align:MC});
+    hRow(r+i,17);
+  }
+  block(r,20,r+2,24,'',{});
+  r+=4;
+
+  /* ── 5·6 ── */
+  span(r,1,12,'5_부가공사 CHECK',{font:F(11,true),align:ML,border:null});
+  span(r,13,24,'6_견적진행 여부',{font:F(11,true),align:ML,border:null});
+  hRow(r,20); r++;
+  const ADD=[
+    ['에어컨','공사여부:','A/C유형:','전기용량:','실외기위치:'],
+    ['보안공사','공사여부:','CCTV만','보안까지','공사예정일:'],
+    ['인터넷','공사여부:','내선사용','신규공사','공사예정일:'],
+    ['소방','공사여부:','방염대상여부:','공사내용:',''],
+    ['간판','공사여부:','간판선유무:','간판차단기유무:',''],
+    ['스피커','공사여부:','외부','내부','사용기기:'],
+    ['기 타','','','',''],
+  ];
+  const EST=[
+    ['견적제시형태',''],['견적제시기한','월        일   까지 견적을 제출하겠습니다'],
+    ['공사시작예정일','월        일'],['공사마감예정일','월        일'],['매장OPEN예정일','월        일'],
+  ];
+  const top=r;
+  ADD.forEach(function(a,i){
+    span(r+i,1,3,a[0],{font:F(9,true),align:MC});
+    span(r+i,4,5,a[1],{font:F(7.5,false,'FF9CA3AF'),align:ML});
+    span(r+i,6,8,a[2],{font:F(7.5,false,'FF9CA3AF'),align:ML});
+    span(r+i,9,10,a[3],{font:F(7.5,false,'FF9CA3AF'),align:ML});
+    span(r+i,11,12,a[4],{font:F(7.5,false,'FF9CA3AF'),align:ML});
+    hRow(r+i,17);
+  });
+  /* 6번 — 견적제시형태는 두 줄 */
+  block(top,13,top+1,16,'견적제시형태',{font:F(9,true),align:MC});
+  ['가견적','상세견적','2D설계','3D설계','기타'].forEach(function(t,i){
+    put(top,17+i,t,{font:F(7.5),align:MC});
+    put(top+1,17+i,'',{});
+  });
+  span(top,22,24,'',{}); span(top+1,22,24,'',{});
+  for(let i=1;i<EST.length;i++){
+    const rr=top+1+i;
+    span(rr,13,16,EST[i][0],{font:F(9,true),align:MC});
+    span(rr,17,24,EST[i][1],{font:F(8.5),align:MC});
+    hRow(rr,17);
+  }
+  r=top+ADD.length+1;
+
+  /* 바닥 */
+  span(r,1,24,'공정온  www.gongjeongon.com'+((co.name||'').trim()?('    ·    '+co.name):''),
+    {font:F(7.5,false,'FFB6BCC6'),align:{vertical:'middle',horizontal:'right'},border:null});
+
+  return await wb.xlsx.writeBuffer();
+}
+
 function renderGuideNoteBody(){
   const rows=NT_ROWS.map(function(r,i){
     return '<tr>'
@@ -14135,6 +14435,13 @@ function renderGuideNoteBody(){
   }).join('');
 
   return ''
+  /* 내려받기 */
+  + '<div class="nt-dl">'
+  +   '<div class="nt-dl-l"><div class="nt-dl-t">📄 상담지 양식</div>'
+  +     '<div class="nt-dl-d">현장에 들고 나가 손으로 채우실 수 있습니다. '
+  +       '기본정보 · 탐색단계 · 공사내용정리 · 취향분석 · 부가공사 · 견적진행까지 한 장에 담겨 있습니다.</div></div>'
+  +   '<button class="nt-dl-b" id="cn-xl" onclick="cnXlsx(this)">⬇ 상담지 엑셀 내려받기</button>'
+  + '</div>'
   /* 왜 필요한가 */
   + '<div class="nt-why">'
   +   '<div class="nt-why-t">상담하면서 <b>바로바로 적어 두세요</b></div>'
