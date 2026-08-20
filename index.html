@@ -663,7 +663,17 @@ input[data-dl]:focus{background-image:linear-gradient(45deg,transparent 50%,#2f9
 
 /* ── 단축키 ─────────────────────────────────── */
 .hk-box{max-width:520px}
-.hk-list{max-height:56vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:2px}
+.hk-g{margin-bottom:14px}
+.hk-g:last-child{margin-bottom:0}
+.hk-g-t{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#8a94a6;
+  letter-spacing:.02em;padding:0 12px 7px;border-bottom:1px solid #eef1f6;margin-bottom:4px}
+.hk-g-t span{font-size:10px;font-weight:700;color:#8a94a6;background:#f2f5fa;border-radius:20px;padding:2px 7px}
+.hk-g-t span.on{color:#1f6b45;background:#eef7f2}
+.hk-r.off .hk-t{color:#8a94a6}
+.hk-r.off .hk-t em{color:#b8c0cc}
+.hk-key.none{color:#a8b1be;background:#fff;border-style:dashed;font-weight:700}
+.hk-key.none:hover{border-style:solid;border-color:#4F46E5;color:#4F46E5}
+.hk-list{max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:2px}
 .hk-r{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px}
 .hk-r:hover{background:#f7f9fc}
 .hk-t{flex:1 1 auto;min-width:0;font-size:13.5px;font-weight:700;color:#12141C;display:flex;flex-direction:column;gap:2px}
@@ -3066,6 +3076,26 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
   transform:translate(-50%,-50%);border-radius:50%;background:#12141C;
 }
 .dc.painted.anchor::after{background:#fff}
+
+/* 지우기 모드 — 마우스 올린 구간 */
+.dc.peek{position:relative;z-index:3;box-shadow:inset 0 0 0 2.5px #DC2626,0 0 0 1px rgba(220,38,38,.35);animation:peekPulse 1.1s ease-in-out infinite}
+.dc.peek::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(45deg,rgba(220,38,38,.42) 0 5px,rgba(220,38,38,.16) 5px 10px)}
+.dc.peek.peek-s{box-shadow:inset 4px 0 0 #DC2626,inset 0 0 0 2.5px #DC2626}
+.dc.peek.peek-e{box-shadow:inset -4px 0 0 #DC2626,inset 0 0 0 2.5px #DC2626}
+.dc.peek.peek-s.peek-e{box-shadow:inset 4px 0 0 #DC2626,inset -4px 0 0 #DC2626,inset 0 0 0 2.5px #DC2626}
+@keyframes peekPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+.eb{position:fixed;z-index:99998;transform:translate(-50%,-100%);
+  background:#DC2626;color:#fff;font-size:13px;font-weight:800;
+  padding:9px 14px;border-radius:11px;white-space:nowrap;pointer-events:none;
+  box-shadow:0 6px 20px rgba(220,38,38,.45),0 2px 6px rgba(0,0,0,.2);
+  display:flex;align-items:center;gap:7px;margin-top:-6px;
+  animation:ebIn .12s ease-out}
+.eb::after{content:'';position:absolute;left:50%;bottom:-5px;transform:translateX(-50%) rotate(45deg);
+  width:10px;height:10px;background:#DC2626;border-radius:2px}
+@keyframes ebIn{from{opacity:0;transform:translate(-50%,-100%) translateY(4px)}
+  to{opacity:1;transform:translate(-50%,-100%)}}
+.eb-x{font-size:12px;opacity:.9}
+.eb-h{font-size:11.5px;font-weight:700;opacity:.85;padding-left:9px;border-left:1px solid rgba(255,255,255,.35)}
 .dc.ghost{
   box-shadow:inset 0 0 0 1.5px rgba(31,56,100,.45);
   background:rgba(31,56,100,.09);
@@ -5251,7 +5281,7 @@ tr.divider td{background:#EEF0F3!important}
         <button class="ah-btn" onclick="openDataBackup()" title="데이터 백업·복원">백업</button>
         <button class="ah-btn" onclick="openProfile()">계정</button>
         <button class="ah-btn" onclick="goToSettings()" id="login-btn">로그아웃</button>
-        <a class="ah-btn ah-out" href="#">← 소개</a>
+        <a class="ah-btn ah-out" href="#" onclick="event.preventDefault();goHome();">← 소개</a>
       </div>
     </div>
 
@@ -6265,9 +6295,14 @@ function renderContactsTab(){
   procOpts.forEach(function(v){ v=(v||'').trim(); if(v&&!procSeen[v]){procSeen[v]=1;procList.push(v);} });
 
   const cell=function(cls,val,ph,field,idx,list){
+    const isTel=(field==='phone');
     return '<span class="ctb-c"><input class="ctb-in '+cls+'"'+(list?' data-dl="'+list+'"':'')
+      + (isTel?' inputmode="tel"':'')
       + ' value="'+esc(val||'')+'" placeholder="'+ph+'" spellcheck="false"'
-      + ' oninput="S.globalContacts['+idx+'].'+field+'=this.value" onblur="persist()"></span>';
+      + (isTel
+          ? ' oninput="telIn(this,function(v){S.globalContacts['+idx+'].'+field+'=v;})"'
+          : ' oninput="S.globalContacts['+idx+'].'+field+'=this.value"')
+      + ' onblur="persist()"></span>';
   };
 
   let h='<div>'
@@ -6311,7 +6346,7 @@ function renderContactsTab(){
     + '<div class="ctb-add-row">'
     +   '<input class="proc-add-input" data-dl="ct-procs" placeholder="분류" style="width:96px" value="'+esc(nc.role||'')+'" oninput="S.newGlobalContact.role=this.value">'
     +   '<input class="proc-add-input" placeholder="이름 · 거래처 *" style="width:132px" value="'+esc(nc.name||'')+'" oninput="S.newGlobalContact.name=this.value">'
-    +   '<input class="proc-add-input" placeholder="전화번호" style="width:118px" value="'+esc(nc.phone||'')+'" oninput="S.newGlobalContact.phone=this.value">'
+    +   '<input class="proc-add-input" placeholder="전화번호" style="width:118px" value="'+esc(nc.phone||'')+'" inputmode="tel" oninput="telIn(this,function(v){S.newGlobalContact.phone=v;})">'
     +   '<input class="proc-add-input" placeholder="차량번호" style="width:96px" value="'+esc(nc.car||'')+'" oninput="S.newGlobalContact.car=this.value">'
     +   '<input class="proc-add-input" placeholder="계좌" style="width:140px" value="'+esc(nc.acct||'')+'" oninput="S.newGlobalContact.acct=this.value">'
     +   '<input class="proc-add-input" placeholder="메모" style="flex:1;min-width:90px" value="'+esc(nc.memo||'')+'" oninput="S.newGlobalContact.memo=this.value">'
@@ -7628,7 +7663,7 @@ function openProfile(edit){
   const phoneRow = edit==='phone'
     ? `<div class="st-edit">
          <div class="st-rlab">전화번호</div>
-         <input type="tel" id="pf-phone" class="acc-input" maxlength="20" placeholder="010-1234-5678" value="${ph?esc(ph):''}">
+         <input type="tel" id="pf-phone" class="acc-input" maxlength="20" inputmode="tel" oninput="telIn(this)" placeholder="01012345678 (숫자만)" value="${ph?esc(ph):''}">
          <div id="pf-msg" class="acc-msg"></div>
          <div class="st-editrow"><button class="st-cancel" onclick="openProfile()">취소</button><button class="st-save" onclick="saveProfile()">저장</button></div>
        </div>`
@@ -9953,6 +9988,95 @@ function _qtDropTemp(){
   return true;
 }
 /* 공사명을 적으면 프로젝트 이름이 아직 비어 있을 때 따라갑니다 */
+/* ── 견적서 → 일정표 ────────────────────────────────
+   견적에 잡아 둔 공정을 일정표 작업 줄로 옮깁니다. */
+function _qtScheduleDiff(si,q){
+  const st=S.sites[si];
+  const have=((st&&st.procs)||[]).map(function(p){
+    return procName(String((typeof p==='string'?p:(p&&p.name))||'').trim());
+  }).filter(Boolean);
+  const add=[], seen={};
+  ((q&&q.groups)||[]).forEach(function(g){
+    const c=String((g&&g.cat)||'').trim();
+    if(!c) return;
+    const key=procName(c);
+    if(seen[key] || have.indexOf(key)>=0) return;
+    seen[key]=1; add.push(c);
+  });
+  return add;
+}
+/* ── 자동 잇기 ──────────────────────────────────
+   일정표를 아직 직접 손보지 않았다면, 견적에 공정을 넣을 때마다 일정표에도 저절로 들어갑니다.
+   작업을 한 번이라도 지우시면 그때부터 자동은 멈춥니다. */
+function _qtAutoOn(si){
+  const st=S.sites[si];
+  return !!st && st.procAuto!==false;
+}
+function qtAutoOff(si){
+  const st=S.sites[si]; if(!st) return;
+  if(st.procAuto===false) return;
+  st.procAuto=false; persist();
+}
+function _qtAutoSync(si){
+  if(!_qtAutoOn(si)) return 0;
+  const st=S.sites[si]; if(!st) return 0;
+  const q=_qtCurQ(si); if(!q) return 0;
+  const add=_qtScheduleDiff(si,q);
+  if(!add.length) return 0;
+  if(!Array.isArray(st.procs)) st.procs=[];
+  add.forEach(function(c){
+    const empty=st.procs.findIndex(function(p){
+      return !String((typeof p==='string'?p:(p&&p.name))||'').trim();
+    });
+    if(empty>=0) st.procs[empty]=c; else st.procs.push(c);
+  });
+  persist();
+  return add.length;
+}
+/* 견적을 건드린 뒤에 부릅니다 */
+function qtAfterChange(si){
+  const n=_qtAutoSync(si);
+  if(n>0) showToast('일정표에 '+n+'개 작업이 함께 들어갔습니다');
+}
+/* 자동 잇기를 다시 켭니다 */
+function qtAutoOn(si){
+  const st=S.sites[si]; if(!st) return;
+  st.procAuto=true;
+  const n=_qtAutoSync(si);
+  renderAll();
+  showToast(n>0 ? ('견적서와 다시 이었습니다 — '+n+'개 들어감') : '견적서와 다시 이었습니다');
+}
+/* 눌러서 한 번에 옮기기 */
+async function qtToSchedule(si){
+  const q=_qtCurQ(si);
+  if(!q){ showToast('먼저 견적을 만들어 주세요'); return; }
+  const st=S.sites[si]; if(!st) return;
+  const add=_qtScheduleDiff(si,q);
+  const total=((q.groups||[]).length);
+  if(!total){ showToast('이 견적에는 공정이 없습니다'); return; }
+  if(!add.length){ showToast('견적의 공정이 이미 일정표에 다 들어 있습니다'); return; }
+
+  const skip=total-add.length;
+  const ok=await askConfirm(
+    '견적서를 일정표로 옮길까요?',
+    '**'+add.length+'개** 작업이 일정표에 새로 들어갑니다. 견적 순서 그대로 잡힙니다.\n\n'
+      + add.join(' · ')
+      + (skip>0 ? '\n\n이미 있는 '+skip+'개는 건너뜁니다. 날짜 칠하기는 그대로 둡니다.' : ''),
+    '일정표에 넣기', false);
+  if(!ok) return;
+
+  if(!Array.isArray(st.procs)) st.procs=[];
+  add.forEach(function(c){
+    const empty=st.procs.findIndex(function(p){ return !String((typeof p==='string'?p:(p&&p.name))||'').trim(); });
+    if(empty>=0) st.procs[empty]=c; else st.procs.push(c);
+  });
+  persist(); renderAll();
+  showToast(add.length+'개 작업을 일정표에 넣었습니다');
+}
+/* 프로젝트 작업 목록 쪽에서 부를 때 */
+function procFromQuote(si){ qtToSchedule(si); }
+function _qtHasQuote(si){ return _qtList(si).length>0; }
+
 function qtSyncSiteName(si){
   const st=S.sites[si], q=_qtCurQ(si);
   if(!st||!q) return;
@@ -11464,7 +11588,7 @@ function renderQuoteView(si){
     + '<div class="qt-f w1"><span class="qt-f-k">견적일자</span><input class="qt-f-in" type="date" value="'+esc(q.date||'')+'" onchange="qtUp('+si+',\'date\',this.value)"></div>'
     + '<div class="qt-f w2"><span class="qt-f-k">받는 분</span><input class="qt-f-in" value="'+esc(q.to||'')+'" placeholder="고객 성함 · 상호" spellcheck="false" oninput="qtUp('+si+',\'to\',this.value)"></div>'
     + '<div class="qt-f w2"><span class="qt-f-k">받는 분 주소</span><input class="qt-f-in" value="'+esc(q.toAddr||'')+'" placeholder="현장 주소 (견적서에 들어갑니다)" spellcheck="false" oninput="qtUp('+si+',\'toAddr\',this.value)"></div>'
-    + '<div class="qt-f"><span class="qt-f-k">받는 분 연락처</span><input class="qt-f-in" value="'+esc(q.toTel||'')+'" placeholder="010-0000-0000" spellcheck="false" oninput="qtUp('+si+',\'toTel\',this.value)"></div>'
+    + '<div class="qt-f"><span class="qt-f-k">받는 분 연락처</span><input class="qt-f-in" value="'+esc(q.toTel||'')+'" placeholder="01012345678 (숫자만)" inputmode="tel" spellcheck="false" oninput="telIn(this,function(v){qtUp('+si+',\'toTel\',v);})"></div>'
     + '<div class="qt-f w1"><span class="qt-f-k">공사규모</span><input class="qt-f-in" value="'+esc(q.size||'')+'" placeholder="100㎡ (30평)" spellcheck="false" oninput="qtUp('+si+',\'size\',this.value)"></div>'
     + '<div class="qt-f w2"><span class="qt-f-k">공사기간'
     +   ((typeof _qtAutoPeriod==='function' && _qtAutoPeriod(si)) ? ' <button class="qt-pull" onclick="qtPullPeriod('+si+')" title="일정표에서 가져오기">일정표에서</button>' : '')
@@ -12767,14 +12891,51 @@ const CO_FIELDS=[
   {k:'biztype',t:'업태',         ph:'예) 건설업',                w:1},
   {k:'bizitem',t:'종목',         ph:'예) 실내건축공사업',        w:1},
   {k:'addr',  t:'사업장 소재지',  ph:'예) 경기도 고양시 …',       w:3},
-  {k:'tel',   t:'전화번호',      ph:'예) 031-000-0000',          w:1},
+  {k:'tel',   t:'전화번호',      ph:'0310000000 (숫자만)',       w:1, tel:true},
   {k:'mgr',   t:'담당자',        ph:'예) 김범수',                w:1},
-  {k:'mgrTel',t:'담당자 휴대폰',  ph:'예) 010-0000-0000',        w:1},
+  {k:'mgrTel',t:'담당자 휴대폰',  ph:'01000000000 (숫자만)',     w:1, tel:true},
   {k:'email', t:'이메일',        ph:'예) admin@gongjeongon.com', w:2},
   {k:'acct',  t:'입금 계좌',      ph:'예) 국민 000-00-0000-000',  w:2},
 ];
 function _co(){ if(!S.company) S.company={}; return S.company; }
 function _coFilled(){ const c=S.company||{}; return !!((c.name||'').trim() && (c.bizno||'').trim()); }
+/* 전화번호 — 숫자만 치시면 010-1234-5678 로 알아서 나눕니다.
+   휴대폰(010) · 지역번호(02, 031…) · 대표번호(1588) 를 모두 가려서 넣습니다. */
+function _telFmt(v){
+  const d=String(v||'').replace(/[^0-9]/g,'').slice(0,11);
+  if(!d) return '';
+  if(d.startsWith('02')){                      /* 서울 — 02-123-4567 / 02-1234-5678 */
+    if(d.length<=2) return d;
+    if(d.length<=5) return d.slice(0,2)+'-'+d.slice(2);
+    if(d.length<=9) return d.slice(0,2)+'-'+d.slice(2,5)+'-'+d.slice(5);
+    return d.slice(0,2)+'-'+d.slice(2,6)+'-'+d.slice(6,10);
+  }
+  if(/^(1[5-9]\d\d)/.test(d) && d.length<=8){  /* 대표번호 — 1588-1234 */
+    if(d.length<=4) return d;
+    return d.slice(0,4)+'-'+d.slice(4);
+  }
+  if(d.length<=3) return d;                    /* 그 밖 — 010-1234-5678 / 031-123-4567 */
+  if(d.length<=7) return d.slice(0,3)+'-'+d.slice(3);
+  if(d.length<=10) return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);
+  return d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7);
+}
+/* 적는 동안 커서가 튀지 않게 — 앞쪽 숫자 개수를 세어 자리를 되돌립니다 */
+function telIn(el, cb){
+  const before=el.value, pos=el.selectionStart||0;
+  const nBefore=before.slice(0,pos).replace(/[^0-9]/g,'').length;
+  const out=_telFmt(before);
+  el.value=out;
+  let seen=0, np=out.length;
+  for(let i=0;i<out.length;i++){
+    if(/[0-9]/.test(out[i])) seen++;
+    if(seen===nBefore){ np=i+1; break; }
+  }
+  if(nBefore===0) np=0;
+  try{ el.setSelectionRange(np,np); }catch(_){}
+  if(typeof cb==='function') cb(out);
+  return out;
+}
+
 /* 사업자등록번호 — 숫자만 치시면 123-45-67890 으로 알아서 나눕니다 */
 function _bizFmt(v){
   const d=String(v||'').replace(/[^0-9]/g,'').slice(0,10);
@@ -12809,7 +12970,9 @@ function renderCompanyTab(){
   CO_FIELDS.forEach(function(f){
     h+='<div class="co-f w'+f.w+'"><label class="co-l">'+esc(f.t)+'</label>'
       + '<input class="co-in" value="'+esc(c[f.k]||'')+'" placeholder="'+esc(f.ph)+'" spellcheck="false"'
-      + (f.biz?' inputmode="numeric" oninput="bizIn(this)"':(' oninput="coUp(\''+f.k+'\',this.value)"'))
+      + (f.biz ? ' inputmode="numeric" oninput="bizIn(this)"'
+        : f.tel ? ' inputmode="tel" oninput="telIn(this,function(v){coUp(\''+f.k+'\',v);})"'
+        : ' oninput="coUp(\''+f.k+'\',this.value)"')
       + '></div>';
   });
   h+='</div>';
@@ -13928,19 +14091,59 @@ let ERASE_MODE=false;
    단축키 — 자주 쓰는 것만 골라 두었고, 원하시는 키로 바꾸실 수 있습니다.
    글자를 적는 중에는 절대 끼어들지 않습니다.
    ══════════════════════════════════════════════════════════════ */
+/* ── 단축키로 걸 수 있는 동작들 ────────────────────
+   fix:true 는 자주 쓰는 것이라 맨 위에 고정합니다 (키는 바꾸실 수 있습니다).
+   나머지는 처음엔 꺼져 있고, 원하시는 것만 키를 지정해 쓰시면 됩니다. */
 const HK_LIST=[
-  {k:'paint',  t:'칠하기',            d:'일정표에 색을 칠합니다  (Drawing)',  def:'d', run:function(){ if(ERASE_MODE) toggleErase(); showToast('칠하기'); }},
-  {k:'erase',  t:'지우기',            d:'칠한 것을 지웁니다  (Erase)',        def:'e', run:function(){ if(!ERASE_MODE) toggleErase(); showToast('지우기'); }},
-  {k:'toggle', t:'칠하기 ↔ 지우기',    d:'두 가지를 오갑니다  (Toggle)',       def:'t', run:function(){ toggleErase(); showToast(ERASE_MODE?'지우기':'칠하기'); }},
-  {k:'save',   t:'저장',              d:'지금 바로 저장합니다  (Save)',       def:'s', run:function(){ if(typeof manualSave==='function') manualSave(); }},
-  {k:'quote',  t:'견적 보기',         d:'공사대금 → 견적으로  (Quote)',       def:'q', run:function(){ hkGoLedger('quote'); }},
-  {k:'spend',  t:'지출 보기',         d:'공사대금 → 지출로  (Cost)',          def:'c', run:function(){ hkGoLedger('spend'); }},
-  {k:'preview',t:'견적서 미리보기',    d:'종이 모양으로 봅니다  (View)',       def:'v', run:function(){ hkPreview(); }},
-  {k:'prevM',  t:'지난 달',           d:'일정표를 한 달 뒤로',                def:'ArrowLeft',  run:function(){ if(typeof changeMonth==='function') changeMonth(-1); }},
-  {k:'nextM',  t:'다음 달',           d:'일정표를 한 달 앞으로',              def:'ArrowRight', run:function(){ if(typeof changeMonth==='function') changeMonth(1); }},
-  {k:'print',  t:'인쇄 · PDF',        d:'일정표를 인쇄합니다  (Print)',       def:'ctrl+p', run:function(){ if(typeof openPrint==='function') openPrint(); }},
-  {k:'help',   t:'단축키 보기',        d:'이 목록을 엽니다',                  def:'?', run:function(){ hkOpen(); }},
+  /* ── 자주 쓰는 것 (맨 위 고정) ── */
+  {k:'paint',  g:'일정표', t:'칠하기',          d:'일정표에 색을 칠합니다  (Drawing)', def:'d', fix:true, run:function(){ if(ERASE_MODE) toggleErase(); showToast('칠하기'); }},
+  {k:'erase',  g:'일정표', t:'지우기',          d:'칠한 것을 지웁니다  (Erase)',       def:'e', fix:true, run:function(){ if(!ERASE_MODE) toggleErase(); showToast('지우기'); }},
+  {k:'toggle', g:'일정표', t:'칠하기 ↔ 지우기',  d:'두 가지를 오갑니다  (Toggle)',      def:'t', fix:true, run:function(){ toggleErase(); showToast(ERASE_MODE?'지우기':'칠하기'); }},
+  {k:'save',   g:'공통',   t:'저장',            d:'지금 바로 저장합니다  (Save)',      def:'s', fix:true, run:function(){ if(typeof manualSave==='function') manualSave(); }},
+  {k:'quote',  g:'공사대금', t:'견적 보기',      d:'공사대금 → 견적  (Quote)',          def:'q', fix:true, run:function(){ hkGoLedger('quote'); }},
+  {k:'spend',  g:'공사대금', t:'지출 보기',      d:'공사대금 → 지출  (Cost)',           def:'c', fix:true, run:function(){ hkGoLedger('spend'); }},
+  {k:'preview',g:'공사대금', t:'견적서 미리보기', d:'종이 모양으로 봅니다  (View)',       def:'v', fix:true, run:function(){ hkPreview(); }},
+
+  /* ── 일정표 ── */
+  {k:'prevM',  g:'일정표', t:'지난 달',          d:'일정표를 한 달 뒤로',              def:'ArrowLeft',  run:function(){ if(typeof changeMonth==='function') changeMonth(-1); }},
+  {k:'nextM',  g:'일정표', t:'다음 달',          d:'일정표를 한 달 앞으로',            def:'ArrowRight', run:function(){ if(typeof changeMonth==='function') changeMonth(1); }},
+  {k:'today',  g:'일정표', t:'오늘로',           d:'오늘 날짜로 돌아옵니다',           def:'',  run:function(){ if(typeof memoGoToday==='function') memoGoToday(); }},
+  {k:'tasks',  g:'일정표', t:'자주 쓰는 작업',    d:'작업 고르기 창을 엽니다',          def:'',  run:function(){ hkSi(function(si){ if(typeof tkOpen==='function') tkOpen(si); }); }},
+  {k:'print',  g:'일정표', t:'인쇄 · PDF',       d:'일정표를 인쇄합니다  (Print)',      def:'ctrl+p', run:function(){ if(typeof openPrint==='function') openPrint(); }},
+
+  /* ── 공사대금 ── */
+  {k:'income', g:'공사대금', t:'입금 보기',       d:'공사대금 → 입금',                 def:'',  run:function(){ hkGoLedger('income'); }},
+  {k:'settle', g:'공사대금', t:'정산 보기',       d:'공사대금 → 정산',                 def:'',  run:function(){ hkGoLedger('settle'); }},
+  {k:'newQt',  g:'공사대금', t:'새 견적',         d:'견적을 하나 더 만듭니다',          def:'',  run:function(){ hkSi(function(si){ if(typeof qtNew==='function') qtNew(si); }); }},
+  {k:'addGrp', g:'공사대금', t:'공정 묶음 더하기', d:'견적에 공정을 넣습니다',           def:'',  run:function(){ hkSi(function(si){ if(typeof qmOpen==='function') qmOpen(si,'add'); }); }},
+  {k:'dupQt',  g:'공사대금', t:'이 견적 복제',     d:'같은 내용으로 하나 더',            def:'',  run:function(){ hkSi(function(si){ if(typeof qtDup==='function') qtDup(si); }); }},
+  {k:'toSch',  g:'공사대금', t:'일정표에 넣기',    d:'견적 공정을 일정표로',             def:'',  run:function(){ hkSi(function(si){ if(typeof qtToSchedule==='function') qtToSchedule(si); }); }},
+  {k:'gbPrev', g:'공사대금', t:'지출 미리보기',    d:'지출 내역서를 종이로',             def:'',  run:function(){ hkSi(function(si){ if(typeof gbPreviewOpen==='function') gbPreviewOpen(si); }); }},
+
+  /* ── 화면 이동 ── */
+  {k:'tabAll', g:'화면',   t:'프로젝트 통합',     d:'통합 화면으로',                   def:'',  run:function(){ if(typeof setTab==='function') setTab('all'); }},
+  {k:'tabMon', g:'화면',   t:'공사대금',          d:'공사대금 화면으로',                def:'',  run:function(){ if(typeof setTab==='function') setTab('ledger'); }},
+  {k:'tabTeam',g:'화면',   t:'팀 관리',           d:'팀 관리 화면으로',                 def:'',  run:function(){ if(typeof setTab==='function') setTab('members'); }},
+  {k:'site1',  g:'화면',   t:'첫 프로젝트',       d:'첫 번째 현장으로',                 def:'',  run:function(){ if((S.sites||[]).length && typeof setTab==='function') setTab('0'); }},
+
+  /* ── 그 밖 ── */
+  {k:'newSite',g:'그 밖',  t:'프로젝트 추가',     d:'새 현장을 만듭니다',               def:'',  run:function(){ if(typeof openAdd==='function') openAdd(); }},
+  {k:'backup', g:'그 밖',  t:'백업 · 복원',       d:'자료를 내려받거나 되살립니다',       def:'',  run:function(){ if(typeof openDataBackup==='function') openDataBackup(); }},
+  {k:'account',g:'그 밖',  t:'계정',              d:'내 계정 화면',                    def:'',  run:function(){ if(typeof openAccount==='function') openAccount(); }},
+  {k:'help',   g:'그 밖',  t:'단축키 보기',       d:'이 목록을 엽니다',                 def:'?', run:function(){ hkOpen(); }},
 ];
+/* 지금 보고 있는 프로젝트 번호로 실행 */
+function hkSi(fn){
+  let si = (typeof _ledgerTab==='number') ? _ledgerTab : null;
+  if(si===null){
+    const t=String(S.tab||'');
+    if(/^\d+$/.test(t)) si=+t;
+  }
+  if(si===null || !S.sites[si]) si=0;
+  if(!S.sites[si]){ showToast('먼저 프로젝트를 만들어 주세요'); return; }
+  fn(si);
+}
+
 
 
 function _hkLoad(){
@@ -14013,7 +14216,7 @@ function hkOpen(){
   box.id='hk'; box.className='qm';
   box.innerHTML='<div class="qm-box hk-box">'
     + '<div class="qm-h"><div class="qm-t">단축키</div>'
-    +   '<div class="qm-d">누르고 싶은 키로 바꾸실 수 있습니다. 글자를 적는 중에는 단축키가 끼어들지 않습니다.</div></div>'
+    +   '<div class="qm-d">키를 눌러 바꾸실 수 있습니다. 글자를 적는 중에는 단축키가 끼어들지 않습니다.</div></div>'
     + '<div class="hk-list" id="hk-list"></div>'
     + '<div class="qm-f"><div class="qm-f-d" id="hk-msg"></div>'
     +   '<button class="qt-b" onclick="hkReset()">처음 설정으로</button>'
@@ -14027,22 +14230,41 @@ function hkClose(){
   const b=document.getElementById('hk'); if(b) b.remove();
   const s=document.getElementById('hk-set'); if(s) s.remove();
 }
+function _hkRow(x){
+  const dup=HK_LIST.some(function(y){ return y.k!==x.k && HK[y.k] && HK[y.k]===HK[x.k]; });
+  const on=!!HK[x.k];
+  return '<div class="hk-r'+(on?'':' off')+'">'
+    + '<span class="hk-t">'+esc(x.t)+'<em>'+esc(x.d)+'</em></span>'
+    + '<button class="hk-key'+(dup?' dup':'')+(on?'':' none')+'" onclick="hkEdit(\''+x.k+'\')" title="눌러서 바꾸기">'
+    +   (on?esc(hkLabel(HK[x.k])):'＋ 지정')+'</button>'
+    + (on?'<button class="hk-x" onclick="hkClear(\''+x.k+'\')" title="이 단축키 끄기">✕</button>':'<span class="hk-x"></span>')
+    + '</div>';
+}
 function hkPaint(){
   const el=document.getElementById('hk-list'); if(!el) return;
-  el.innerHTML=HK_LIST.map(function(x){
-    const dup=HK_LIST.some(function(y){ return y.k!==x.k && HK[y.k] && HK[y.k]===HK[x.k]; });
-    return '<div class="hk-r">'
-      + '<span class="hk-t">'+esc(x.t)+'<em>'+esc(x.d)+'</em></span>'
-      + '<button class="hk-key'+(dup?' dup':'')+'" onclick="hkEdit(\''+x.k+'\')" title="눌러서 바꾸기">'
-      +   esc(hkLabel(HK[x.k]))+'</button>'
-      + (HK[x.k]?'<button class="hk-x" onclick="hkClear(\''+x.k+'\')" title="이 단축키 끄기">✕</button>':'<span class="hk-x"></span>')
-      + '</div>';
-  }).join('');
-  const anyDup=HK_LIST.some(function(x){
-    return HK_LIST.some(function(y){ return y.k!==x.k && HK[y.k] && HK[y.k]===HK[x.k]; });
+  let h='';
+  /* 자주 쓰는 것 — 맨 위 고정 */
+  const fixed=HK_LIST.filter(function(x){ return x.fix; });
+  h+='<div class="hk-g"><div class="hk-g-t">자주 쓰는 것<span>고정</span></div>'
+    + fixed.map(_hkRow).join('') + '</div>';
+  /* 나머지 — 묶음별로 */
+  const rest=HK_LIST.filter(function(x){ return !x.fix; });
+  const groups=[];
+  rest.forEach(function(x){ if(groups.indexOf(x.g)<0) groups.push(x.g); });
+  groups.forEach(function(g){
+    const list=rest.filter(function(x){ return x.g===g; });
+    const n=list.filter(function(x){ return !!HK[x.k]; }).length;
+    h+='<div class="hk-g"><div class="hk-g-t">'+esc(g)+(n?'<span class="on">'+n+'개 쓰는 중</span>':'')+'</div>'
+      + list.map(_hkRow).join('') + '</div>';
   });
+  el.innerHTML=h;
+  const anyDup=HK_LIST.some(function(x){
+    return HK[x.k] && HK_LIST.some(function(y){ return y.k!==x.k && HK[y.k] && HK[y.k]===HK[x.k]; });
+  });
+  const used=HK_LIST.filter(function(x){ return !!HK[x.k]; }).length;
   const m=document.getElementById('hk-msg');
-  if(m) m.textContent = anyDup ? '같은 키가 겹칩니다 — 위에 있는 것이 먼저 먹습니다' : '';
+  if(m) m.textContent = anyDup ? '같은 키가 겹칩니다 — 위에 있는 것이 먼저 먹습니다'
+                               : (used+' / '+HK_LIST.length+' 개 쓰는 중');
 }
 function hkEdit(k){
   _hkEditing=k;
@@ -14561,8 +14783,51 @@ function cancelAnchor(){
   clearGhost();
 }
 function clearGhost(){
+  clearErasePeek();
   document.querySelectorAll('.dc.ghost').forEach(el=>el.classList.remove('ghost'));
 }
+/* 마우스를 올린 칸이 속한, 이어져 칠해진 구간을 찾습니다 */
+function _runAt(si,pi,d){
+  const st=S.sites[si]; if(!st) return null;
+  if(!st.cells[ck(si,pi,d)]) return null;
+  const days=daysInMonth(S.year,S.month);
+  let lo=d, hi=d;
+  while(lo>1  && st.cells[ck(si,pi,lo-1)]) lo--;
+  while(hi<days && st.cells[ck(si,pi,hi+1)]) hi++;
+  return {lo:lo, hi:hi, n:hi-lo+1};
+}
+/* 지우기 모드에서 마우스만 올려도 어디까지 지워지는지 보여 줍니다 */
+function eraseHover(el){
+  clearErasePeek();
+  if(!ERASE_MODE || S.dragging || ANCHOR) return;
+  const si=+el.dataset.si, pi=+el.dataset.pi, d=+el.dataset.d;
+  const run=_runAt(si,pi,d);
+  if(!run) return;
+  document.querySelectorAll('.dc[data-si="'+si+'"][data-pi="'+pi+'"]').forEach(function(c){
+    const cd=+c.dataset.d;
+    if(cd>=run.lo && cd<=run.hi){
+      c.classList.add('peek');
+      if(cd===run.lo) c.classList.add('peek-s');
+      if(cd===run.hi) c.classList.add('peek-e');
+    }
+  });
+  const proc=((S.sites[si].procs||[])[pi]||'작업');
+  const nm=(typeof proc==='string')?proc:(proc&&proc.name)||'작업';
+  showEraseBadge(el, nm+'  '+S.month+'/'+run.lo+(run.n>1?(' – '+S.month+'/'+run.hi):'')+'  ·  '+run.n+'일');
+}
+function clearErasePeek(){
+  document.querySelectorAll('.dc.peek').forEach(function(c){ c.classList.remove('peek','peek-s','peek-e'); });
+  const b=document.getElementById('erase-badge'); if(b) b.remove();
+}
+function showEraseBadge(el,text){
+  let b=document.getElementById('erase-badge');
+  if(!b){ b=document.createElement('div'); b.id='erase-badge'; b.className='eb'; document.body.appendChild(b); }
+  b.innerHTML='<span class="eb-x">✕</span>'+esc(text)+'<span class="eb-h">눌러서 지우기</span>';
+  const r=el.getBoundingClientRect();
+  b.style.left=Math.max(8, Math.min(r.left+r.width/2, window.innerWidth-8))+'px';
+  b.style.top=(r.top-10)+'px';
+}
+
 /* 시작일 지정 후 마우스를 올리면 구간 미리보기 */
 function previewRange(el){
   if(!ANCHOR || S.dragging) return;
@@ -14623,8 +14888,9 @@ function attachEvents(){
     el.addEventListener('mousedown',e=>{ e.preventDefault(); beginDrag(e.currentTarget); });
     el.addEventListener('mouseover',e=>{
       if(S.dragging) extendDrag(e.currentTarget);
-      else previewRange(e.currentTarget);
+      else { previewRange(e.currentTarget); eraseHover(e.currentTarget); }
     });
+    el.addEventListener('mouseleave',()=>{ if(!S.dragging) clearErasePeek(); });
     el.addEventListener('touchstart',e=>{ beginDrag(e.currentTarget); e.preventDefault(); },{passive:false});
     el.addEventListener('touchmove',e=>{
       e.preventDefault();
@@ -15023,12 +15289,15 @@ function routeView(){
     window.scrollTo(0,0);
     return;
   }
-  /* 로그인은 됐는데 모드·팀을 아직 안 고른 경우 — 소개 화면으로 튕기지 않는다 */
-  if(USER && _appView==='onboarding' && _authView && _authView!=='pick'){
+  /* 로그인은 됐는데 모드·팀을 아직 안 고른 경우 — 소개 화면으로 튕기지 않는다.
+     다만 주소에 #app 이 있으면 그쪽이 먼저입니다 (소개에서 다시 들어오는 길). */
+  if(location.hash!=='#app' && USER && _appView==='onboarding' && _authView && _authView!=='pick'){
     showOnboarding();
     return;
   }
   if(location.hash==='#app'){
+    /* 이미 로그인·팀까지 정해진 분이면 곧장 앱으로 */
+    if(USER && TEAM) _appView='app';
     enterAppView();
     window.scrollTo(0,0);
   } else if(!onLanding){
@@ -16929,6 +17198,10 @@ function goHome(){
   const ma=document.getElementById('modal-area');
   if(ma) ma.innerHTML='';
 
+  /* 앱을 나간다는 뜻을 먼저 알려 둡니다.
+     이걸 안 하면 주소가 바뀌는 순간 routeView 가 다시 앱으로 되돌립니다. */
+  _appView='onboarding';
+  document.documentElement.style.overflow='';
   location.hash='';
   document.body.style.overflow='';
   const onb=document.getElementById('onboarding');
