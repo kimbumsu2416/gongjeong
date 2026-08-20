@@ -445,6 +445,9 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .qt-r-s{font-size:10px;font-weight:800;border-radius:20px;padding:2px 7px;background:#eef1f6;color:#6b7583}
 .qt-r-s.s1{background:#eaf1fd;color:#2563EB}
 .qt-r-s.s2{background:#eaf6ef;color:#1f6b45}
+.qt-r-n{display:block;font-size:12px;font-weight:600;color:#5f6b7c;margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qt-r.on .qt-r-n{color:#1f6b45}
 .qt-r-m{font-size:11px;color:#8a94a6;font-weight:600}
 .qt-r-v{font-size:15px;font-weight:800;color:#12141C;letter-spacing:-0.02em}
 .qt-r-x{position:absolute;right:5px;top:5px;border:none;background:transparent;color:#c8d0da;font-size:12px;cursor:pointer;font-family:inherit;padding:2px 4px;border-radius:5px}
@@ -693,6 +696,66 @@ button.hk-x:hover{background:#fdeceb;color:#DC2626}
   border-radius:12px;padding:16px 28px;margin-bottom:18px;min-width:160px}
 
 
+
+/* ── 가이드 · 상담 기록 ─────────────────────────── */
+.nt-why{background:#12141C;color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px}
+.nt-why-t{font-size:17px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.nt-why-t b{color:#8FE3B4}
+.nt-why-d{font-size:13.5px;line-height:1.85;color:rgba(255,255,255,.7)}
+.nt-why-d b{color:#fff;font-weight:700}
+
+.nt-steps{display:flex;align-items:stretch;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.nt-s{flex:1 1 190px;background:#fff;border:1px solid #dfe5ee;border-radius:13px;padding:16px 17px;
+  display:flex;flex-direction:column;gap:6px;min-width:0}
+.nt-s-n{width:24px;height:24px;border-radius:50%;background:#2f9e5e;color:#fff;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center}
+.nt-s-t{font-size:14.5px;font-weight:800;color:#12141C;letter-spacing:-.02em}
+.nt-s-d{font-size:12.5px;color:#5f6b7c;line-height:1.7}
+.nt-s-d b{color:#12141C;font-weight:700}
+.nt-s-a{display:flex;align-items:center;color:#c8d0da;font-size:17px;font-weight:800}
+
+.nt-sheet{background:#fff;border:1px solid #dfe5ee;border-radius:14px;overflow:hidden;margin-bottom:16px}
+.nt-sheet-h{padding:15px 18px;border-bottom:1px solid #eef1f6;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.nt-sheet-t{font-size:14.5px;font-weight:800;color:#12141C}
+.nt-sheet-d{font-size:12px;color:#8a94a6}
+.nt-scroll{overflow-x:auto}
+.nt-tbl{width:100%;min-width:560px;border-collapse:collapse}
+.nt-tbl th{background:#f4f7fb;font-size:12px;font-weight:800;color:#4a5568;padding:10px 12px;
+  border-bottom:1.5px solid #dfe5ee;text-align:left}
+.nt-tbl td{font-size:13px;color:#12141C;padding:11px 12px;border-bottom:1px solid #f2f5fa;vertical-align:middle}
+.nt-tbl tr:last-child td{border-bottom:none}
+.nt-tbl tr:hover td{background:#f8fafc}
+.nt-tbl th.nt-no,.nt-tbl td.nt-no{width:44px;text-align:center;color:#a8b1be;font-size:12px}
+.nt-tbl th.nt-c,.nt-tbl td.nt-c{width:96px;font-weight:800}
+.nt-tbl td.nt-nt{width:150px;font-size:12px;color:#B45309;font-weight:700}
+.nt-tbl th.nt-nt{width:150px}
+
+.nt-tips{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.nt-tip{border-radius:13px;padding:16px 18px}
+.nt-tip.good{background:#f2fbf6;border:1px solid #cfe9db}
+.nt-tip.bad{background:#fdf5f4;border:1px solid #f0d5d2}
+.nt-tip-t{font-size:13.5px;font-weight:800;margin-bottom:9px}
+.nt-tip.good .nt-tip-t{color:#1f6b45}
+.nt-tip.bad .nt-tip-t{color:#B91C1C}
+.nt-tip ul{margin:0;padding-left:16px}
+.nt-tip li{font-size:12.5px;color:#3d4757;line-height:1.9}
+.nt-tip li b{font-weight:700}
+.nt-tip li u{text-decoration-color:#2f9e5e;text-underline-offset:2px}
+
+.nt-here{background:#fff;border:1px solid #dfe5ee;border-radius:14px;padding:18px 20px}
+.nt-here-t{font-size:14.5px;font-weight:800;color:#12141C;margin-bottom:12px}
+.nt-here-l{display:flex;flex-direction:column;gap:2px}
+.nt-here-r{display:flex;gap:14px;padding:11px 0;font-size:13px;color:#3d4757;line-height:1.7}
+.nt-here-r+.nt-here-r{border-top:1px solid #f2f5fa}
+.nt-here-k{flex:0 0 78px;font-size:12px;font-weight:800;color:#1f6b45}
+.nt-here-r b{color:#12141C;font-weight:700}
+@media(max-width:700px){
+  .nt-tips{grid-template-columns:1fr}
+  .nt-s-a{display:none}
+  .nt-why{padding:18px 18px}
+  .nt-here-r{flex-direction:column;gap:4px}
+  .nt-here-k{flex:none}
+}
 /* ── 정산 ─────────────────────────────────── */
 .sl-wrap{display:flex;flex-direction:column;gap:16px}
 .sl-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -839,6 +902,78 @@ button.hk-x:hover{background:#fdeceb;color:#DC2626}
 .pp-note{border:1px solid #9CA3AF;padding:0;margin-bottom:8mm}
 .pp-note-t{background:#EFF4F1;border-bottom:1px solid #9CA3AF;padding:7px 12px;font-size:9.5pt;font-weight:700}
 .pp-note-l{padding:6px 12px;font-size:9.5pt;color:#374151}
+
+/* ── 상담지 ─────────────────────────────────── */
+.qv-paper .cn-top{display:flex;align-items:stretch;background:#FCF3D9;border:1px solid #111827;margin-bottom:6mm}
+.qv-paper .cn-top-l,.qv-paper .cn-top-r{flex:0 0 32%;display:flex;align-items:flex-end;gap:6px;padding:4mm 5mm 3mm}
+.qv-paper .cn-top-r{justify-content:flex-end}
+.qv-paper .cn-top-c{flex:1 1 auto;text-align:center;padding:4mm 0 3mm}
+.qv-paper .cn-t{font-size:22pt;font-weight:800;letter-spacing:.3em;color:#111827}
+.qv-paper .cn-t-en{font-size:8pt;color:#6B7280;letter-spacing:.06em;margin-top:1mm}
+.qv-paper .cn-top-k{font-size:9pt;font-weight:700;color:#4B5563;white-space:nowrap}
+.qv-paper .cn-top-v{font-size:10pt;font-weight:700;border-bottom:1px solid #9CA3AF;min-width:30mm;padding:0 2mm}
+.qv-paper .cn-d{display:flex;gap:5mm}
+.qv-paper .cn-d em{font-style:normal;font-size:9pt;color:#4B5563;border-bottom:1px solid #9CA3AF;padding:0 5mm 0 9mm}
+
+.qv-paper .cn-sec{font-size:11.5pt;font-weight:700;color:#111827;margin:0 0 2mm}
+.qv-paper .cn-sec-n{font-weight:800}
+
+.qv-paper .cn-tbl{width:100%;border-collapse:collapse;border:1.2px solid #111827;margin-bottom:5mm}
+.qv-paper .cn-tbl th,.qv-paper .cn-tbl td{border:.7px solid #9CA3AF;padding:5px 6px;font-size:8.5pt;
+  color:#111827;vertical-align:middle}
+.qv-paper .cn-tbl th{background:#fff;font-weight:600;text-align:center;white-space:nowrap}
+.qv-paper .cn-side{width:9mm;background:#fff;font-size:8pt;line-height:1.35}
+.qv-paper .cn-side.sm{font-size:7.5pt}
+.qv-paper .cn-k{width:20mm;background:#fff}
+.qv-paper .cn-k.sm{font-size:8pt}
+.qv-paper .cn-in{height:8mm;background:#fff}
+.qv-paper .cn-in.sm{height:7mm;font-size:7.5pt}
+.qv-paper .cn-v{font-weight:600;color:#1F2937}
+.qv-paper .cn-hint{color:#9CA3AF;font-size:7.5pt}
+.qv-paper .cn-basic td{width:auto}
+
+.qv-paper .cn-explore{display:flex;gap:4mm;border:1.2px solid #111827;padding:3mm;margin-bottom:5mm;
+  align-items:stretch}
+.qv-paper .cn-ex-l{flex:0 0 57%;max-width:57%;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.qv-paper .cn-ex-r{flex:1 1 auto;display:flex;gap:2mm;min-width:0;align-items:stretch;overflow:hidden}
+.qv-paper .cn-q{margin-bottom:3mm;border:none}
+.qv-paper .cn-q th,.qv-paper .cn-q td{border:none;border-bottom:.7px solid #9CA3AF}
+.qv-paper .cn-qk{width:16mm;color:#9CA3AF;font-weight:400;text-align:left}
+.qv-paper .cn-spec{display:flex;gap:2mm;align-items:stretch;min-width:0;overflow:hidden}
+.qv-paper .cn-spec>.cn-tbl{flex:1 1 auto;min-width:0;margin-bottom:0;background:#F3F4F6}
+.qv-paper .cn-lay{flex:0 0 8mm;width:8mm;font-size:7.5pt;font-weight:600;color:#374151;
+  display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35;word-break:keep-all}
+.qv-paper .cn-grid{flex:1 1 auto;min-width:0;min-height:26mm;border:.7px solid #D1D5DB;
+  background-image:linear-gradient(#E5E7EB .5px,transparent .5px),linear-gradient(90deg,#E5E7EB .5px,transparent .5px);
+  background-size:3mm 3mm}
+.qv-paper .cn-grid.sm{flex:0 0 30%;min-width:0;min-height:22mm}
+
+.qv-paper .cn-work th{background:#fff}
+.qv-paper .cn-work .cn-no{width:9mm;text-align:center;color:#6B7280}
+.qv-paper .cn-work .cn-rm{width:34mm}
+.qv-paper .cn-work .cn-cat{width:38mm;text-align:center;font-weight:700}
+.qv-paper .cn-work td{height:7mm}
+
+.qv-paper .cn-taste{display:flex;border:1.2px solid #111827;margin-bottom:5mm}
+.qv-paper .cn-tcol{flex:1 1 0;min-width:0;
+  }
+.qv-paper .cn-w2{flex:1.6 1 0;
+  border-right:.7px solid #9CA3AF;display:flex;flex-direction:column}
+.qv-paper .cn-tcol:last-child{border-right:none}
+.qv-paper .cn-th{font-size:9pt;font-weight:700;text-align:center;padding:4px;border-bottom:.7px solid #9CA3AF}
+.qv-paper .cn-tcol .cn-tbl{border:none;margin:0;flex:1 1 auto}
+.qv-paper .cn-tcol .cn-tbl td{border:none;border-right:.7px solid #E5E7EB;border-bottom:.7px solid #E5E7EB}
+.qv-paper .cn-opt{text-align:center;color:#9CA3AF;font-size:8.5pt;letter-spacing:.08em;height:7mm}
+.qv-paper .cn-opt.sm{font-size:7.5pt;letter-spacing:0}
+.qv-paper .cn-memo{flex:1 1 auto;min-height:21mm}
+
+.qv-paper .cn-two{display:flex;gap:5mm;margin-bottom:4mm}
+.qv-paper .cn-half{flex:1 1 0;min-width:0}
+.qv-paper .cn-add .cn-k{width:18mm}
+.qv-paper .cn-est .cn-k{width:26mm}
+.qv-paper .cn-dt{display:inline-flex;gap:4mm}
+.qv-paper .cn-dt em{font-style:normal;color:#4B5563;border-bottom:.7px solid #9CA3AF;padding:0 3mm 0 8mm}
+.qv-paper .cn-foot{text-align:right;font-size:7.5pt;color:#9CA3AF}
 /* 지출 내역서 */
 .gv-sum th{width:26mm}
 .gv-sum th.blank{background:transparent!important;border:none!important}
@@ -969,6 +1104,25 @@ body.printing .no-print{display:none!important}
   border:1px solid #d5dce7;border-radius:9px;padding:9px 11px;outline:none}
 .co-in:focus{border-color:#4F46E5;box-shadow:0 0 0 2px rgba(79,70,229,.14)}
 .co-in::placeholder{color:#b0b8c4}
+
+/* 회사 로고 올리기 */
+.co-logo{display:flex;align-items:center;gap:18px;margin-top:16px;padding:16px 18px;
+  background:#f7f9fc;border:1px solid #e3e9f1;border-radius:13px;flex-wrap:wrap}
+.co-logo-l{flex:1 1 220px;min-width:0}
+.co-logo-d{font-size:12px;color:#8a94a6;line-height:1.7;margin-top:3px}
+.co-logo-d b{color:#3d4757}
+.co-logo-r{flex:0 0 auto;display:flex;align-items:center;gap:10px}
+.co-logo-box{width:132px;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;background:#fff;border:1.5px dashed #cfd7e3;border-radius:10px;cursor:pointer;font-family:inherit;
+  color:#a8b1be;padding:0;overflow:hidden}
+.co-logo-box:hover{border-color:#2f9e5e;color:#1f6b45}
+.co-logo-box span{font-size:16px;line-height:1}
+.co-logo-box em{font-style:normal;font-size:11px;font-weight:700}
+.co-logo-box.has{border-style:solid;border-color:#e3e9f1;cursor:default;padding:6px}
+.co-logo-box.has img{max-width:100%;max-height:100%;object-fit:contain}
+.co-logo-b{display:flex;flex-direction:column;gap:6px}
+.co-logo-b .qt-b{padding:6px 11px;font-size:11.5px}
+@media(max-width:600px){.co-logo{flex-direction:column;align-items:stretch}.co-logo-r{justify-content:space-between}}
 .co-ok{margin-top:14px;font-size:12.5px;font-weight:700;color:#1f6b45;background:#f2fbf6;border:1px solid #cfe9db;border-radius:10px;padding:10px 13px}
 .co-warn{margin-top:14px;font-size:12.5px;font-weight:600;color:#9a6b00;background:#fffaf0;border:1px solid #f0e2c0;border-radius:10px;padding:10px 13px}
 @media(max-width:700px){.co-grid{grid-template-columns:1fr}.co-f.w2,.co-f.w3{grid-column:span 1}}
@@ -2827,6 +2981,10 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 .pp-title{font-size:19pt;font-weight:800;letter-spacing:-.03em;line-height:1.2}
 .pp-sub{font-size:10pt;color:#444;margin-top:3px}
 .pp-h-right{text-align:right}
+.pp-mark{max-width:44mm;max-height:13mm;object-fit:contain;display:block;margin-left:auto;margin-bottom:1.5mm}
+.pp-mark-txt{font-size:12pt;font-weight:800;letter-spacing:-.02em;color:#111827;margin-bottom:1mm}
+.pp-by{display:inline-flex;align-items:center;gap:4px}
+.pp-by-lg{width:11px;height:11px;color:#9CA3AF;flex:0 0 auto}
 .pp-brand{font-size:12pt;font-weight:800;letter-spacing:-.02em}
 .pp-brand span{color:#4F46E5}
 .pp-stamp{font-size:8pt;color:#666;margin-top:3px}
@@ -3159,7 +3317,7 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 .tl-legend-hint{margin-left:auto;color:#59636f!important;font-size:12.5px!important}
 
 /* 날짜 축 */
-.tl-axis{display:flex;align-items:flex-end;padding:10px 0 8px}
+.tl-axis{display:flex;align-items:flex-end;padding:10px 0 10px;margin-bottom:2px;border-bottom:1px solid #f2f5fa}
 .tl-axis-lbl{width:var(--tl-lbl);flex-shrink:0}
 .tl-axis-end{width:var(--tl-info);flex-shrink:0}
 .tl-axis-track{flex:1;display:flex;min-width:0}
@@ -3170,45 +3328,61 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 .tl-tick.now .tl-dow,.tl-tick.now .tl-day{color:#4F46E5;font-weight:700}
 
 /* 프로젝트 그룹 */
-.tl-site{margin-bottom:18px}
+.tl-site{margin-bottom:22px}
 .tl-site:last-child{margin-bottom:4px}
 .tl-site-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
-  border-left:3px solid;padding:0 0 8px 10px;margin-bottom:6px}
+  border-left:3px solid;padding:0 0 9px 11px;margin-bottom:8px;border-radius:2px}
 .tl-site-name{font-size:14px;font-weight:700;color:#12141C;letter-spacing:-0.02em}
 .tl-site-range{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#4a5464;font-weight:500}
 .tl-site-meta{font-size:12.5px;color:#59636f;margin-left:auto;white-space:nowrap}
 
 /* 작업 행 */
-.tl-row{display:flex;align-items:center;height:32px;border-radius:6px}
-.tl-row:hover{background:#f7f9fc}
-.tl-row.now{background:#fff8f1}
-.tl-label{width:var(--tl-lbl);flex-shrink:0;display:flex;align-items:center;gap:5px;
-  font-size:13px;font-weight:600;color:#3d4757;padding:0 10px 0 13px;
+.tl-row{display:flex;align-items:center;height:34px;border-radius:8px;
+  transition:background .13s}
+.tl-row+.tl-row{margin-top:2px}
+.tl-row:hover{background:#f4f7fb}
+.tl-row.now{background:#f7f6ff}
+.tl-label{width:var(--tl-lbl);flex-shrink:0;display:flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:700;color:#3d4757;padding:0 12px 0 13px;letter-spacing:-.01em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-pin{width:5px;height:5px;border-radius:50%;background:#4F46E5;flex-shrink:0}
+.tl-pin{width:6px;height:6px;border-radius:50%;background:#4F46E5;flex-shrink:0;
+  box-shadow:0 0 0 3px rgba(79,70,229,.16)}
 
 .tl-track{position:relative;flex:1;height:100%;min-width:0}
-.tl-we{position:absolute;top:0;bottom:0;background:#f2f5f8}
-.tl-week{position:absolute;top:0;bottom:0;width:1px;background:#eaeef3}
-.tl-today{position:absolute;top:-4px;bottom:-4px;width:2px;background:#4F46E5;z-index:4;border-radius:1px}
-.tl-bar{position:absolute;top:7px;height:18px;border-radius:5px;z-index:2;
-  box-shadow:0 1px 2px rgba(20,30,48,.14);transition:filter .15s,transform .15s}
-.tl-bar:hover{filter:brightness(1.1);transform:scaleY(1.12)}
-.tl-bar.done{opacity:.72;box-shadow:none}
+/* 옅은 바탕선 — 막대가 없는 자리도 어디쯤인지 보입니다 */
+.tl-track::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;
+  background:#e6ebf2;transform:translateY(-.5px);z-index:1}
+.tl-we{position:absolute;top:0;bottom:0;background:#f7f9fc}
+.tl-week{position:absolute;top:0;bottom:0;width:1px;background:#eef1f6}
+.tl-today{position:absolute;top:-3px;bottom:-3px;width:2px;background:#4F46E5;z-index:4;border-radius:2px;
+  box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.tl-bar{position:absolute;top:8px;height:18px;border-radius:9px;z-index:2;
+  box-shadow:0 1px 2px rgba(20,30,48,.16), inset 0 1px 0 rgba(255,255,255,.28);
+  transition:filter .15s, transform .15s, box-shadow .15s}
+.tl-bar:hover{filter:brightness(1.08);transform:scaleY(1.16);
+  box-shadow:0 3px 10px rgba(20,30,48,.22), inset 0 1px 0 rgba(255,255,255,.28);z-index:5}
+.tl-bar.done{opacity:.55;box-shadow:none}
 
 /* 기간 표기 */
-.tl-info{width:var(--tl-info);flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;
-  gap:1px;padding-left:10px;line-height:1.25}
-.tl-range{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#5f6b7c;white-space:nowrap}
-.tl-days{font-size:10.5px;font-weight:700;color:#59636f;white-space:nowrap}
-.tl-row.now .tl-days{color:#4F46E5}
+.tl-info{width:var(--tl-info);flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;
+  gap:8px;padding-left:12px;line-height:1}
+.tl-range{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a6;white-space:nowrap}
+.tl-days{font-size:11px;font-weight:800;color:#4a5568;white-space:nowrap;
+  background:#f2f5fa;border-radius:20px;padding:3px 8px;min-width:34px;text-align:center}
+.tl-row.now .tl-days{color:#fff;background:#4F46E5}
+.tl-row:hover .tl-days{background:#e8edf4}
+.tl-row.now:hover .tl-days{background:#4038c9}
 
 .tl-empty{font-size:12.5px;color:#59636f;padding:8px 0 8px 13px}
 
 @media(max-width:900px){
-  .tl{--tl-lbl:74px;--tl-info:68px;padding:14px 12px 10px}
+  .tl{--tl-lbl:74px;--tl-info:44px;padding:14px 12px 10px}
   .tl-label{font-size:12.5px;padding:0 6px 0 8px}
   .tl-dow{display:none}
+  /* 좁은 화면에서는 날짜를 숨기고 일수만 남깁니다 */
+  .tl-range{display:none}
+  .tl-info{padding-left:6px;gap:0}
+  .tl-days{font-size:10.5px;padding:3px 6px;min-width:30px}
 }
 
 /* ── 2단 레이아웃: 표(좌) + 정보 패널(우) ── */
@@ -10501,7 +10675,12 @@ function _qtNextTitle(si){ return (_qtList(si).length+1)+'차'; }
 function qtSel(si,id){ _qtCur[si]=id; qtRe(); }
 function qtCreate(si,cats){
   const l=_qtList(si);
-  const q={ id:_qtId(), title:_qtNextTitle(si), date:_ymdToday(), to:'', name:'', status:'작성 중', groups:[] };
+  const st=S.sites[si]||{};
+  const q={ id:_qtId(), title:_qtNextTitle(si), date:_ymdToday(),
+            to:String(st.client||'').trim(),
+            toTel:String(st.clientTel||'').trim(),
+            toAddr:String(st.addr||'').trim(),
+            name:'', status:'작성 중', groups:[] };
   (cats||[]).forEach(function(c){ q.groups.push({cat:c, items:[_qtBlankItem()]}); });
   l.push(q); _qtCur[si]=q.id;
   persist(); qtAfterChange(si); qtRe();
@@ -11332,6 +11511,217 @@ function _qvChecks(si,q){
   return {miss:miss, warn:warn};
 }
 
+/* ══════════════════════════════════════════════════════════════
+   상담지 — 현장에 들고 나가 손으로 채우는 종이
+   앱에 적어 두신 값이 있으면 미리 채워서 나옵니다.
+   ══════════════════════════════════════════════════════════════ */
+const CN_STYLE=['모던','빈티지','인더스트리얼','프렌치','북유럽','캐주얼','클래식','어반'];
+const CN_COLOR=['화이트','그레이','파스텔','원색','블랙&화이트'];
+const CN_MAT  =['원목느낌','금속','타일','대리석'];
+const CN_ADD=[
+  {t:'에어컨',  f:['공사여부','A/C유형','전기용량','실외기위치']},
+  {t:'보안공사',f:['공사여부','CCTV만','보안까지','공사예정일']},
+  {t:'인터넷',  f:['공사여부','내선사용','신규공사','공사예정일']},
+  {t:'소방',    f:['공사여부','방염대상여부','공사내용','']},
+  {t:'간판',    f:['공사여부','간판선유무','간판차단기유무','']},
+  {t:'스피커',  f:['공사여부','외부','내부','사용기기']},
+  {t:'기 타',   f:['','','','']},
+];
+
+function cnOpen(si){
+  if(si===undefined || si===null){
+    si = (typeof _ledgerTab==='number') ? _ledgerTab : (/^\d+$/.test(String(S.tab))?+S.tab:0);
+  }
+  if(!S.sites[si]) si=0;
+  _cnSi=si;
+  const box=document.createElement('div');
+  box.id='qv'; box.className='qv';
+  box.innerHTML=
+      '<div class="qv-bar">'
+    +   '<div class="qv-bar-t">상담지 — 뽑아서 현장에 들고 가세요</div>'
+    +   '<div class="qv-bar-b">'
+    +     '<button class="qv-b" onclick="cnClose()">닫기</button>'
+    +     '<button class="qv-b p" onclick="cnPrint()">🖨 인쇄 · PDF</button>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="qv-notice"><div class="qv-n-r"><span class="qv-n-i">📝</span>'
+    +   '앱에 적어 두신 것은 미리 채워집니다. 나머지는 <b>현장에서 손으로</b> 적으시면 됩니다.</div></div>'
+    + '<div class="qv-hint">두 손가락으로 벌리면 크게 볼 수 있습니다</div>'
+    + '<div class="qv-scroll"><div class="qv-paper" id="qv-paper">'+cnPaperHtml(si)+'</div></div>';
+  box.onclick=function(ev){ if(ev.target===box) cnClose(); };
+  document.body.appendChild(box);
+  document.body.style.overflow='hidden';
+  qvFit();
+  window.addEventListener('resize', qvFit);
+}
+let _cnSi=null;
+function cnClose(){
+  window.removeEventListener('resize', qvFit);
+  const b=document.getElementById('qv'); if(b) b.remove();
+  document.body.style.overflow='';
+  _cnSi=null;
+}
+function cnPrint(){
+  const paper=document.getElementById('qv-paper');
+  if(!paper) return;
+  const pa=document.getElementById('print-area');
+  if(!pa){ window.print(); return; }
+  pa.innerHTML='<div class="qv-paper qv-print">'+paper.innerHTML+'</div>';
+  let ps=document.getElementById('page-size');
+  if(!ps){ ps=document.createElement('style'); ps.id='page-size'; document.head.appendChild(ps); }
+  ps.textContent='@page{size:A4 portrait;margin:8mm}';
+  document.body.classList.add('printing');
+  document.body.style.overflow='';
+  setTimeout(function(){
+    window.print();
+    setTimeout(function(){
+      document.body.classList.remove('printing');
+      if(pa) pa.innerHTML='';
+      if(document.getElementById('qv')) document.body.style.overflow='hidden';
+    },300);
+  },60);
+}
+
+/* ── 종이 ─────────────────────────────────────── */
+function cnPaperHtml(si){
+  const st=S.sites[si]||{}, co=S.company||{};
+  const q=(typeof _qtCurQ==='function')?_qtCurQ(si):null;
+  const site=String(st.name||'').trim();
+  const E=function(v){ return esc(String(v||'')); };
+  const box=function(v){ return v?('<span class="cn-v">'+E(v)+'</span>'):''; };
+
+  let h='';
+  /* 제목 띠 */
+  h+='<div class="cn-top">'
+   + '<div class="cn-top-l"><span class="cn-top-k">현장명</span><span class="cn-top-v">'+E(site)+'</span></div>'
+   + '<div class="cn-top-c"><div class="cn-t">상 &nbsp;담 &nbsp;지</div>'
+   +   '<div class="cn-t-en">'+E((co.name||'').trim()||'CONSULTATION SHEET')+'</div></div>'
+   + '<div class="cn-top-r"><span class="cn-top-k">일자</span>'
+   +   '<span class="cn-d">'+'<em>년</em><em>월</em><em>일</em>'+'</span></div>'
+   + '</div>';
+
+  /* 1 기본정보 */
+  h+=cnSec('1','기본정보');
+  h+='<table class="cn-tbl cn-basic"><tbody>'
+   + '<tr>'
+   +   '<th rowspan="4" class="cn-side">고객<br>정보</th><th class="cn-k">고객명</th><td class="cn-in">'+box((q&&q.to)||st.client)+'</td>'
+   +   '<th rowspan="4" class="cn-side">현장<br>정보</th><th class="cn-k">업종</th><td class="cn-in"></td>'
+   +   '<th rowspan="5" class="cn-side">부가<br>정보</th><th class="cn-k">주차</th><td class="cn-in"></td>'
+   + '</tr>'
+   + '<tr><th class="cn-k">연락처</th><td class="cn-in">'+box((q&&q.toTel)||st.clientTel)+'</td>'
+   +   '<th class="cn-k">평수/면적</th><td class="cn-in">'+box(q&&q.size)+'</td>'
+   +   '<th class="cn-k">식당</th><td class="cn-in"></td></tr>'
+   + '<tr><th class="cn-k" rowspan="2">주소</th><td class="cn-in" rowspan="2">'+box((q&&q.toAddr)||st.addr)+'</td>'
+   +   '<th class="cn-k">공사유형</th><td class="cn-in"></td>'
+   +   '<th class="cn-k">화장실</th><td class="cn-in"></td></tr>'
+   + '<tr><th class="cn-k">공사예정</th><td class="cn-in">'+box(q&&q.period)+'</td>'
+   +   '<th class="cn-k">층수</th><td class="cn-in"></td></tr>'
+   + '<tr><th class="cn-side"></th><th class="cn-k"></th><td class="cn-in"></td>'
+   +   '<th class="cn-side"></th><th class="cn-k"></th><td class="cn-in"></td>'
+   +   '<th class="cn-k">양중</th><td class="cn-in"></td></tr>'
+   + '</tbody></table>';
+
+  /* 2 탐색단계 */
+  h+=cnSec('2','탐색단계');
+  h+='<div class="cn-explore">'
+   + '<div class="cn-ex-l">'
+   +   '<table class="cn-tbl cn-q"><tbody>'
+   +     '<tr><th class="cn-qk">질문</th><td class="cn-in"></td></tr>'
+   +     '<tr><th class="cn-qk">질문</th><td class="cn-in"></td></tr>'
+   +     '<tr><th class="cn-qk">질문</th><td class="cn-in"></td></tr>'
+   +   '</tbody></table>'
+   +   '<div class="cn-spec">'
+   +     '<table class="cn-tbl"><tbody>'
+   +       '<tr><th class="cn-side sm" rowspan="4">기구<br>SPEC<br>CHECK</th>'
+   +         '<th class="cn-k sm">명칭</th><th class="cn-k sm">사이즈</th><th class="cn-k sm">전력</th><th class="cn-k sm">설비</th></tr>'
+   +       '<tr><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td></tr>'
+   +       '<tr><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td></tr>'
+   +       '<tr><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td></tr>'
+   +     '</tbody></table>'
+   +     '<div class="cn-grid sm"></div>'
+   +   '</div>'
+   + '</div>'
+   + '<div class="cn-ex-r"><span class="cn-lay">빠<br>른<br>레<br>이<br>아<br>웃</span><div class="cn-grid"></div></div>'
+   + '</div>';
+
+  /* 3 공사내용정리 */
+  h+=cnSec('3','공사내용정리');
+  const groups=((q&&q.groups)||[]);
+  let rows='';
+  for(let i=0;i<10;i++){
+    const g=groups[i];
+    const cat=g?procName(g.cat||''):'';
+    const items=g?((g.items||[]).map(function(it){ return String((it&&it.n)||'').trim(); }).filter(Boolean).join(', ')):'';
+    rows+='<tr><td class="cn-no">'+(i+1)+'</td>'
+      + '<td class="cn-in cn-cat">'+box(cat)+'</td>'
+      + '<td class="cn-in">'+box(items)+'</td>'
+      + '<td class="cn-in"></td></tr>';
+  }
+  h+='<table class="cn-tbl cn-work"><thead><tr>'
+   + '<th class="cn-no">NO</th><th>공사명</th><th>내 &nbsp;용</th><th class="cn-rm">비고</th>'
+   + '</tr></thead><tbody>'+rows+'</tbody></table>';
+
+  /* 4 취향분석 */
+  h+=cnSec('4','취향분석');
+  const cell3=function(arr,n){
+    let out='';
+    for(let r=0;r<n;r++){
+      out+='<tr>';
+      for(let c=0;c<3;c++){
+        const v=arr[r*3+c];
+        out+= v!==undefined ? '<td class="cn-opt">'+E(v)+'</td>' : '<td class="cn-opt"></td>';
+      }
+      out+='</tr>';
+    }
+    return out;
+  };
+  h+='<div class="cn-taste">'
+   + '<div class="cn-tcol cn-w2"><div class="cn-th">선호스타일</div><table class="cn-tbl"><tbody>'+cell3(CN_STYLE,3)+'</tbody></table></div>'
+   + '<div class="cn-tcol"><div class="cn-th">선호색상</div><table class="cn-tbl"><tbody>'
+   +   '<tr><td class="cn-opt">'+E(CN_COLOR[0])+'</td><td class="cn-opt">'+E(CN_COLOR[1])+'</td></tr>'
+   +   '<tr><td class="cn-opt">'+E(CN_COLOR[2])+'</td><td class="cn-opt">'+E(CN_COLOR[3])+'</td></tr>'
+   +   '<tr><td class="cn-opt" colspan="2">'+E(CN_COLOR[4])+'</td></tr>'
+   +   '</tbody></table></div>'
+   + '<div class="cn-tcol"><div class="cn-th">선호소재</div><table class="cn-tbl"><tbody>'
+   +   '<tr><td class="cn-opt">'+E(CN_MAT[0])+'</td></tr>'
+   +   '<tr><td class="cn-opt">'+E(CN_MAT[1])+'</td></tr>'
+   +   '<tr><td class="cn-opt">'+E(CN_MAT[2])+' · '+E(CN_MAT[3])+'</td></tr>'
+   +   '</tbody></table></div>'
+   + '<div class="cn-tcol"><div class="cn-th">MEMO</div><div class="cn-memo"></div></div>'
+   + '</div>';
+
+  /* 5·6 */
+  h+='<div class="cn-two">'
+   + '<div class="cn-half">'+cnSec('5','부가공사 CHECK')
+   +   '<table class="cn-tbl cn-add"><tbody>'
+   +     CN_ADD.map(function(a){
+          return '<tr><th class="cn-k">'+E(a.t)+'</th>'
+            + a.f.map(function(f){ return '<td class="cn-in sm">'+(f?'<span class="cn-hint">'+E(f)+'</span>':'')+'</td>'; }).join('')
+            + '</tr>';
+        }).join('')
+   +   '</tbody></table></div>'
+   + '<div class="cn-half">'+cnSec('6','견적진행 여부')
+   +   '<table class="cn-tbl cn-est"><tbody>'
+   +     '<tr><th class="cn-k" rowspan="2">견적제시형태</th>'
+   +       '<td class="cn-opt sm">가견적</td><td class="cn-opt sm">상세견적</td><td class="cn-opt sm">2D설계</td>'
+   +       '<td class="cn-opt sm">3D설계</td><td class="cn-opt sm">기타</td></tr>'
+   +     '<tr><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td><td class="cn-in"></td></tr>'
+   +     '<tr><th class="cn-k">견적제시기한</th><td class="cn-in" colspan="5">'
+   +       '<span class="cn-dt"><em>월</em><em>일</em></span> 까지 견적을 제출하겠습니다</td></tr>'
+   +     '<tr><th class="cn-k">공사시작예정일</th><td class="cn-in" colspan="5"><span class="cn-dt"><em>월</em><em>일</em></span></td></tr>'
+   +     '<tr><th class="cn-k">공사마감예정일</th><td class="cn-in" colspan="5"><span class="cn-dt"><em>월</em><em>일</em></span></td></tr>'
+   +     '<tr><th class="cn-k">매장OPEN예정일</th><td class="cn-in" colspan="5"><span class="cn-dt"><em>월</em><em>일</em></span></td></tr>'
+   +   '</tbody></table></div>'
+   + '</div>';
+
+  const foot=[(co.name||''),(co.tel||''),(co.bizno?('사업자 '+co.bizno):'')].filter(Boolean).join('    ');
+  h+='<div class="cn-foot">'+E(foot)+'</div>';
+  return h;
+}
+function cnSec(n,t){
+  return '<div class="cn-sec"><span class="cn-sec-n">'+esc(n)+'</span>_'+esc(t)+'</div>';
+}
+
 function qtPreviewOpen(si){
   const q=_qtCurQ(si);
   if(!q){ showToast('먼저 견적을 만들어 주세요'); return; }
@@ -11570,6 +11960,7 @@ function renderQuoteView(si){
     const sc=(x.status==='발송')?'s1':(x.status==='확정'?'s2':'');
     return '<button class="qt-r'+(on?' on':'')+'" onclick="qtSel('+si+',\''+gbQ(x.id)+'\')">'
       + '<span class="qt-r-t" id="qt-r-t-'+si+'-'+x.id+'">'+esc(x.title||'견적')+'<span class="qt-r-s '+sc+'">'+esc(x.status||'작성 중')+'</span></span>'
+      + (String(x.name||'').trim() ? '<span class="qt-r-n">'+esc(x.name)+'</span>' : '')
       + '<span class="qt-r-m">'+esc(x.date||'')+' · '+_qtCount(x)+'줄</span>'
       + '<span class="qt-r-v" id="qt-r-v-'+si+'-'+x.id+'">₩'+_qtGrand(x).toLocaleString()+'</span>'
       + '</button>';
@@ -11609,6 +12000,7 @@ function renderQuoteView(si){
   const acts='<div class="qt-acts">'
     + '<button class="qt-b p" onclick="qmOpen('+si+',\'add\')">＋ 공정 묶음</button>'
     + '<button class="qt-b" onclick="qtPreviewOpen('+si+')">📄 미리보기</button>'
+    + '<button class="qt-b" onclick="cnOpen('+si+')">📝 상담지</button>'
     + '<button class="qt-b" onclick="qtToSchedule('+si+')">📅 일정표에 넣기</button>'
     + (canSeeSpend() ? '<button class="qt-b" onclick="qtToBudget('+si+')">지출 예산으로 넣기</button>' : '')
     + '<button class="qt-b" onclick="qtDup('+si+')">이 견적 복제</button>'
@@ -12000,7 +12392,7 @@ function buildPrintArea(){
       <div class="pp-sub">${y}년 ${m}월${TEAM?` · ${esc(TEAM.name)}`:''}</div>
     </div>
     <div class="pp-h-right">
-      <div class="pp-brand">공정<span>온</span></div>
+      ${coMarkHtml('pp-mark')}
       <div class="pp-stamp">출력 ${stamp}</div>
       ${who?`<div class="pp-who">출력자 ${esc(who)}</div>`:''}
     </div>
@@ -12211,7 +12603,7 @@ function buildPrintArea(){
   }
 
   h+=`<div class="pp-foot">
-    <span>gongjeong.vercel.app</span>
+    <span class="pp-by"><svg class="pp-by-lg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.5" width="16" height="6" rx="3" fill="currentColor" opacity=".95"/><rect x="8" y="12" width="20" height="6" rx="3" fill="currentColor" opacity=".55"/><rect x="4.5" y="19.5" width="13" height="6" rx="3" fill="#4F46E5"/></svg>www.gongjeongon.com</span>
     <span>${esc(title)} · ${y}.${String(m).padStart(2,'0')}${who?` · 출력자 ${esc(who)}`:''}</span>
   </div>`;
 
@@ -12961,6 +13353,63 @@ function bizIn(el){
 
 function coUp(k,v){ _co()[k]=v; persist(); }
 
+/* ══════════════════════════════════════════════════════════════
+   회사 로고 — 인쇄물·견적서 머리에 우리 회사 로고를 올립니다.
+   그림은 크기를 줄여 자료에 직접 담습니다 (팀마다 하나뿐이라 가볍습니다).
+   ══════════════════════════════════════════════════════════════ */
+function coLogoPick(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange=function(){ if(inp.files&&inp.files[0]) coLogoUp(inp.files[0]); };
+  inp.click();
+}
+async function coLogoUp(f){
+  if(!/^image\//.test(f.type||'')){ alert('그림 파일만 올릴 수 있습니다. (JPG · PNG)'); return; }
+  if(f.size>6*1024*1024){ alert('로고는 6MB까지 올릴 수 있습니다.'); return; }
+  try{
+    const url=await _coLogoShrink(f);
+    _co().logo=url; persist(); dnRerender();
+    showToast('로고를 넣었습니다');
+  }catch(e){
+    alert('로고를 넣지 못했습니다.\n'+((e&&e.message)||e));
+  }
+}
+/* 긴 변 420px 로 줄입니다. 투명 배경을 살리려면 PNG 로 둡니다. */
+function _coLogoShrink(file){
+  return new Promise(function(res,rej){
+    const fr=new FileReader();
+    fr.onerror=function(){ rej(new Error('파일을 읽지 못했습니다')); };
+    fr.onload=function(){
+      const im=new Image();
+      im.onerror=function(){ rej(new Error('그림을 열지 못했습니다')); };
+      im.onload=function(){
+        const MAX=420;
+        let w=im.width, h=im.height;
+        if(w>MAX||h>MAX){ const k=MAX/Math.max(w,h); w=Math.round(w*k); h=Math.round(h*k); }
+        const c=document.createElement('canvas');
+        c.width=w; c.height=h;
+        c.getContext('2d').drawImage(im,0,0,w,h);
+        res(c.toDataURL('image/png'));
+      };
+      im.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+async function coLogoDel(){
+  const ok=await askConfirm('로고를 뗄까요?','다시 올리실 수 있습니다.','떼기',true);
+  if(!ok) return;
+  _co().logo=''; persist(); dnRerender();
+  showToast('로고를 뗐습니다');
+}
+/* 인쇄물·견적서 머리에 넣을 것 — 로고가 있으면 그림, 없으면 상호명 */
+function coMarkHtml(cls){
+  const c=S.company||{};
+  if((c.logo||'').trim()) return '<img class="'+(cls||'')+'" src="'+c.logo+'" alt="">';
+  const nm=String(c.name||'').trim();
+  return nm ? '<div class="'+(cls||'')+'-txt">'+esc(nm)+'</div>' : '';
+}
+
 function renderCompanyTab(){
   const c=_co();
   let h='<div class="tmb-wrap">'
@@ -12976,6 +13425,16 @@ function renderCompanyTab(){
       + '></div>';
   });
   h+='</div>';
+  h+='<div class="co-logo">'
+    + '<div class="co-logo-l"><div class="co-l">회사 로고</div>'
+    +   '<div class="co-logo-d">인쇄한 공정표 <b>오른쪽 위</b>에 들어갑니다. 없으면 상호명이 글씨로 나옵니다.</div></div>'
+    + '<div class="co-logo-r">'
+    +   ((c.logo||'').trim()
+        ? '<div class="co-logo-box has"><img src="'+c.logo+'" alt="회사 로고"></div>'
+          + '<div class="co-logo-b"><button class="qt-b" onclick="coLogoPick()">바꾸기</button>'
+          + '<button class="qt-b" onclick="coLogoDel()">떼기</button></div>'
+        : '<button class="co-logo-box" onclick="coLogoPick()"><span>＋</span><em>로고 올리기</em></button>')
+    + '</div></div>';
   h+= _coFilled()
     ? '<div class="co-ok">✓ 견적서에 넣을 준비가 되었습니다</div>'
     : '<div class="co-warn">상호명과 사업자등록번호는 꼭 적어 주셔야 견적서가 제대로 나옵니다.</div>';
@@ -13265,6 +13724,8 @@ function renderMain(){
         </div>
         <div class="meta-card"><div class="meta-label">장소 / 주소</div><input class="meta-input" value="${esc(s.addr)}" placeholder="입력 (선택사항)" onchange="updateMeta(${si},'addr',this.value)"></div>
         <div class="meta-card"><div class="meta-label">비밀번호</div><input class="meta-input" value="${esc(s.pw)}" placeholder="없음" onchange="updateMeta(${si},'pw',this.value)"></div>
+        <div class="meta-card"><div class="meta-label">고객명</div><input class="meta-input" value="${esc(s.client||'')}" placeholder="입력 (선택사항)" onchange="updateMeta(${si},'client',this.value)"></div>
+        <div class="meta-card"><div class="meta-label">고객 연락처</div><input class="meta-input" inputmode="tel" value="${esc(s.clientTel||'')}" placeholder="01012345678 (숫자만)" oninput="telIn(this)" onchange="updateMeta(${si},'clientTel',this.value)"></div>
       </div>`;
 
     const cl=(s.checklist||[]);
@@ -13647,6 +14108,93 @@ const PERMIT_TIMELINE=[
 let _guideView='flow';
 function setGuideView(v){ _guideView=v; try{ document.getElementById('root').innerHTML=renderMain(); attachEvents(); applyTheme(); }catch(_){ renderAll(); } }
 
+/* ══════════════════════════════════════════════════════════════
+   상담 기록표 — 견적 전에 「무엇을 할지」를 붙잡아 두는 종이
+   현장에서 고객과 이야기하며 채우고, 그대로 견적으로 넘깁니다.
+   ══════════════════════════════════════════════════════════════ */
+const NT_ROWS=[
+  {c:'철거',    ex:'천장 전체 철거 후 노출천장',                          note:''},
+  {c:'전기',    ex:'입선 및 스위치 회로분리 › 레이스웨이 › 분전함 교체',   note:'승압비용 별도'},
+  {c:'설비',    ex:'배수 옮기기, 수도계량기 신설, 순간온수기 설치',        note:''},
+  {c:'목공',    ex:'작업실 만들기, 아치형 문틀, 카운터테이블',             note:'합판마감'},
+  {c:'도장',    ex:'벽·천장 전체 화이트 › 합판은 스테인',                 note:'벤자민무어 견적비교'},
+  {c:'바닥재',  ex:'콩자갈 › 작업실만 타일',                              note:''},
+  {c:'타일',    ex:'주방벽 › 100×100 무광타일',                           note:''},
+  {c:'주방·가구',ex:'작업실 수납장 (상부장까지)',                          note:''},
+  {c:'기타',    ex:'도시가스 옮기기, 입구 데크(출입구 부분만)',            note:''},
+];
+
+function renderGuideNoteBody(){
+  const rows=NT_ROWS.map(function(r,i){
+    return '<tr>'
+      + '<td class="nt-no">'+(i+1)+'</td>'
+      + '<td class="nt-c">'+esc(r.c)+'</td>'
+      + '<td class="nt-ex">'+esc(r.ex)+'</td>'
+      + '<td class="nt-nt">'+esc(r.note)+'</td>'
+      + '</tr>';
+  }).join('');
+
+  return ''
+  /* 왜 필요한가 */
+  + '<div class="nt-why">'
+  +   '<div class="nt-why-t">상담하면서 <b>바로바로 적어 두세요</b></div>'
+  +   '<div class="nt-why-d">공사 내용은 견적을 짜는 <b>기준</b>이 됩니다. '
+  +     '나중에 기억에 기대면 빠지는 게 생기고, 빠진 것은 대부분 <b>추가 공사비 다툼</b>으로 돌아옵니다.</div>'
+  + '</div>'
+
+  /* 세 단계 */
+  + '<div class="nt-steps">'
+  +   '<div class="nt-s"><span class="nt-s-n">1</span><span class="nt-s-t">상담하며 적기</span>'
+  +     '<span class="nt-s-d">공정마다 한 줄씩. 문장이 아니라 <b>키워드</b>로</span></div>'
+  +   '<div class="nt-s-a">→</div>'
+  +   '<div class="nt-s"><span class="nt-s-n">2</span><span class="nt-s-t">견적으로 옮기기</span>'
+  +     '<span class="nt-s-d">적어 둔 공정 그대로 <b>견적 묶음</b>을 만듭니다</span></div>'
+  +   '<div class="nt-s-a">→</div>'
+  +   '<div class="nt-s"><span class="nt-s-n">3</span><span class="nt-s-t">일정 잡기</span>'
+  +     '<span class="nt-s-d">견적을 넣으면 <b>일정표에 자동</b>으로 들어갑니다</span></div>'
+  + '</div>'
+
+  /* 본보기 표 */
+  + '<div class="nt-sheet">'
+  +   '<div class="nt-sheet-h"><span class="nt-sheet-t">이렇게 적으시면 됩니다</span>'
+  +     '<span class="nt-sheet-d">아래는 카페 공사 본보기입니다</span></div>'
+  +   '<div class="nt-scroll"><table class="nt-tbl">'
+  +     '<thead><tr><th class="nt-no">NO</th><th class="nt-c">공사명</th><th class="nt-ex">내 &nbsp;용</th><th class="nt-nt">비 &nbsp;고</th></tr></thead>'
+  +     '<tbody>'+rows+'</tbody></table></div>'
+  + '</div>'
+
+  /* 잘 적는 법 */
+  + '<div class="nt-tips">'
+  +   '<div class="nt-tip good"><div class="nt-tip-t">✓ 이렇게</div><ul>'
+  +     '<li><b>범위를 적으세요</b> — 「천장 <u>전체</u> 철거」, 「<u>주방벽만</u> 타일」</li>'
+  +     '<li><b>자재를 적으세요</b> — 「100×100 무광타일」, 「합판마감」</li>'
+  +     '<li><b>빠지는 것도 적으세요</b> — 「승압비용 별도」, 「욕조 미포함」</li>'
+  +     '<li><b>고르지 못한 것은 비고에</b> — 「벤자민무어 견적비교」</li>'
+  +   '</ul></div>'
+  +   '<div class="nt-tip bad"><div class="nt-tip-t">✕ 이러면 나중에 다툽니다</div><ul>'
+  +     '<li>「목공 조금」 — 얼마나 조금인지 서로 다르게 기억합니다</li>'
+  +     '<li>「타일 시공」 — 어디를 하는지 안 적혀 있습니다</li>'
+  +     '<li>「알아서 예쁘게」 — 가장 위험한 말입니다</li>'
+  +     '<li>말로만 하고 안 적기 — 한 달 뒤엔 아무도 기억 못 합니다</li>'
+  +   '</ul></div>'
+  + '</div>'
+
+  /* 공정온에서는 */
+  + '<div class="nt-here">'
+  +   '<div class="nt-here-t">공정온에서는 이렇게 하세요</div>'
+  +   '<div class="nt-here-l">'
+  +     '<div class="nt-here-r"><span class="nt-here-k">상담 중</span>'
+  +       '<span>프로젝트 오른쪽 <b>프로젝트 노트</b>에 적어 두세요. 사진도 함께 붙일 수 있습니다.</span></div>'
+  +     '<div class="nt-here-r"><span class="nt-here-k">견적 짤 때</span>'
+  +       '<span>공사대금 → 견적 → <b>＋ 공정 묶음</b>에서 적어 둔 공정을 고르시면 됩니다.</span></div>'
+  +     '<div class="nt-here-r"><span class="nt-here-k">내용 칸에</span>'
+  +       '<span>노트에 적은 문장을 그대로 옮기시면 됩니다. <b>규격·자재</b> 칸에 자재를 적으세요.</span></div>'
+  +     '<div class="nt-here-r"><span class="nt-here-k">별도 항목</span>'
+  +       '<span>「승압비용 별도」 같은 것은 견적서 <b>특기사항</b>에 넣으면 종이에 함께 나옵니다.</span></div>'
+  +   '</div>'
+  + '</div>';
+}
+
 function renderGuideFlowBody(){
   const chips=GUIDE_ORDER.map((s,i)=>`<span class="gp-chip"><b>${i+1}</b> ${esc(s)}</span>`).join('<span class="gp-arrow">›</span>');
   const cards=GUIDE_STAGES.map(s=>`
@@ -13710,11 +14258,18 @@ function renderGuidePermitBody(){
 
 function renderGuidePage(){
   const isPermit=_guideView==='permit';
-  const heroT = isPermit ? '시작 전, 서류부터 챙기세요' : '순서만 지켜도 절반은 성공입니다';
+  const isNote=_guideView==='note';
+  const heroT = isPermit ? '시작 전, 서류부터 챙기세요'
+              : isNote  ? '견적보다 먼저, 무엇을 할지 적으세요'
+              : '순서만 지켜도 절반은 성공입니다';
   const heroD = isPermit
     ? '아파트 셀프 인테리어는 대부분 관리사무소 동의로 진행되지만, 벽을 헐거나 가스·전기·소방이 얽히면 절차가 달라집니다. 무엇을 준비해야 하는지 공정온이 정리했어요.'
+    : isNote
+    ? '상담하면서 적어 둔 한 줄이 견적의 기준이 됩니다. 무엇을 어디까지 하는지 적어 두면 나중에 다툴 일이 없습니다.'
     : '셀프 인테리어에서 실패는 대부분 "순서를 몰라서" 생깁니다. 공정온이 현장 흐름을 8단계로 정리했어요. 내 집 상황에 맞게 골라 쓰세요.';
-  const body = isPermit ? renderGuidePermitBody() : renderGuideFlowBody();
+  const body = isPermit ? renderGuidePermitBody()
+             : isNote  ? renderGuideNoteBody()
+             : renderGuideFlowBody();
   const disc = isPermit
     ? '※ 허가 기준·동의 범위·예치금은 단지 관리규약과 지자체 조례에 따라 다릅니다. 반드시 해당 관리사무소·구청에 최종 확인하세요. 공정온은 참고 정보만 제공합니다.'
     : '※ 이 가이드는 공정온이 정리한 일반적인 참고용 흐름입니다. 실제 현장(구조·자재·계절·업체 일정 등)에 따라 순서와 기간은 달라질 수 있으며, 최종 판단·시공 책임은 이용자에게 있습니다.';
@@ -13726,7 +14281,8 @@ function renderGuidePage(){
     </div>
     <div class="gp-forself">🏠 이 <b>공정온 가이드</b>는 <b>셀프 인테리어를 직접 진행하시는 분</b>을 위한 안내입니다. 시공을 맡기는 프로(팀) 사용자는 참고용으로만 봐 주세요.</div>
     <div class="gp-seg">
-      <button class="gp-seg-b${!isPermit?' on':''}" onclick="setGuideView('flow')">🧭 진행 순서</button>
+      <button class="gp-seg-b${_guideView==='flow'?' on':''}" onclick="setGuideView('flow')">🧭 진행 순서</button>
+      <button class="gp-seg-b${_guideView==='note'?' on':''}" onclick="setGuideView('note')">📝 상담 기록</button>
       <button class="gp-seg-b${isPermit?' on':''}" onclick="setGuideView('permit')">📄 허가·서류</button>
     </div>
     ${body}
@@ -15146,7 +15702,31 @@ function setPaint(c){
   });
 }
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;viewDay=null;renderAll();}
-function updateMeta(si,field,val){const trimmed=val.trim();if(field==='name'){if(!trimmed){alert('프로젝트명을 입력해주세요.');return;}if(S.sites.find((s,i)=>i!==si&&s.name===trimmed)){alert('이미 있는 프로젝트명입니다.');return;}}S.sites[si][field]=(field==='memo'?val:trimmed)||val;persist();if(field==='name')renderAll();}
+function updateMeta(si,field,val){
+  const trimmed=val.trim();
+  if(field==='name'){
+    if(!trimmed){ alert('프로젝트명을 입력해주세요.'); return; }
+    if(S.sites.find((s,i)=>i!==si && s.name===trimmed)){ alert('이미 있는 프로젝트명입니다.'); return; }
+  }
+  const before=(field==='name') ? String(S.sites[si].name||'').trim() : '';
+  S.sites[si][field]=(field==='memo'?val:trimmed)||val;
+  if(field==='name') _syncQuoteName(si, before, trimmed);
+  persist();
+  if(field==='name') renderAll();
+}
+/* 프로젝트 이름을 바꾸면 견적 공사명도 함께 맞춥니다.
+   견적에 따로 이름을 지어 두셨으면 건드리지 않습니다. */
+function _syncQuoteName(si, before, after){
+  const st=S.sites[si];
+  if(!st || !Array.isArray(st.quotes)) return;
+  st.quotes.forEach(function(q){
+    const cur=String((q&&q.name)||'').trim();
+    /* 비어 있거나 · 예전 프로젝트 이름 그대로거나 · 기본 이름이면 따라갑니다 */
+    if(!cur || (before && cur===before) || (typeof _isDefaultSiteName==='function' && _isDefaultSiteName(si,cur))){
+      q.name=after;
+    }
+  });
+}
 async function deleteSite(si){
   if(!(await askConfirm(`"${S.sites[si].name}" 프로젝트을 삭제하시겠어요?\n이 프로젝트의 작업 기록이 모두 지워집니다.`)))return;
   // 뒤에 있는 프로젝트들의 cells 키 인덱스를 -1 (색은 작업별이므로 그대로 유지)
