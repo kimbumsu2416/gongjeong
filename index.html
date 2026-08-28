@@ -703,6 +703,10 @@ button.hk-x:hover{background:#fdeceb;color:#DC2626}
 .nt-dl-l{flex:1 1 260px;min-width:0}
 .nt-dl-t{font-size:15px;font-weight:800;color:#12141C;margin-bottom:5px}
 .nt-dl-d{font-size:12.5px;color:#5f6b7c;line-height:1.7}
+.nt-dl-bs{flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap}
+.nt-dl-b.alt{background:#fff;color:#3d4757;border:1px solid #dfe5ee;box-shadow:none}
+.nt-dl-b.alt:hover{border-color:#2f9e5e;color:#1f6b45;background:#f7fdf9}
+@media(max-width:620px){.nt-dl-bs{width:100%}.nt-dl-bs .nt-dl-b{flex:1}}
 .nt-dl-b{flex:0 0 auto;font-size:13.5px;font-weight:800;font-family:inherit;color:#fff;background:#2f9e5e;
   border:none;border-radius:11px;padding:13px 20px;cursor:pointer;white-space:nowrap;
   box-shadow:0 3px 9px rgba(47,158,94,.26)}
@@ -14303,6 +14307,244 @@ function _xlLoad(){
   return _xlLoading;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   상담지 워드(.docx) — 한글에서 열어 고치고 인쇄하실 수 있습니다.
+   docx 는 단추를 누를 때만 내려받습니다 (index.html 용량과 무관).
+   ══════════════════════════════════════════════════════════════ */
+const DX_CDN='https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+let _dxLoading=null;
+function _dxLoad(){
+  if(typeof docx!=='undefined') return Promise.resolve();
+  if(_dxLoading) return _dxLoading;
+  _dxLoading=new Promise(function(res,rej){
+    const s=document.createElement('script');
+    s.src=DX_CDN;
+    s.onload=function(){ res(); };
+    s.onerror=function(){ _dxLoading=null; rej(new Error('문서 만들기 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.')); };
+    document.head.appendChild(s);
+  });
+  return _dxLoading;
+}
+
+async function cnDocx(btn){
+  const b=btn||document.getElementById('cn-dx');
+  const old=b?b.textContent:'';
+  if(b){ b.disabled=true; b.textContent='만드는 중...'; }
+  try{
+    await _dxLoad();
+    const blob=await _cnBuildDocx();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='공정온_상담지.docx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+    showToast('상담지를 내려받았습니다 — 한글에서 열 수 있습니다');
+  }catch(e){
+    alert('내려받지 못했습니다.\n'+((e&&e.message)||e));
+  }finally{
+    if(b){ b.disabled=false; b.textContent=old||'⬇ 상담지 내려받기 (한글·워드)'; }
+  }
+}
+
+async function _cnBuildDocx(){
+  const co=S.company||{};
+  const D=docx;
+  const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,
+         WidthType,AlignmentType,BorderStyle,VerticalAlign,ShadingType,convertMillimetersToTwip}=D;
+
+  const FN='맑은 고딕';
+  const INK='111827', GRAY='9CA3AF', MUTE='6B7280', FAINT='C4CAD4', CREAM='FCF3D9', SOFT='F3F4F6';
+  const NONE={style:BorderStyle.NONE,size:0,color:'FFFFFF'};
+  const THIN={style:BorderStyle.SINGLE,size:4,color:GRAY};
+  const MED ={style:BorderStyle.SINGLE,size:12,color:INK};
+  const FINE={style:BorderStyle.SINGLE,size:2,color:'E5E7EB'};
+  const bAll =function(b){ return {top:b,bottom:b,left:b,right:b}; };
+  const noB  = bAll(NONE);
+  const thinB= bAll(THIN);
+
+  /* 글 한 줄 */
+  const T=function(t,o){
+    o=o||{};
+    return new Paragraph({
+      alignment:o.align||AlignmentType.LEFT,
+      spacing:{before:o.before||0, after:(o.after===undefined?0:o.after), line:o.line||240},
+      children:[new TextRun({ text:String(t===undefined?'':t), bold:!!o.bold,
+        size:(o.size||18), color:(o.color||INK), font:FN,
+        characterSpacing:(o.sp||0) })]
+    });
+  };
+  /* 표 한 칸 */
+  const C=function(t,o){
+    o=o||{};
+    return new TableCell({
+      width:{size:(o.w||10),type:WidthType.PERCENTAGE},
+      columnSpan:o.span||1, rowSpan:o.rows||1,
+      verticalAlign:VerticalAlign.CENTER,
+      shading:(o.fill?{type:ShadingType.CLEAR,fill:o.fill,color:'auto'}:undefined),
+      borders:(o.borders||thinB),
+      margins:{top:40,bottom:40,left:70,right:70},
+      children:(Array.isArray(t)?t:[T(t,{align:o.align||AlignmentType.CENTER,size:o.size||17,
+        bold:o.bold,color:o.color})])
+    });
+  };
+  const R=function(cells,h){
+    return new TableRow({ children:cells, height:(h?{value:h,rule:'atLeast'}:undefined) });
+  };
+  const TB=function(rows,o){
+    o=o||{};
+    return new Table({
+      width:{size:100,type:WidthType.PERCENTAGE},
+      layout:'fixed',
+      borders:(o.outer||bAll(MED)),
+      rows:rows
+    });
+  };
+  const GAP=function(n){ return new Paragraph({spacing:{after:(n||120)},children:[]}); };
+  const SEC=function(n,t){
+    return new Paragraph({ spacing:{before:200,after:80},
+      children:[new TextRun({text:n+'_'+t, bold:true, size:22, font:FN, color:INK})] });
+  };
+  const H=function(mm){ return convertMillimetersToTwip(mm); };
+  const RH=340;   /* 보통 줄 높이 */
+
+  const body=[];
+
+  /* ── 제목 띠 ── */
+  body.push(TB([
+    R([
+      C([T('',{size:14})],{w:26,fill:CREAM,borders:noB}),
+      C([T('상 담 지',{align:AlignmentType.CENTER,bold:true,size:44,sp:60})],{w:48,fill:CREAM,borders:noB}),
+      C([T('',{size:14})],{w:26,fill:CREAM,borders:noB}),
+    ], H(11)),
+    R([
+      C([T('  현장명',{align:AlignmentType.LEFT,bold:true,size:17,color:'6B5B2A'})],{w:26,fill:CREAM,borders:noB}),
+      C([T('For commercial interior',{align:AlignmentType.CENTER,size:14,color:'8A7A4A'})],{w:48,fill:CREAM,borders:noB}),
+      C([T('일자        년      월      일  ',{align:AlignmentType.RIGHT,size:16,color:'8A7A4A'})],{w:26,fill:CREAM,borders:noB}),
+    ], H(7)),
+  ], {outer:bAll(MED)}));
+  body.push(GAP(200));
+
+  /* ── 1 기본정보 ── */
+  body.push(SEC('1','기본정보'));
+  const side=function(t,rows){ return C([T(t,{align:AlignmentType.CENTER,bold:true,size:16})],{w:6,rows:rows}); };
+  const k=function(t){ return C(t,{w:11,size:16}); };
+  const v=function(span){ return C('',{w:16,span:(span||1)}); };
+  body.push(TB([
+    R([ side('고객\n정보',5), k('고객명'), v(), side('현장\n정보',5), k('업종'), v(), side('부가\n정보',5), k('주차'), v() ], RH),
+    R([ k('연락처'), v(), k('평수/면적'), v(), k('식당'), v() ], RH),
+    R([ C('주소',{w:11,size:16,rows:2}), C('',{w:16,rows:2}), k('공사유형'), v(), k('화장실'), v() ], RH),
+    R([ k('공사예정'), v(), k('층수'), v() ], RH),
+    R([ k(''), v(), k(''), v(), k('양중'), v() ], RH),
+  ]));
+
+  /* ── 2 탐색단계 ── */
+  body.push(SEC('2','탐색단계'));
+  const qLine=function(){
+    return C([ new Paragraph({ spacing:{after:0},
+      border:{bottom:{style:BorderStyle.SINGLE,size:4,color:GRAY}},
+      children:[new TextRun({text:'질문:  ',size:16,color:GRAY,font:FN})] }) ],
+      {w:60,span:6,borders:noB,align:AlignmentType.LEFT});
+  };
+  const gridCell=function(w,span,rows){
+    return C([T('',{size:16})],{w:w,span:span,rows:rows,borders:bAll(FINE)});
+  };
+  body.push(TB([
+    /* 왼쪽 질문 3줄 · 오른쪽 빠른 레이아웃 */
+    R([ C([ new Paragraph({spacing:{after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:GRAY}},
+              children:[new TextRun({text:'질문:',size:16,color:GRAY,font:FN})]}),
+            new Paragraph({spacing:{after:120},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:GRAY}},
+              children:[new TextRun({text:'질문:',size:16,color:GRAY,font:FN})]}),
+            new Paragraph({spacing:{after:40},border:{bottom:{style:BorderStyle.SINGLE,size:4,color:GRAY}},
+              children:[new TextRun({text:'질문:',size:16,color:GRAY,font:FN})]}) ],
+          {w:56,borders:noB,align:AlignmentType.LEFT}),
+        C([T('빠 른 레 이 아 웃',{align:AlignmentType.CENTER,size:14,color:MUTE})],{w:8,borders:noB}),
+        gridCell(36,1,1) ], H(20)),
+  ]));
+  body.push(GAP(80));
+  /* 기구 SPEC CHECK */
+  body.push(TB([
+    R([ C([T('기구 SPEC CHECK',{align:AlignmentType.CENTER,size:14,color:MUTE})],{w:20,rows:4,fill:SOFT}),
+        C('명칭',{w:20,fill:SOFT,size:15}), C('사이즈',{w:24,fill:SOFT,size:15}),
+        C('전력',{w:18,fill:SOFT,size:15}), C('설비',{w:18,fill:SOFT,size:15}) ], RH),
+    R([ C('',{w:20}), C('',{w:24}), C('',{w:18}), C('',{w:18}) ], RH),
+    R([ C('',{w:20}), C('',{w:24}), C('',{w:18}), C('',{w:18}) ], RH),
+    R([ C('',{w:20}), C('',{w:24}), C('',{w:18}), C('',{w:18}) ], RH),
+  ]));
+
+  /* ── 3 공사내용정리 ── */
+  body.push(SEC('3','공사내용정리'));
+  const wRows=[ R([ C('NO',{w:7,size:16}), C('공사명',{w:22,size:16}),
+                    C('내 　용',{w:50,size:16}), C('비고',{w:21,size:16}) ], RH) ];
+  for(let i=1;i<=10;i++){
+    wRows.push(R([ C(String(i),{w:7,size:16,color:MUTE}), C('',{w:22}), C('',{w:50}), C('',{w:21}) ], RH));
+  }
+  body.push(TB(wRows));
+
+  /* ── 4 취향분석 ── */
+  body.push(SEC('4','취향분석'));
+  const opt=function(t,w,span){ return C(t,{w:w,span:span,size:16,color:FAINT}); };
+  /* 머리글 줄과 내용 줄을 같은 칸수로 두어 어긋나지 않게 합니다 */
+  body.push(TB([
+    R([ C('선호스타일',{w:13,size:16}), C('',{w:13,size:16}), C('',{w:13,size:16}),
+        C('선호색상',{w:12,size:16}), C('',{w:12,size:16}),
+        C('선호소재',{w:14,size:16}), C('MEMO',{w:23,size:16}) ], RH),
+    R([ opt('모 던',13), opt('빈 티 지',13), opt('인더스트리얼',13),
+        opt('화 이 트',12), opt('그 레 이',12), opt('원목느낌',14), C('',{w:23,rows:3}) ], RH),
+    R([ opt('프 렌 치',13), opt('북 유 럽',13), opt('캐 주 얼',13),
+        opt('파 스 텔',12), opt('원 색',12), opt('금 속',14) ], RH),
+    R([ opt('클 래 식',13), opt('어 반',13), opt('',13),
+        opt('블랙 & 화이트',24,2), opt('타 일 · 대리석',14) ], RH),
+  ]));
+
+  /* ── 5 부가공사 CHECK ── */
+  body.push(SEC('5','부가공사 CHECK'));
+  const ADD=[
+    ['에어컨','공사여부:','A/C유형:','전기용량:','실외기위치:'],
+    ['보안공사','공사여부:','CCTV만','보안까지','공사예정일:'],
+    ['인터넷','공사여부:','내선사용','신규공사','공사예정일:'],
+    ['소방','공사여부:','방염대상여부:','공사내용:',''],
+    ['간판','공사여부:','간판선유무:','간판차단기유무:',''],
+    ['스피커','공사여부:','외부','내부','사용기기:'],
+    ['기 타','','','',''],
+  ];
+  body.push(TB(ADD.map(function(a){
+    return R([ C(a[0],{w:16,bold:true,size:16}),
+      C([T(a[1],{size:13,color:FAINT})],{w:21,align:AlignmentType.LEFT}),
+      C([T(a[2],{size:13,color:FAINT})],{w:21,align:AlignmentType.LEFT}),
+      C([T(a[3],{size:13,color:FAINT})],{w:21,align:AlignmentType.LEFT}),
+      C([T(a[4],{size:13,color:FAINT})],{w:21,align:AlignmentType.LEFT}) ], RH);
+  })));
+
+  /* ── 6 견적진행 여부 ── */
+  body.push(SEC('6','견적진행 여부'));
+  body.push(TB([
+    R([ C('견적제시형태',{w:28,rows:2,bold:true,size:16}),
+        C('가견적',{w:14,size:14}), C('상세견적',{w:15,size:14}),
+        C('2D설계',{w:14,size:14}), C('3D설계',{w:14,size:14}), C('기타',{w:15,size:14}) ], RH),
+    R([ C('',{w:14}), C('',{w:15}), C('',{w:14}), C('',{w:14}), C('',{w:15}) ], RH),
+    R([ C('견적제시기한',{w:28,bold:true,size:16}),
+        C('월          일     까지 견적을 제출하겠습니다',{w:72,span:5,size:16}) ], RH),
+    R([ C('공사시작예정일',{w:28,bold:true,size:16}), C('월          일',{w:72,span:5,size:16}) ], RH),
+    R([ C('공사마감예정일',{w:28,bold:true,size:16}), C('월          일',{w:72,span:5,size:16}) ], RH),
+    R([ C('매장OPEN예정일',{w:28,bold:true,size:16}), C('월          일',{w:72,span:5,size:16}) ], RH),
+  ]));
+
+  /* 바닥 */
+  body.push(new Paragraph({ spacing:{before:200},
+    alignment:AlignmentType.RIGHT,
+    children:[new TextRun({ text:'공정온  www.gongjeongon.com'+((co.name||'').trim()?('    ·    '+co.name):''),
+      size:14, color:FAINT, font:FN })] }));
+
+  const doc=new Document({
+    styles:{ default:{ document:{ run:{ font:FN, size:18 } } } },
+    sections:[{
+      properties:{ page:{ margin:{ top:H(12), bottom:H(10), left:H(12), right:H(12) } } },
+      children:body
+    }]
+  });
+  return await Packer.toBlob(doc);
+}
+
 async function cnXlsx(btn){
   const b=btn||document.getElementById('cn-xl');
   const old=b?b.textContent:'';
@@ -14588,8 +14830,11 @@ function renderGuideNoteBody(){
   + '<div class="nt-dl">'
   +   '<div class="nt-dl-l"><div class="nt-dl-t">📄 상담지 양식</div>'
   +     '<div class="nt-dl-d">현장에 들고 나가 손으로 채우실 수 있습니다. '
-  +       '기본정보 · 탐색단계 · 공사내용정리 · 취향분석 · 부가공사 · 견적진행까지 한 장에 담겨 있습니다.</div></div>'
-  +   '<button class="nt-dl-b" id="cn-xl" onclick="cnXlsx(this)">⬇ 상담지 엑셀 내려받기</button>'
+  +       '<b>한글 · 워드</b> 파일은 한글에서 그대로 열리고, 칸을 늘리거나 글씨를 고치실 수 있습니다.</div></div>'
+  +   '<div class="nt-dl-bs">'
+  +     '<button class="nt-dl-b" id="cn-dx" onclick="cnDocx(this)">⬇ 한글 · 워드로 받기</button>'
+  +     '<button class="nt-dl-b alt" id="cn-xl" onclick="cnXlsx(this)">⬇ 엑셀로 받기</button>'
+  +   '</div>'
   + '</div>'
   /* 왜 필요한가 */
   + '<div class="nt-why">'
