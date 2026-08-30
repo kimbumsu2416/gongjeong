@@ -604,6 +604,10 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .dd-v{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dd-h{flex:0 0 auto;font-size:11px;font-weight:800;color:#8a94a6;background:#f2f5fa;border-radius:20px;padding:3px 8px}
 .dd-i:hover .dd-h,.dd-i.on .dd-h{background:#fff;color:#1f6b45}
+.dd-sep{padding:7px 13px 4px;font-size:10.5px;font-weight:700;color:#b8c0cc;
+  border-top:1px solid #f2f5fa;margin-top:3px}
+.dd-i.dim .dd-v{color:#8a94a6}
+.dd-i.dim:hover .dd-v,.dd-i.dim.on .dd-v{color:#12141C}
 .dd-none{padding:16px 14px;font-size:12.5px;color:#8a94a6;text-align:center}
 .dd-list::-webkit-scrollbar{width:8px}
 .dd-list::-webkit-scrollbar-thumb{background:#dfe5ee;border-radius:8px}
@@ -2465,6 +2469,8 @@ textarea.checklist-text{resize:none;overflow:hidden;white-space:pre-wrap;word-br
 .lg-tbl{width:calc(100% - 14px);border-collapse:collapse;margin:12px 0 18px 14px;font-size:13.5px}
 .lg-tbl th,.lg-tbl td{border:1px solid #DCE3EE;padding:11px 14px;text-align:left;vertical-align:top}
 .lg-tbl th{background:#EDF1F8;font-weight:700;color:#12141C;white-space:nowrap}
+.lg-biz{margin-top:14px;padding-top:12px;border-top:1px solid #eef1f6;
+  font-size:11.5px;color:#b8c0cc;text-align:center;letter-spacing:.01em}
 .lg-foot{margin:44px 0 0 14px;padding:18px 22px;background:#F7F9FC;border-radius:10px;
   border:1px solid #E4EAF3;font-size:13.5px;color:#5f6b7c;line-height:2}
 
@@ -3482,6 +3488,26 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 .layout-side{min-width:0;display:flex;flex-direction:column}
 .layout-side .meta-grid{grid-template-columns:1fr;margin-bottom:0}
 .layout-side .sec-box{margin-bottom:10px}
+
+/* ── 앱 안 바닥글 ─────────────────────────── */
+.app-foot{margin:26px 0 10px;padding:18px 4px 4px;border-top:1px solid #e3e9f1;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.af-links{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.af-links button{font-size:12.5px;font-weight:600;color:#8a94a6;background:transparent;
+  border:none;padding:4px 0;cursor:pointer;font-family:inherit;transition:color .14s}
+.af-links button:hover{color:#12141C}
+.af-privacy{color:#3d4757!important;border:1px solid #dfe5ee!important;border-radius:7px!important;
+  padding:6px 11px!important;font-weight:700!important}
+.af-privacy:hover{background:#12141C!important;color:#fff!important;border-color:#12141C!important}
+.af-biz{margin-left:auto;display:flex;align-items:center;gap:6px;
+  font-size:11.5px;color:#b8c0cc;white-space:nowrap}
+.af-lg{width:12px;height:12px;color:#c8d0da;flex:0 0 auto}
+@media(max-width:700px){
+  .app-foot{gap:12px}
+  .af-links{gap:14px;width:100%}
+  .af-biz{margin-left:0}
+}
+@media print{ .app-foot{display:none!important} }
 .side-foot{margin-top:2px;text-align:right;flex-shrink:0}
 @media(max-width:1240px){
   .layout{grid-template-columns:1fr;gap:12px}
@@ -5555,6 +5581,19 @@ tr.divider td{background:#EEF0F3!important}
   </header>
   <div class="page-container">
     <div class="page" id="page"><div id="root"></div></div>
+
+    <!-- 앱 안 바닥글 — 정책 · 문의 -->
+    <footer class="app-foot">
+      <nav class="af-links">
+        <button class="af-privacy" onclick="openLegal('privacy')">개인정보 처리방침</button>
+        <button onclick="openLegal('terms')">이용약관</button>
+        <button onclick="openInquiry()">문의하기</button>
+      </nav>
+      <div class="af-biz">
+        <svg class="af-lg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.5" width="16" height="6" rx="3" fill="currentColor" opacity=".95"/><rect x="8" y="12" width="20" height="6" rx="3" fill="currentColor" opacity=".55"/><rect x="4.5" y="19.5" width="13" height="6" rx="3" fill="#4F46E5"/></svg>
+        <span id="af-op"></span>
+      </div>
+    </footer>
   </div>
 </div>
 
@@ -5563,7 +5602,7 @@ tr.divider td{background:#EEF0F3!important}
 <script>
 /* ══════════ 운영 정보 (사업자등록 후 교체) ══════════ */
 const LEGAL = {
-  version:  '2026-07-30',
+  version:  '2026-09-05',
   operator: '공정온',                           // 상호 (사업자등록증)
   rep:      '김범수',                           // 대표자
   bizno:    '688-33-01597',                     // 사업자등록번호
@@ -5644,11 +5683,7 @@ const PROC_TEMPLATES=[
 
 /* ── 앱 모드: 전문가 / 셀프 ── */
 let APP_MODE = localStorage.getItem('gj_mode') || 'pro';   // 'pro' | 'self'
-function setAppMode(m){
-  APP_MODE = m;
-  localStorage.setItem('gj_mode', m);
-  renderAll();
-}
+
 function isSelf(){ return APP_MODE==='self'; }
 
 /* 모드별 용어 — 한 곳에서 관리 */
@@ -5891,7 +5926,6 @@ async function leaveTeamRpc(id){    return await rpc('leave_team',{team:id}); }
 async function renameTeamRpc(id,name){ return await rpc('rename_team',{team:id, new_name:name}); }
 async function loadTeamMembers(id){    return await rpc('team_member_list',{team:id}) || []; }
 async function removeMemberRpc(id,uid){return await rpc('remove_member',{team:id, target:uid}); }
-async function setMemberRole(id,uid,role){ return await rpc('set_member_role',{team:id, target:uid, new_role:role}); }
 function isOwner(){ return !!(TEAM && USER && TEAM.owner_id===USER.id); }
 /* 셀프 전용 개인 공간 팀 식별 — 프로 팀 목록엔 노출하지 않는다.
    셀프 진입 때 자동 생성되는 팀은 이름이 '내 공간' 이다. */
@@ -5908,7 +5942,7 @@ let IS_ADMIN=false;     // 서비스 운영자 (문의함 접근)
    ══════════════════════════════════════════════ */
 let _hTab = 'login';     // login | signup
 
-function setHTab(t){ _hTab=t; renderHeroAuth(); }
+
 
 
 /* 랜딩에서 모드 고르기 — 문구만 바뀜, 로그인 후 이 모드로 시작 */
@@ -6041,39 +6075,7 @@ function openAuth(tab){
 /* ══════════════════════════════════════════════
    운영자 진단 — 문의함이 왜 안 보이는지
    ══════════════════════════════════════════════ */
-async function checkAdminStatus(){
-  const out=document.getElementById('adm-out');
-  if(!out) return;
-  out.innerHTML='<span class="adm-wait">확인 중...</span>';
 
-  let admin=false, err='';
-  try{ admin = !!(await rpc('is_admin',{})); }
-  catch(e){ err = e.message||'확인 실패'; }
-
-  if(err){
-    out.innerHTML=`<div class="adm-bad">
-      <b>확인 실패</b><br>${esc(err.slice(0,90))}<br><br>
-      <code>is_admin</code> 함수가 없을 수 있습니다. <b>supabase_v15_admin.sql</b>을 실행해 주십시오.
-    </div>`;
-    return;
-  }
-
-  if(admin){
-    IS_ADMIN=true;
-    renderTabs();
-    fetchInquiries(true);
-    out.innerHTML=`<div class="adm-ok">
-      <b>운영자입니다.</b><br>
-      상단에 <b>문의함</b> 탭이 나타납니다. 접수된 문의를 여기서 읽으십시오.
-    </div>`;
-  }else{
-    out.innerHTML=`<div class="adm-bad">
-      <b>운영자가 아닙니다.</b> (${esc(USER?USER.email:'—')})<br><br>
-      이 계정이 <code>app_admins</code>에 없습니다.<br>
-      <b>supabase_v15_admin.sql</b>을 Supabase에서 실행하면 등록됩니다.
-    </div>`;
-  }
-}
 
 async function checkAdmin(){
   if(!USER){ IS_ADMIN=false; return; }
@@ -6838,7 +6840,7 @@ function getPersonColor(pi){return SCH_COLORS[pi%SCH_COLORS.length];}
 
 // 날짜 비교 유틸
 function dateStr(y,m,d){return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-function parseDateStr(s){const[y,m,d]=s.split('-').map(Number);return{y,m,d};}
+
 function dateToNum(s){return parseInt(s.replace(/-/g,''));}
 
 // 해당 날짜에 걸리는 이벤트 반환 (다중일 지원)
@@ -6859,183 +6861,7 @@ function isEventStart(ev,y,m,d){return ev.startDate===dateStr(y,m,d);}
 // 이벤트가 해당 날짜의 끝인지
 function isEventEnd(ev,y,m,d){return (ev.endDate||ev.startDate)===dateStr(y,m,d);}
 
-function renderScheduleTab(){
-  if(!S.scheduleYear){S.scheduleYear=S.year;S.scheduleMonth=S.month;}
-  if(!S.scheduleSelectedDay)S.scheduleSelectedDay=null;
-  if(!S.scheduleFilter)S.scheduleFilter=[]; // 빈 배열 = 전체 보기
-  const sd=getScheduleData();
-  const y=S.scheduleYear, m=S.scheduleMonth;
-  const days=daysInMonth(y,m);
-  const firstDow=getDow(y,m,1);
-  const today=new Date(); const ty=today.getFullYear(),tm=today.getMonth()+1,td=today.getDate();
-  const DOW_LABEL=['월','화','수','목','금','토','일'];
-  const persons=sd.persons||[];
 
-  let h=`<div style="background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)">`;
-
-  // ── 헤더: 월 이동 + 오늘 버튼
-  h+=`<div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 16px;display:flex;align-items:center;gap:10px">
-    <button onclick="changeScheduleMonth(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#555;font-family:inherit">&#8249;</button>
-    <span style="font-size:20px;font-weight:700;color:#1e293b;min-width:100px;text-align:center">${y}년 ${m}월</span>
-    <button onclick="changeScheduleMonth(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#555;font-family:inherit">&#8250;</button>
-    <button onclick="goToToday()" style="font-size:12.5px;padding:4px 10px;border-radius:20px;border:1px solid #e2e8f0;background:#f8fafc;color:#555;cursor:pointer;font-family:inherit;margin-left:4px">오늘</button>
-  </div>`;
-
-  // ── 추가 버튼 겸 필터 영역
-  // 윗줄: 공통 + 사람별 일정 추가 버튼
-  h+=`<div style="padding:10px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-    <button onclick="openAddEvent(null,undefined)" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:#3B82F6;color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;flex-shrink:0">
-      <span>+</span><span>📅 공통 일정</span>
-    </button>`;
-  persons.forEach((p,i)=>{
-    const c=getPersonColor(i);
-    h+=`<button onclick="openAddEvent(null,${i})" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:${c};color:#fff;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;flex-shrink:0">
-      <span>+</span><span>👤 ${esc(p.name)}</span>
-    </button>`;
-  });
-  h+=`</div>`;
-  // 멤버 추가 줄 (별도)
-  h+=`<div style="padding:8px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px">
-    <span style="font-size:12.5px;color:#94a3b8;flex-shrink:0">멤버 추가</span>
-    <input id="new-person-input" placeholder="이름 입력" style="font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid #c8d0de;outline:none;width:120px;font-family:inherit;color:#333"
-      onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addSchedulePerson();}">
-    <button onclick="addSchedulePerson()" style="font-size:13px;padding:6px 14px;border-radius:8px;background:#5a5a7a;color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0">+ 추가</button>
-  </div>`;
-  // 아랫줄: 필터
-  h+=`<div style="padding:6px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-    <span style="font-size:12.5px;color:#94a3b8;margin-right:2px">필터</span>
-    <div onclick="S.scheduleFilter=[];renderAll()" style="padding:3px 10px;border-radius:20px;border:1.5px solid ${S.scheduleFilter.length===0?'#3B82F6':'#e2e8f0'};background:${S.scheduleFilter.length===0?'#EFF6FF':'transparent'};cursor:pointer;font-size:12.5px;color:${S.scheduleFilter.length===0?'#3B82F6':'#94a3b8'};font-weight:${S.scheduleFilter.length===0?'600':'400'}">전체</div>
-    <div onclick="toggleSchFilterCommon()" style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid ${S.scheduleFilterCommon===false?'#e2e8f0':'#3B82F6'};background:${S.scheduleFilterCommon===false?'transparent':'#EFF6FF'};cursor:pointer;font-size:12.5px;color:${S.scheduleFilterCommon===false?'#94a3b8':'#3B82F6'};font-weight:600">
-      <div style="width:7px;height:7px;border-radius:50%;background:#3B82F6"></div>공통
-    </div>`;
-  persons.forEach((p,i)=>{
-    const c=getPersonColor(i);
-    const on=S.scheduleFilter.includes(i);
-    h+=`<div onclick="toggleSchFilter(${i})" style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid ${on?c:'#e2e8f0'};background:${on?c+'18':'transparent'};cursor:pointer;font-size:12.5px;color:${on?c:'#94a3b8'};font-weight:${on?'600':'400'}">
-      <div style="width:7px;height:7px;border-radius:50%;background:${c}"></div>${esc(p.name)}
-      <span onclick="event.stopPropagation();deleteSchedulePerson(${i})" style="margin-left:1px;color:#6b7583;font-size:12.5px;cursor:pointer">×</span>
-    </div>`;
-  });
-  h+=`</div>`;
-
-  // ── 달력 요일 헤더
-  h+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);background:#f8fafc;border-bottom:1px solid #e2e8f0">`;
-  DOW_LABEL.forEach((d,i)=>{
-    h+=`<div style="text-align:center;font-size:14px;font-weight:600;padding:8px 0;color:${i===6?'#EF4444':i===5?'#F97316':'#64748b'}">${d}</div>`;
-  });
-  h+=`</div>`;
-
-  // ── 달력 셀
-  h+=`<div style="display:grid;grid-template-columns:repeat(7,1fr)">`;
-
-  // 빈 셀
-  for(let i=0;i<firstDow;i++){
-    h+=`<div style="min-height:120px;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:#fafafa"></div>`;
-  }
-
-  let dow=firstDow;
-  for(let d=1;d<=days;d++){
-    const isToday=(y===ty&&m===tm&&d===td);
-    const isSel=S.scheduleSelectedDay===d;
-    const hol=isHol(y,m,d);
-    const isWknd=dow>=5;
-    const holN=holName(y,m,d);
-    const cellBg=isSel?'#EFF6FF':isToday?'#f0fdf4':isWknd||hol?'#fef9f9':'#fff';
-    const borderColor=isSel?'#3B82F6':'#f1f5f9';
-
-    // 이 날에 걸리는 이벤트 (필터 적용)
-    let evs=getEventsForDate(y,m,d);
-    if(S.scheduleFilter&&S.scheduleFilter.length>0||S.scheduleFilterCommon===false){
-      evs=evs.filter(ev=>{
-        if(ev.personIdx===undefined) return S.scheduleFilterCommon!==false;
-        return S.scheduleFilter.length===0||S.scheduleFilter.includes(ev.personIdx);
-      });
-    }
-    // 공통 이벤트도 별도로 분류
-    const evsSorted=evs.sort((a,b)=>dateToNum(a.startDate)-dateToNum(b.startDate));
-
-    h+=`<div style="min-height:120px;border-right:1px solid ${borderColor};border-bottom:1px solid ${borderColor};background:${cellBg};cursor:pointer;position:relative;padding:3px 2px 2px"
-      onclick="selectSchDay(${d})">
-      <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;margin:0 auto 3px;font-size:15px;font-weight:${isToday?'700':'500'};
-        background:${isToday?'#22C55E':'transparent'};color:${isToday?'#fff':hol||dow===6?'#EF4444':dow===5?'#F97316':'#374151'}">
-        ${d}${isToday?'':''}</div>`;
-
-    if(holN) h+=`<div style="font-size:12.5px;color:#EF4444;text-align:center;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px">${holN}</div>`;
-
-    // 이벤트 바 렌더
-    evsSorted.slice(0,3).forEach(ev=>{
-      const c=ev.color||'#3B82F6';
-      const isStart=isEventStart(ev,y,m,d);
-      const isEnd=isEventEnd(ev,y,m,d);
-      const isSingleDay=isStart&&isEnd;
-      const rLeft=isStart?'3px':'0';
-      const rRight=isEnd?'3px':'0';
-      const showTitle=isStart||(dow===0); // 시작이거나 주의 첫날
-      h+=`<div style="background:${c};color:#fff;font-size:12.5px;padding:3px ${showTitle?'5px':'0'};margin:1px 1px;
-        border-radius:${rLeft} ${rRight} ${rRight} ${rLeft};
-        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6;
-        ${!isStart&&dow!==0?'margin-left:-2px':''}">
-        ${showTitle?esc(ev.title):'&nbsp;'}
-        ${ev.allDay===false&&ev.startTime&&isStart?`<span style="opacity:0.8;font-size:8px"> ${esc(ev.startTime)}</span>`:''}
-      </div>`;
-    });
-    if(evsSorted.length>3) h+=`<div style="font-size:12.5px;color:#94a3b8;text-align:right;padding-right:4px">+${evsSorted.length-3}개</div>`;
-
-    h+=`</div>`;
-    dow++;
-    if(dow===7&&d<days) dow=0;
-  }
-  // 마지막 빈 셀
-  if(dow>0&&dow<7){
-    for(let i=dow;i<7;i++) h+=`<div style="min-height:120px;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:#fafafa"></div>`;
-  }
-  h+=`</div>`;
-
-  // ── 선택된 날짜 이벤트 패널
-  if(S.scheduleSelectedDay){
-    const d=S.scheduleSelectedDay;
-    let dayEvs=getEventsForDate(y,m,d);
-    if(S.scheduleFilter&&S.scheduleFilter.length>0) dayEvs=dayEvs.filter(ev=>ev.personIdx===undefined?true:S.scheduleFilter.includes(ev.personIdx));
-    const DOW_KR2=['월','화','수','목','금','토','일'];
-    const dw=getDow(y,m,d);
-    const holN2=holName(y,m,d);
-    h+=`<div style="border-top:2px solid #e2e8f0;padding:14px 16px;background:#f8fafc">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:16px;font-weight:700;color:#1e293b">${m}월 ${d}일 (${DOW_KR2[dw]}${holN2?' · '+holN2:''})</div>
-        <button onclick="openAddEvent(${d})" style="font-size:12.5px;padding:4px 12px;border-radius:20px;background:#3B82F6;color:#fff;border:none;cursor:pointer;font-family:inherit">+ 추가</button>
-      </div>`;
-    if(dayEvs.length===0){
-      h+=`<div style="font-size:13px;color:#94a3b8;padding:8px 0;text-align:center">이 날 등록된 일정이 없어요</div>`;
-    } else {
-      dayEvs.forEach((ev,i)=>{
-        const evIdx=getScheduleData().events.indexOf(ev);
-        const c=ev.color||'#3B82F6';
-        const sd2=getScheduleData();
-        const person=ev.personIdx!==undefined?sd2.persons[ev.personIdx]:null;
-        const timeStr=ev.allDay!==false?'종일':`${ev.startTime||''}${ev.endTime?' ~ '+ev.endTime:''}`;
-        h+=`<div style="display:flex;gap:10px;padding:10px 12px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:6px;align-items:flex-start">
-          <div style="width:4px;min-height:40px;border-radius:2px;background:${c};flex-shrink:0;margin-top:2px"></div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:15px;font-weight:600;color:#1e293b;margin-bottom:4px">${esc(ev.title)}</div>
-            <div style="font-size:13px;color:#94a3b8;display:flex;gap:8px;flex-wrap:wrap">
-              <span>🕐 ${timeStr}</span>
-              ${person?`<span>👤 ${esc(person.name)}</span>`:'<span style="color:#3B82F6">📅 공통</span>'}
-              ${ev.memo?`<span>📝 ${esc(ev.memo)}</span>`:''}
-            </div>
-          </div>
-          <div style="display:flex;gap:4px;flex-shrink:0">
-            <button onclick="openEditEvent(${evIdx})" style="font-size:12.5px;padding:2px 7px;border-radius:4px;border:1px solid #e2e8f0;background:transparent;color:#555;cursor:pointer;font-family:inherit">수정</button>
-            <button onclick="deleteSchEvent(${evIdx})" style="font-size:12.5px;padding:2px 7px;border-radius:4px;border:1px solid #fecaca;background:transparent;color:#EF4444;cursor:pointer;font-family:inherit">삭제</button>
-          </div>
-        </div>`;
-      });
-    }
-    h+=`</div>`;
-  }
-
-  h+=`</div>`;
-  return h;
-}
 
 function toggleSchFilter(i){
   if(!S.scheduleFilter)S.scheduleFilter=[];
@@ -7234,7 +7060,7 @@ function saveSchEvent(){
 function closeSchModal(){document.getElementById('modal-area').innerHTML='';}
 
 // 하위 호환
-function closeScheduleModal(){closeSchModal();}
+
 
 
 
@@ -7403,7 +7229,8 @@ const LEGAL_DOCS = {
 <div class="lg-foot">
   <div>공고일자: ${LEGAL.version}</div>
   <div>시행일자: ${LEGAL.version}</div>
-</div>`
+</div>
+<div class="lg-biz">${LEGAL.operator} · 사업자등록번호 ${LEGAL.bizno}</div>`
   },
 
   terms: {
@@ -7492,6 +7319,9 @@ const LEGAL_DOCS = {
   <li>타인의 지식재산권·명예 등 권리를 침해하는 행위</li>
   <li>공정온의 승인 없는 광고·스팸 등 영리목적 정보를 전송하는 행위</li>
   <li>법령 또는 공서양속에 반하는 내용을 게시하는 행위</li>
+  <li>서비스의 <b>소스코드·화면 구성·데이터 구조를 역분석(리버스 엔지니어링)·디컴파일·복제</b>하거나, 이를 이용하여 동일하거나 유사한 서비스를 제작·운영하는 행위</li>
+  <li>자동화된 수단(크롤러·봇·스크립트 등)으로 서비스에 접속하거나 <b>서비스의 자료를 수집·추출</b>하는 행위</li>
+  <li>본인의 계정을 타인에게 <b>대여·양도·재판매</b>하거나 다수가 나누어 사용하게 하는 행위</li>
 </ol>
 
 <h4>제11조 (유료서비스 및 결제)</h4>
@@ -7512,6 +7342,7 @@ const LEGAL_DOCS = {
 <ol class="lg-ol">
   <li>서비스와 이에 필요한 소프트웨어·이미지·마크·로고·디자인·상표 등에 관한 지식재산권은 <b>공정온(운영자)에 귀속</b>됩니다.</li>
   <li>이용자는 공정온이 명시적으로 승인한 경우를 제외하고 이를 수정·복제·배포·판매·상업적 이용할 수 없으며, 제3자로 하여금 이를 하게 할 수 없습니다.</li>
+  <li>서비스의 <b>화면 구성·기능 배치·공정 분류 체계·작업 항목 목록·서식(견적서·상담지·정산서 등)</b>은 공정온이 독자적으로 구성한 것으로, 이를 그대로 또는 유사하게 옮겨 다른 서비스나 문서에 사용할 수 없습니다.</li>
 </ol>
 
 <h4>제14조 (미성년자의 이용)</h4>
@@ -7539,11 +7370,10 @@ const LEGAL_DOCS = {
 <p>공정온과 이용자 간 분쟁에는 <b>대한민국 법</b>을 적용하며, 관련 소송은 관련 법령에 정한 절차에 따른 관할 법원에 제기합니다.</p>
 
 <div class="lg-foot">
-  <div class="lgf-row"><span class="lgf-k">상호</span><span class="lgf-v">${LEGAL.operator}</span></div>
-  <div class="lgf-row"><span class="lgf-k">사업자등록번호</span><span class="lgf-v">${LEGAL.bizno}</span></div>
-  <div class="lgf-row"><span class="lgf-k">문의</span><span class="lgf-v">${LEGAL.email}</span></div>
-  <div class="lgf-row"><span class="lgf-k">시행일자</span><span class="lgf-v">${LEGAL.version}</span></div>
-</div>`
+  <div>시행일자: ${LEGAL.version}</div>
+  <div>문의: ${LEGAL.email}</div>
+</div>
+<div class="lg-biz">${LEGAL.operator} · 사업자등록번호 ${LEGAL.bizno}</div>`
   }
 };
 
@@ -8417,11 +8247,7 @@ function qSetMat(si,i,j,f,v){
   m[f] = (f==='spec') ? v : Number(v);
   persist(); renderAll();
 }
-function qSetRule(si,f,v){
-  const st=ensureQty(si);
-  st.rule[f] = (v===''?'':Number(v));
-  persist(); qPaint(si);
-}
+
 
 /* ── 자재 고르기 ── */
 let _matPick=null;
@@ -8541,110 +8367,7 @@ function qTotals(si){
   return { list, frame, net, on, off, gypsumQty };
 }
 
-function renderSiteQty(si){
-  const st=ensureQty(si);
 
-  let walls='';
-  st.walls.forEach((wl,i)=>{
-    const showOpt = !!wl._opt;
-
-    /* 자재 줄 */
-    let mats='';
-    (wl.mats||[]).forEach((m,j)=>{
-      const M=MATS[m.id];
-      if(!M) return;
-      const specOpts=M.specs.map(x=>
-        `<option value="${x.k}"${m.spec===x.k?' selected':''}>${x.n}</option>`
-      ).join('');
-      mats+=`<div class="wm">
-        <select class="q-in wm-pick" onchange="qSwapMat(${si},${i},${j},this.value)">
-          ${Object.keys(MATS).map(id=>
-            `<option value="${id}"${m.id===id?' selected':''}>${MATS[id].name}</option>`
-          ).join('')}
-        </select>
-        <select class="q-in wm-sp" onchange="qSetMat(${si},${i},${j},'spec',this.value)">${specOpts}</select>
-        ${M.layers?`
-        <select class="q-in wm-ly" onchange="qSetMat(${si},${i},${j},'layers',this.value)">
-          <option value="1"${m.layers==1?' selected':''}>1겹</option>
-          <option value="2"${m.layers==2?' selected':''}>2겹</option>
-        </select>`:''}
-        <span class="wm-q" id="wm-q-${si}-${i}-${j}"></span>
-        ${(wl.mats.length>1)?`<button class="wo-del" onclick="qDelMat(${si},${i},${j})">&times;</button>`:'<span style="width:20px"></span>'}
-      </div>`;
-    });
-
-    /* 옵션 (접힘) */
-    let opts='';
-    if(showOpt){
-      let opens='';
-      (wl.opens||[]).forEach((o,j)=>{
-        opens+=`<div class="wo">
-          <select class="q-in wo-t" onchange="qSetOpen(${si},${i},${j},'t',this.value)">
-            <option value="문"${o.t==='문'?' selected':''}>문</option>
-            <option value="창"${o.t==='창'?' selected':''}>창</option>
-          </select>
-          <input class="q-in wo-n" type="number" value="${o.w}" onchange="qSetOpen(${si},${i},${j},'w',this.value)">
-          <span class="wo-x">&times;</span>
-          <input class="q-in wo-n" type="number" value="${o.h}" onchange="qSetOpen(${si},${i},${j},'h',this.value)">
-          <input class="q-in wo-c" type="number" min="0" value="${o.n}" onchange="qSetOpen(${si},${i},${j},'n',this.value)">
-          <span class="wo-u">개</span>
-          <button class="wo-del" onclick="qDelOpen(${si},${i},${j})">&times;</button>
-        </div>`;
-      });
-      opts=`<div class="wf-opt">
-        <div class="wf-opt-l">문 · 창 빼기</div>
-        ${opens}
-        <button class="wo-add" onclick="qAddOpen(${si},${i})">+ 문 · 창</button>
-        <div class="wf-opt-l" style="margin-top:12px">이름 (선택)</div>
-        <input class="q-in wall-nm" placeholder="예: 거실 좌측벽" value="${esc(wl.label||'')}"
-               oninput="qSetWall(${si},${i},'label',this.value)">
-      </div>`;
-    }
-
-    walls+=`<div class="wface${wl.on?'':' off'}">
-      <div class="wf-top">
-        <label class="wf-chk"><input type="checkbox" ${wl.on?'checked':''} onchange="qToggleWall(${si},${i})"></label>
-        <div class="wf-dim">
-          <input class="q-in wf-n" type="number" placeholder="길이" value="${wl.len}" onchange="qSetWall(${si},${i},'len',this.value)">
-          <span class="wo-x">&times;</span>
-          <input class="q-in wf-n" type="number" placeholder="높이" value="${wl.h}" onchange="qSetWall(${si},${i},'h',this.value)">
-          <span class="wo-u">mm</span>
-        </div>
-        <span class="wf-nm">${esc(wl.label||'')}</span>
-        <span class="wf-a" id="wf-a-${si}-${i}"></span>
-        <button class="wf-del" onclick="qDelWall(${si},${i})">&times;</button>
-      </div>
-
-      <div class="wf-body">
-        ${mats}
-        <div class="wf-more">
-          <button class="wf-plus" onclick="openMatPick(${si},${i})">+ 자재</button>
-          <button class="wf-optbtn${showOpt?' on':''}" onclick="qToggleOpt(${si},${i})">
-            문 · 창 ${(wl.opens||[]).length?`(${(wl.opens||[]).length})`:''} ${showOpt?'▴':'▾'}
-          </button>
-        </div>
-        ${opts}
-      </div>
-    </div>`;
-  });
-
-  return `<div class="qty">
-    <div class="qty-head">
-      <div>
-        <div class="qty-title">물량</div>
-        <div class="qty-sub">벽 치수만 넣으면 자재 수량이 바로 나옵니다</div>
-      </div>
-      <button class="qty-copy" id="qty-copy-${si}" onclick="copyOrder(${si})">발주 문자 복사</button>
-    </div>
-
-    <div class="qty-list">
-      ${walls}
-      <button class="wall-add" onclick="qAddWall(${si})">+ 벽 추가</button>
-    </div>
-
-    <div class="qty-foot" id="qty-total-${si}"></div>
-  </div>`;
-}
 
 function qToggleOpt(si,i){
   const st=ensureQty(si);
@@ -8743,43 +8466,10 @@ async function copyOrder(si){
 }
 
 /* ── 직접 입력 항목 ── */
-function addQty(si){
-  const st=ensureQty(si);
-  st.items.push({proc:'',name:'',spec:'',unit:'장',qty:'',note:''});
-  persist(); renderAll();
-  setTimeout(()=>{
-    const els=document.querySelectorAll('.q-name');
-    const last=els[els.length-1];
-    if(last) last.focus();
-  },40);
-}
-function setQty(si,idx,field,val){
-  const st=ensureQty(si);
-  if(!st.items[idx]) return;
-  st.items[idx][field] = (field==='qty') ? (val===''?'':Number(val)) : val;
-  persist();
-}
-function delQty(si,idx){
-  const st=ensureQty(si);
-  const snap=JSON.parse(JSON.stringify(st.items));
-  const nm=st.items[idx]?.name||'항목';
-  st.items.splice(idx,1);
-  persist(); renderAll();
-  showToast(`"${nm}" 삭제`, ()=>{
-    S.sites[si].items=snap; persist(); renderAll(); showToast('되돌렸습니다');
-  });
-}
-async function clearQty(si){
-  const st=ensureQty(si);
-  if(!st.items.length) return;
-  if(!(await askConfirm(`직접 입력 ${st.items.length}개를 모두 지울까요?`))) return;
-  const snap=JSON.parse(JSON.stringify(st.items));
-  st.items=[];
-  persist(); renderAll();
-  showToast('직접 입력을 비웠습니다', ()=>{
-    S.sites[si].items=snap; persist(); renderAll(); showToast('되돌렸습니다');
-  });
-}
+
+
+
+
 
 
 /* ══════════════════════════════════════════════
@@ -9281,28 +8971,8 @@ document.addEventListener('keydown', e=>{
 
 /* ══════════ 자재·구매 목록 (셀프) ══════════ */
 /* ══════════ 공정 가이드 ("이렇게 진행하세요") — 현재 작업 목록 기준 안내 ══════════ */
-function guideBadge(si){
-  const s=S.sites[si]; if(!s) return '';
-  const n=(s.procs||[]).filter(p=>procGuideFor(p)).length;
-  return n?`${n}단계`:'';
-}
-function renderProcGuide(si){
-  const s=S.sites[si];
-  const procs=(s.procs||[]).filter(p=>(p||'').trim());
-  const rows=procs.map((p,idx)=>{
-    const g=procGuideFor(p);
-    if(!g) return '';
-    return `<div class="pg-row">
-      <span class="pg-n" style="background:${procColor(si,idx)}22;color:${procColor(si,idx)}">${idx+1}</span>
-      <div class="pg-body"><div class="pg-name">${esc(p)}</div><div class="pg-guide">${esc(g)}</div></div>
-    </div>`;
-  }).filter(Boolean).join('');
-  if(!rows) return `<div class="pg-empty">추천 공정을 불러오면 각 단계를 <b>이렇게 진행하세요</b> 안내가 여기에 표시됩니다.</div>`;
-  return `<div class="pg-wrap">
-    <div class="pg-note">각 공정을 <b>이런 순서·방식으로</b> 진행하면 실수를 줄일 수 있어요. 상황에 맞게 참고하세요.</div>
-    ${rows}
-  </div>`;
-}
+
+
 
 /* ══════════ 프로젝트/공간 노트 — 준비물·메모 자유 기록 ══════════ */
 /* ══════════════════════════════════════════════════════════════
@@ -9535,44 +9205,7 @@ function onBuyPrice(si,i,el){
 window._blUrlEdit = window._blUrlEdit || {};
 function confirmUrl(si,i,val){ const l=_blInit(si); if(!l[i])return; l[i].url=String(val||'').trim(); delete window._blUrlEdit[si+':'+i]; persist(); dnRerender(); }
 function editUrl(si,i){ window._blUrlEdit[si+':'+i]=true; dnRerender(); setTimeout(()=>{ const el=document.getElementById('bl-url-'+si+'-'+i); if(el){ el.focus(); try{el.select();}catch(_){} } },50); }
-function renderBuyList(si){
-  const s=S.sites[si]; const sc=SITE_COLORS[si%SITE_COLORS.length];
-  const list=_blInit(si); const sum=_blSummary(si);
-  let rows='';
-  list.forEach((raw,i)=>{
-    const it=raw||{};
-    const url=(it.url||'').trim();
-    const safeUrl=/^https?:\/\//i.test(url)?url:(url?('https://'+url):'');
-    const editing = window._blUrlEdit && window._blUrlEdit[si+':'+i];
-    const domain = url ? url.replace(/^https?:\/\//i,'').replace(/^www\./i,'').split(/[\/?#]/)[0] : '';
-    const urlCell = (url && !editing)
-      ? `<a class="bl-link" href="${esc(safeUrl)}" target="_blank" rel="noopener" title="${esc(url)}">🔗 ${esc(domain||'링크')}</a><button class="bl-edit" onclick="editUrl(${si},${i})" title="링크 수정">✏️</button>`
-      : `<input id="bl-url-${si}-${i}" class="bl-url" value="${esc(it.url||'')}" placeholder="구매 링크 붙여넣고 Enter" oninput="updateBuy(${si},${i},'url',this.value)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();confirmUrl(${si},${i},this.value);}">`;
-    rows+=`<div class="bl-row${it.arrived?' done':''}">
-      <div class="bl-status">
-        <label class="bl-chk${it.ordered?' on':''}"><input type="checkbox" ${it.ordered?'checked':''} onchange="toggleBuy(${si},${i},'ordered',this.checked)">주문</label>
-        <label class="bl-chk${it.arrived?' on':''}"><input type="checkbox" ${it.arrived?'checked':''} onchange="toggleBuy(${si},${i},'arrived',this.checked)">도착</label>
-      </div>
-      <input class="bl-name" value="${esc(it.name||'')}" placeholder="자재·제품명" oninput="updateBuy(${si},${i},'name',this.value)">
-      <div class="bl-price-wrap"><span class="bl-won">₩</span><input class="bl-price" value="${esc(_won(it.price))}" placeholder="가격" inputmode="numeric" oninput="onBuyPrice(${si},${i},this)"></div>
-      ${urlCell}
-      <button class="bl-del" onclick="delBuy(${si},${i})" title="삭제">✕</button>
-    </div>`;
-  });
-  return `<div class="proc-panel bl-panel" style="border-left:3px solid ${sc}">
-    <div class="proc-panel-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <span>자재·구매 목록 <span style="font-size:12.5px;font-weight:400;color:#5f6b7c">— 살 것 · 가격 · 주문/도착</span></span>
-      <span class="bl-sum" id="bl-sum-${si}">${sum.arrived}/${sum.n} 도착 · 합계 ₩${sum.total.toLocaleString()}</span>
-    </div>
-    <div class="bl-list">${rows||'<div style="font-size:13px;color:#6b7583;padding:8px 2px">아래에서 살 자재를 추가해 보세요</div>'}</div>
-    <div class="bl-add">
-      <input id="bl-name-${si}" class="bl-add-name" placeholder="자재·제품명 (예: 디아망 크림화이트)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('bl-price-${si}').focus();}">
-      <div class="bl-price-wrap bl-add-price-wrap"><span class="bl-won">₩</span><input id="bl-price-${si}" class="bl-add-price" placeholder="가격" inputmode="numeric" oninput="const d=this.value.replace(/[^0-9]/g,'');this.value=d?Number(d).toLocaleString('ko-KR'):'';" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('bl-urladd-${si}').focus();}"></div>
-      <input id="bl-urladd-${si}" class="bl-add-url" placeholder="구매 링크(선택)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addBuyItem(${si});}">
-      <button class="btn-accent" onclick="addBuyItem(${si})">+ 추가</button>
-    </div>
-  </div>`;
-}
+
 
 /* ══════════ 정산 · 비용 (셀프) — 공사대금: 예산 · 지불(완료/예정) · 총 공사 금액 ══════════ */
 function _n(v){ return parseInt(String(v||'').replace(/[^0-9]/g,''))||0; }
@@ -9611,50 +9244,7 @@ function updateCost(si,i,field,val){
 }
 function toggleCostPaid(si,i,checked){ const l=_costInit(si); if(!l[i]) return; l[i].paid=checked; persist(); dnRerender(); }
 function delCost(si,i){ const l=_costInit(si); l.splice(i,1); persist(); dnRerender(); }
-function renderSettle(si){
-  const sc=SITE_COLORS[si%SITE_COLORS.length];
-  const mat=_blSummary(si).total;
-  const costs=_costInit(si);
-  const total=_costTotal(si), paid=_costPaid(si), unpaid=Math.max(0,total-paid), bud=_budget(si);
-  let rows='';
-  costs.forEach((raw,i)=>{ const it=raw||{};
-    rows+=`<div class="st-row${it.paid?' paid':''}">
-      <label class="st-pay${it.paid?' on':''}" title="지불 완료"><input type="checkbox" ${it.paid?'checked':''} onchange="toggleCostPaid(${si},${i},this.checked)">지불</label>
-      <input class="st-label" value="${esc(it.label||'')}" placeholder="항목 (예: 인건비, 철거비)" oninput="updateCost(${si},${i},'label',this.value)">
-      <input class="st-amt" value="${esc(it.amount||'')}" placeholder="금액" inputmode="numeric" oninput="updateCost(${si},${i},'amount',this.value)">
-      <span class="st-won">원</span>
-      <button class="bl-del" onclick="delCost(${si},${i})" title="삭제">✕</button>
-    </div>`;
-  });
-  const remainHtml = bud>0 ? (bud-total>=0 ? `남은 예산 <b>₩${(bud-total).toLocaleString()}</b>` : `예산 <b style="color:#DC2626">₩${Math.abs(bud-total).toLocaleString()} 초과</b>`) : '';
-  return `<div class="proc-panel st-panel" style="border-left:3px solid ${sc}">
-    <div class="proc-panel-title"><span>정산 · 비용 <span style="font-size:12.5px;font-weight:400;color:#5f6b7c">— 예산 · 지불 · 총 공사 금액</span></span></div>
 
-    <div class="st-budget">
-      <span class="st-budget-k">예산</span>
-      <input class="st-budget-in" value="${esc((S.sites[si]&&S.sites[si].budget)||'')}" placeholder="예산 금액 (선택)" inputmode="numeric" oninput="updateBudget(${si},this.value)">
-      <span class="st-won">원</span>
-      <span class="st-remain" id="st-remain-${si}">${remainHtml}</span>
-    </div>
-
-    <div class="st-mat-row">
-      <span class="st-mat-k">자재비 <span class="st-auto">자동</span></span>
-      <span class="st-mat-v" id="st-mat-${si}">₩${mat.toLocaleString()}</span>
-    </div>
-    <div class="st-list">${rows}</div>
-    <div class="st-add">
-      <input id="st-label-${si}" class="st-add-label" placeholder="항목 (예: 인건비)" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();document.getElementById('st-amt-${si}').focus();}">
-      <input id="st-amt-${si}" class="st-add-amt" placeholder="금액" inputmode="numeric" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addCost(${si});}">
-      <button class="btn-accent" onclick="addCost(${si})">+ 추가</button>
-    </div>
-
-    <div class="st-flow">
-      <div class="st-flow-c paid"><span>지불 완료</span><b id="st-paid-${si}">₩${paid.toLocaleString()}</b></div>
-      <div class="st-flow-c due"><span>남은 지불</span><b id="st-unpaid-${si}">₩${unpaid.toLocaleString()}</b></div>
-    </div>
-    <div class="st-total-row"><span>총 공사 금액</span><span class="st-total" id="st-total-${si}">₩${total.toLocaleString()}</span></div>
-  </div>`;
-}
 
 /* ══════════ 공사대금 — 엑셀 표처럼 적고, 우측에서 "뭘 적어야 하는지"를 미리 본다 ══════════ */
 /* 설계 원칙
@@ -9726,8 +9316,8 @@ function _gbList(si){
 }
 function _gbSum(si){ return _gbList(si).reduce(function(a,e){ return a+_n(e&&e.amount); },0); }
 function _gbUnpaid(si){ return _gbList(si).reduce(function(a,e){ return a+((e&&!e.paid)?_n(e.amount):0); },0); }
-function _ledgerSum(si){ return _gbSum(si); }
-function _ledgerUnpaid(si){ return _gbUnpaid(si); }
+
+
 /* 종류별 집계 — 안 고른 줄은 따로 센다(억지로 채우지 않는다) */
 function _gbKindStat(list){
   const st={}; GB_KINDS.forEach(function(k){ st[k]={sum:0,n:0}; });
@@ -10966,10 +10556,7 @@ function qtFootHtml(si,q){
     + '</div>';
   return h;
 }
-function qtRefreshGroupCount(si,gi,n){
-  const el=document.getElementById('qt-gc-'+si+'-'+gi);
-  if(el) el.textContent=n;
-}
+
 function qtRefreshTotal(si){
   const q=_qtCurQ(si); if(!q) return;
   const set=function(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; };
@@ -11487,17 +11074,32 @@ function ddPos(){
 function ddPaint(){
   if(!_dd) return;
   const q=String(_dd.input.value||'').trim().toLowerCase();
-  const list=_dd.items.filter(function(x){ return !q || x.v.toLowerCase().indexOf(q)>=0; });
+  /* 걸러내지 않습니다 — 맞는 것을 위로 올리고, 나머지도 다 보여 줍니다.
+     그래야 「철거」를 치다가 「타일」로 마음이 바뀌어도 바로 고를 수 있습니다. */
+  let list, hitN=0;
+  if(!q){
+    list=_dd.items.slice();
+  } else {
+    const hit=[], rest=[];
+    _dd.items.forEach(function(x){
+      (x.v.toLowerCase().indexOf(q)>=0 ? hit : rest).push(x);
+    });
+    hitN=hit.length;
+    list=hit.concat(rest);
+  }
   _dd.view=list;
   if(_dd.idx>=list.length) _dd.idx=list.length-1;
   if(!list.length){
-    _dd.el.innerHTML='<div class="dd-none">맞는 것이 없습니다. 그대로 적으시면 됩니다.</div>';
+    _dd.el.innerHTML='<div class="dd-none">고를 것이 없습니다. 그대로 적으시면 됩니다.</div>';
     ddPos(); return;
   }
   _dd.el.innerHTML='<div class="dd-list">'
     + list.map(function(x,i){
         const col=(x.dot && typeof gbColor==='function') ? gbColor(x.v) : '';
-        return '<button type="button" class="dd-i'+(i===_dd.idx?' on':'')+'" data-i="'+i+'" onclick="ddPick('+i+')">'
+        /* 맞는 것과 나머지 사이에 옅은 줄 하나 */
+        const sep=(hitN>0 && i===hitN) ? '<div class="dd-sep">그 밖의 항목</div>' : '';
+        return sep
+          + '<button type="button" class="dd-i'+(i===_dd.idx?' on':'')+(hitN>0&&i>=hitN?' dim':'')+'" data-i="'+i+'" onclick="ddPick('+i+')">'
           + (col?'<span class="dd-dot" style="background:'+col+'"></span>':'')
           + '<span class="dd-v">'+esc(x.v)+'</span>'
           + (x.hint?'<span class="dd-h">'+esc(x.hint)+'</span>':'')
@@ -12211,7 +11813,7 @@ function renderQuoteView(si){
 
 /* ══════════ 프로 프로젝트 본문 패널 — 사진·자료 / 자재·구매 탭 ══════════ */
 let _projPanelTab = 'assets';   // 'assets' | 'buy'
-function setProjPanel(t){ _projPanelTab=t; dnRerender(); }
+
 function renderProjPanels(si){
   // 자재·구매 목록은 공사대금으로 통합됨 → 프로젝트 본문은 사진·자료만
   return renderSiteAssets(si);
@@ -14059,35 +13661,7 @@ function renderDailyNote(){
   </div>`;
 }
 
-function renderAllMemo(){
-  if(!S.globalChecklist)S.globalChecklist=[];
-  let h=`<div>
-    <div id="global-checklist">`;
-  if(S.globalChecklist.length===0){
-    h+=`<div style="font-size:13px;color:#6b7583;padding:4px 0">아래에서 항목을 추가해보세요</div>`;
-  } else {
-    S.globalChecklist.forEach((item,i)=>{
-      h+=`<div class="checklist-item">
-        <input type="checkbox" class="checklist-cb" ${item.checked?'checked':''} onchange="toggleGlobalCheck(${i},this.checked)">
-        ${item.date?`<span class="cl-date" title="데일리 노트 ${item.date}">${item.date.slice(5).replace('-','/')}</span>`:''}
-        <input type="text" class="checklist-text${item.checked?' done':''}" value="${esc(item.text)}"
-          oninput="updateGlobalCheckText(${i},this.value)"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();focusNextGlobalCheck(${i})}">
-        <button class="checklist-del" onclick="deleteGlobalCheck(${i})">✕</button>
-      </div>`;
-    });
-  }
-  h+=`</div>
-    <div class="checklist-add" style="margin-top:8px">
-      <input class="checklist-add-input" id="global-check-add" placeholder="+ 새 항목 추가 (Enter)"
-        value="${esc(S.globalNewItem||'')}"
-        oninput="S.globalNewItem=this.value"
-        onkeydown="if(event.key==='Enter'&&!event.isComposing)addGlobalCheck(this.value,this)">
-      <button class="btn-accent" onclick="addGlobalCheck(document.getElementById('global-check-add').value,document.getElementById('global-check-add'))">추가</button>
-    </div>
-  </div>`;
-  return h;
-}
+
 
 function toggleGlobalCheck(i,checked){
   S.globalChecklist[i].checked=checked;
@@ -14188,16 +13762,7 @@ function selectDay(d){
   renderAll();
 }
 
-function renderThemePicker(){
-  let h=`<div class="theme-section"><div class="theme-label">배경 테마</div><div class="theme-swatches">`;
-  THEMES.forEach(t=>{
-    const on=S.themeKey===t.key;
-    h+=`<div class="theme-item"><div class="theme-chip${on?' on':''}" style="background:${t.bg};border-color:${on?'#333':'#ccc'}" onclick="setTheme('${t.key}')">
-      ${on?`<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:${t.key==='charcoal'?'#fff':'#333'}">&#10003;</span>`:''}
-    </div><div class="theme-chip-label">${t.label}</div></div>`;
-  });
-  return h+`</div></div>`;
-}
+
 
 /* ══════════ 셀프 추천 공정 (순서 + 권장 기간 + 자동 일정) ══════════ */
 function cellKey(si,pi,y,m,d){ return si+'_'+pi+'_'+y+'_'+m+'_'+d; }
@@ -16586,17 +16151,7 @@ function updateTabName(si,val){
   const btn=document.getElementById('tab-'+si);
   if(btn)btn.textContent=val||`프로젝트 ${si+1}`;
 }
-function setPaint(c){
-  S.paintColor=c;
-  // 가로 스크롤 위치 저장
-  const tblWraps=document.querySelectorAll('.tbl-wrap');
-  const scrollPositions=[...tblWraps].map(el=>el.scrollLeft);
-  renderAll();
-  // 스크롤 위치 복원
-  document.querySelectorAll('.tbl-wrap').forEach((el,i)=>{
-    if(scrollPositions[i])el.scrollLeft=scrollPositions[i];
-  });
-}
+
 function changeMonth(d){S.month+=d;if(S.month>12){S.month=1;S.year++;}if(S.month<1){S.month=12;S.year--;}selectedDay=null;viewDay=null;renderAll();}
 function updateMeta(si,field,val){
   const trimmed=val.trim();
@@ -16773,8 +16328,9 @@ function routeView(){
     return;
   }
   /* 로그인은 됐는데 모드·팀을 아직 안 고른 경우 — 소개 화면으로 튕기지 않는다.
-     다만 주소에 #app 이 있으면 그쪽이 먼저입니다 (소개에서 다시 들어오는 길). */
-  if(location.hash!=='#app' && USER && _appView==='onboarding' && _authView && _authView!=='pick'){
+     다만 (1) 주소에 #app 이 있거나 (2) 소개 화면을 보고 계신 중이면 건드리지 않습니다.
+     (2)가 없으면 로고를 눌러 소개로 나갈 때마다 로그인 창이 다시 뜹니다. */
+  if(location.hash!=='#app' && !onLanding && USER && _appView==='onboarding' && _authView && _authView!=='pick'){
     showOnboarding();
     return;
   }
@@ -16901,14 +16457,7 @@ function authBusy(on,label){
 /* ══════════ 1단계: 로그인 / 회원가입 ══════════ */
 let _authTab='login';
 
-function pickSignupMode(m){
-  APP_MODE = m;
-  localStorage.setItem('gj_mode', m);
-  localStorage.setItem('gj_signup_mode', m);   // 가입 완료 후 서버에 심을 값
-  document.querySelectorAll('.smode').forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
-  const pf=document.getElementById('pro-fields');
-  if(pf) pf.style.display = (m==='pro') ? '' : 'none';
-}
+
 let _resetPrefill='';
 function showPwReset(){
   const em=document.getElementById('auth-email');
@@ -17078,14 +16627,8 @@ async function doLogin(){
     setAuthMsg(/Invalid login/i.test(e.message) ? '이메일 또는 비밀번호가 맞지 않습니다.' : e.message);
   }
 }
-function toggleAllAgree(on){
-  document.querySelectorAll('.ag-item').forEach(el=>el.checked=on);
-}
-function syncAgreeAll(){
-  const all=[...document.querySelectorAll('.ag-item')].every(el=>el.checked);
-  const box=document.getElementById('ag-all');
-  if(box) box.checked=all;
-}
+
+
 
 
 /* ══════════ 가입 후 이메일 인증 안내 ══════════ */
@@ -17807,20 +17350,7 @@ async function syncPlan(){
 }
 
 /* 셀프 → 전문가 업그레이드 (결제 지점) */
-async function upgradeToPro(){
-  try{
-    const r = await rpc('plan_upgrade_pro', {});
-    if(r==='OK'){
-      APP_MODE='pro';
-      localStorage.setItem('gj_mode','pro');
-      closeUpgrade();
-      renderAll();
-      alert('프로 모드로 전환되었습니다. 이제 여러 프로젝트와 팀원을 사용할 수 있습니다.');
-    } else {
-      alert('전환에 실패했습니다. 다시 시도해 주세요.');
-    }
-  }catch(e){ alert('전환 실패: '+(e.message||'')); }
-}
+
 
 async function afterAuth(){
   await syncPlan();          // 서버 플랜을 읽어 모드를 강제 (위조 방지)
@@ -17899,24 +17429,7 @@ function doLogout(){
 }
 
 /* ══════════ 초대코드 보기 ══════════ */
-function showInviteCode(){
-  if(!TEAM) return;
-  const h=`<div class="modal-overlay" onclick="if(event.target===this)closeInvite()">
-    <div class="modal-box" style="max-width:340px;text-align:center">
-      <div class="modal-title" style="text-align:left">팀 초대코드</div>
-      <div style="font-size:13px;color:#5f6b7c;line-height:1.7;margin-bottom:14px;text-align:left">
-        이 코드를 팀원에게 전달하면 같은 일정표를 함께 볼 수 있습니다.
-      </div>
-      <div style="font-size:28px;font-weight:500;letter-spacing:0.18em;color:#12141C;background:#f0f4ff;border-radius:8px;padding:16px 0;margin-bottom:6px">${esc(TEAM.invite_code)}</div>
-      <div style="font-size:12.5px;color:#59636f;margin-bottom:14px">${esc(TEAM.name)}</div>
-      <div class="modal-btns" style="justify-content:center">
-        <button onclick="copyInvite('${esc(TEAM.invite_code)}')" class="btn-accent">코드 복사</button>
-        <button onclick="closeInvite()">닫기</button>
-      </div>
-    </div>
-  </div>`;
-  document.getElementById('modal-area').innerHTML=h;
-}
+
 function closeInvite(){ document.getElementById('modal-area').innerHTML=''; }
 
 /* ══════════ 팀 전환 · 다른 팀 참여 ══════════ */
@@ -18708,6 +18221,7 @@ function scrollToSec(id){
   const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
   set('ft-op', LEGAL.operator);
   set('ft-of', LEGAL.officer);
+  set('af-op', LEGAL.operator+' · 사업자등록번호 '+LEGAL.bizno);
 
 })();
 
