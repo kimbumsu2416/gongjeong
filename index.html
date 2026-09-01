@@ -1171,30 +1171,32 @@ body.printing .no-print{display:none!important}
 .qz-mv:hover{background:#eef1f6;color:#12141C}
 .qz-x:hover{background:#fdeceb;color:#DC2626}
 
-/* 내역서 */
+/* 내역서 — 두 칸씩 나란히 */
+.qz-det{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.qz-det>.qz-sw{grid-column:1/-1}
 .qz-sw{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #dfe5ee;
   border-radius:11px;padding:12px 15px;margin-bottom:14px;cursor:pointer;font-size:13.5px;
   font-weight:700;color:#12141C}
 .qz-sw input{width:16px;height:16px;accent-color:#2f9e5e;cursor:pointer}
 .qz-sw em{margin-left:auto;font-style:normal;font-size:12px;font-weight:400;color:#a8b1be}
-.qz-gb{background:#fff;border:1px solid #dfe5ee;border-radius:13px;padding:14px 16px;margin-bottom:12px}
-.qz-gh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.qz-gt{font-size:14.5px;font-weight:800;color:#12141C}
-.qz-gs{margin-left:auto;font-size:15px;font-weight:800;color:#1f6b45;font-variant-numeric:tabular-nums}
+.qz-gb{background:#fff;border:1px solid #dfe5ee;border-radius:12px;padding:12px 13px;margin-bottom:0}
+.qz-gh{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.qz-gt{font-size:13.5px;font-weight:800;color:#12141C}
+.qz-gs{margin-left:auto;font-size:14px;font-weight:800;color:#1f6b45;font-variant-numeric:tabular-nums}
 .qz-dtbl{overflow-x:auto}
 .qz-dh,.qz-dr,.qz-dsum{display:grid;
-  grid-template-columns:minmax(140px,1.4fr) minmax(110px,1fr) 60px 62px 104px 108px 30px;
-  align-items:center;gap:3px;min-width:620px}
+  grid-template-columns:minmax(96px,1.2fr) minmax(80px,.9fr) 46px 48px 84px 88px 26px;
+  align-items:center;gap:2px;min-width:470px}
 .qz-dtbl.mn .qz-dh,.qz-dtbl.mn .qz-dr,.qz-dtbl.mn .qz-dsum{
-  grid-template-columns:minmax(130px,1.3fr) minmax(100px,.9fr) 56px 58px 96px 96px 106px 30px;
-  min-width:730px}
-.qz-dh>span{font-size:10.5px;font-weight:800;color:#8a94a6;padding:6px 6px 5px;
-  border-bottom:1px solid #eef1f6}
+  grid-template-columns:minmax(88px,1.1fr) minmax(72px,.8fr) 42px 44px 76px 76px 84px 26px;
+  min-width:520px}
+.qz-dh>span{font-size:10px;font-weight:800;color:#8a94a6;padding:5px 4px 4px;
+  border-bottom:1px solid #eef1f6;white-space:nowrap}
 .qz-dh .d3,.qz-dh .d4{text-align:center}
 .qz-dh .d5,.qz-dh .d5b,.qz-dh .d6{text-align:right}
-.qz-dr>span{display:flex;align-items:center;min-height:38px;min-width:0}
-.qz-dr .d6{justify-content:flex-end;font-size:13.5px;font-weight:700;color:#12141C;
-  padding-right:8px;font-variant-numeric:tabular-nums}
+.qz-dr>span{display:flex;align-items:center;min-height:34px;min-width:0}
+.qz-dr .d6{justify-content:flex-end;font-size:12.5px;font-weight:700;color:#12141C;
+  padding-right:6px;font-variant-numeric:tabular-nums}
 .qz-dr .d6.zero{color:#c8d0da;font-weight:400}
 .qz-dnone{padding:16px 0;text-align:center;font-size:12.5px;color:#c8d0da}
 .qz-dsum{border-top:1.5px solid #e6ecf4;margin-top:4px;padding-top:8px}
@@ -1204,6 +1206,25 @@ body.printing .no-print{display:none!important}
 .qz-dsum .ds-v{font-size:12.5px;font-weight:700;color:#5f6b7c}
 .qz-dsum .ds-t{font-size:14px;font-weight:800;color:#1f6b45}
 
+.qz-cat{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:6px;
+  font-size:14px;font-weight:700;color:#12141C;font-family:inherit;text-align:left;
+  background:transparent;border:1.5px solid transparent;border-radius:7px;padding:6px 8px;cursor:pointer}
+.qz-cat:hover{background:#f2f5fa;border-color:#e6ecf4}
+.qz-cat em{margin-left:auto;font-style:normal;font-size:10px;color:#c8d0da}
+.qz-cat:hover em{color:#8a94a6}
+.qzc-box{max-width:440px}
+.qzc-list{max-height:56vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:2px}
+.qzc-i{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:inherit;
+  background:#fff;border:1px solid #e6ecf4;border-radius:9px;padding:10px 13px;cursor:pointer}
+.qzc-i:hover{border-color:#2f9e5e;background:#f7fdf9}
+.qzc-i.on{border-color:#2f9e5e;background:#f2fbf6}
+.qzc-i.dim{opacity:.45}
+.qzc-i.dim:hover{opacity:.8}
+.qzc-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%}
+.qzc-t{flex:1 1 auto;font-size:14px;font-weight:700;color:#12141C}
+.qzc-ck{flex:0 0 auto;font-size:12px;font-weight:800;color:#2f9e5e}
+.qzc-i em{flex:0 0 auto;font-style:normal;font-size:11px;color:#a8b1be}
+@media(max-width:1100px){.qz-det{grid-template-columns:1fr}}
 /* 갑지 */
 .qz-ap-h{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .qz-ap-k{font-size:11px;font-weight:800;color:#1f6b45;background:#eef7f2;border-radius:20px;padding:3px 10px}
@@ -12338,6 +12359,40 @@ function _qzHangul(n){
 }
 
 /* ── 을지 (공종별 요약) ───────────────────── */
+/* 공종은 목록에서만 고릅니다 — 직접 적을 수 없습니다 */
+function qzCatPick(si,gi){
+  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
+  const cur=procName(q.groups[gi].cat||'');
+  const used={};
+  (q.groups||[]).forEach(function(g,i){ if(i!==gi) used[procName(g.cat||'')]=1; });
+  const box=document.createElement('div');
+  box.id='qzc'; box.className='qm';
+  box.innerHTML='<div class="qm-box qzc-box">'
+    + '<div class="qm-h"><div class="qm-t">어느 공종입니까?</div>'
+    +   '<div class="qm-d">이미 쓰고 계신 공종은 흐리게 보입니다.</div></div>'
+    + '<div class="qzc-list">'
+    +   QT_ORDER.map(function(c){
+          const on=(c===cur), dim=(!on && used[c]);
+          const col=(typeof gbColor==='function')?gbColor(c):'#8a94a6';
+          return '<button type="button" class="qzc-i'+(on?' on':'')+(dim?' dim':'')+'"'
+            + ' onclick="qzCatSet('+si+','+gi+',\''+gbQ(c)+'\')">'
+            + '<span class="qzc-dot" style="background:'+col+'"></span>'
+            + '<span class="qzc-t">'+esc(c)+'</span>'
+            + (on?'<span class="qzc-ck">✓</span>':(dim?'<em>쓰는 중</em>':''))
+            + '</button>';
+        }).join('')
+    + '</div>'
+    + '<div class="qm-f"><button class="qt-b" onclick="qzCatClose()">닫기</button></div></div>';
+  box.onclick=function(ev){ if(ev.target===box) qzCatClose(); };
+  document.body.appendChild(box);
+}
+function qzCatClose(){ const b=document.getElementById('qzc'); if(b) b.remove(); }
+function qzCatSet(si,gi,cat){
+  qtGroupUp(si,gi,cat);
+  qzCatClose();
+  qtRe(si);
+}
+
 function qzEulHtml(si,q){
   const groups=(q&&q.groups)||[];
   if(!groups.length){
@@ -12362,8 +12417,8 @@ function qzEulHtml(si,q){
     h+='<div class="qz-row">'
       + '<span class="z1">'+(gi+1)+'</span>'
       + '<span class="z2"><span class="qz-dot" style="background:'+col+'"></span>'
-      +   '<input class="qz-cat" value="'+esc(cat)+'" spellcheck="false" data-dl="qt-cats"'
-      +   ' oninput="qtGroupUp('+si+','+gi+',this.value)"></span>'
+      +   '<button class="qz-cat" onclick="qzCatPick('+si+','+gi+')" title="공종 바꾸기">'
+      +     esc(cat)+'<em>▾</em></button></span>'
       + '<span class="z3"><input class="qz-memo" value="'+esc(g.memo||'')+'"'
       +   ' placeholder="예) 천장 전체 철거 후 노출천장" spellcheck="false"'
       +   ' oninput="qtMemoIn('+si+','+gi+',this.value)"></span>'
