@@ -6737,17 +6737,10 @@ function renderAll(){
 function setTab(newTab, mode){
   // 셀프 모드는 팀원 탭 차단
   if(isSelf() && newTab==='members'){ openUpgrade(); return; }
-  /* 견적서 / 장부 — 같은 탭 안에서 모드만 바뀝니다 */
-  if(newTab==='ledger' && mode){
-    const want = (mode==='quote') ? 'quote' : (_lgMode==='quote' ? 'income' : _lgMode);
-    if(want!=='quote' && !canSeeSpend()){ showToast('장부는 대표님만 보실 수 있습니다'); return; }
-    if(S.tab==='ledger'){ _lgMode=want; renderTabs(); dnRerender(); return; }
-    _lgMode=want;
-  }
+
   // 공정을 안 고르고 나가면 방금 만든 빈 프로젝트는 없앤다
   if(typeof _qtDropTemp==='function' && _qtTempSi!==null){
     qmClose(true);
-    if(_qtDropTemp() && (newTab==='ledger'||newTab===String(_qtTempSi))) { S.tab='ledger'; renderTabs(); dnRerender(); return; }
   }
   // 숫자로 들어와도 문자열로 통일 (탭 강조 비교가 문자열 기준)
   if(newTab!=='all' && newTab!=='contacts') newTab=String(newTab);
@@ -6779,9 +6772,7 @@ function renderTabsPro(){
   const guideOnP = S.tab==='guide';
   h+=`<button class="ah-tab${guideOnP?' on':''}" onclick="setTab('guide')" style="${guideOnP?'border-top-color:#4F46E5':''}">가이드</button>`;
   h+=`<button class="ah-tab${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'border-top-color:#12141C':''}">프로젝트 통합</button>`;
-  const ledgerOnP = S.tab==='ledger';
-  h+=`<button class="ah-tab${(ledgerOnP&&_lgMode==='quote')?' on':''}" onclick="setTab('ledger','quote')" style="${(ledgerOnP&&_lgMode==='quote')?'border-top-color:#2f9e5e':''}">견적서</button>`;
-  if(canSeeSpend()) h+=`<button class="ah-tab${(ledgerOnP&&_lgMode!=='quote')?' on':''}" onclick="setTab('ledger','book')" style="${(ledgerOnP&&_lgMode!=='quote')?'border-top-color:#2f9e5e':''}">장부</button>`;
+
   h+=`<button class="ah-tab${membersOn?' on':''}" onclick="setTab('members')" style="${membersOn?'border-top-color:#00868A':''}">팀 관리</button>`;
 
   if(IS_ADMIN){
@@ -6816,9 +6807,7 @@ function renderTabsSelf(){
   // 셀프는 통합 화면을 쓰지 않음 → '셀프 인테리어 전체' 탭 없음. 공간(방) 탭만.
   const guideOnS = S.tab==='guide';
   h+=`<button class="ah-tab${guideOnS?' on':''}" onclick="setTab('guide')" style="${guideOnS?'border-top-color:#4F46E5':''}">가이드</button>`;
-  const ledgerOnS = S.tab==='ledger';
-  h+=`<button class="ah-tab${(ledgerOnS&&_lgMode==='quote')?' on':''}" onclick="setTab('ledger','quote')" style="${(ledgerOnS&&_lgMode==='quote')?'border-top-color:#2f9e5e':''}">견적서</button>`;
-  if(canSeeSpend()) h+=`<button class="ah-tab${(ledgerOnS&&_lgMode!=='quote')?' on':''}" onclick="setTab('ledger','book')" style="${(ledgerOnS&&_lgMode!=='quote')?'border-top-color:#2f9e5e':''}">장부</button>`;
+
   h+=`<button class="ah-tab${contactsOn?' on':''}" onclick="setTab('contacts')" style="${contactsOn?'border-top-color:#5a5a7a':''}">연락처</button>`;
 
   if(IS_ADMIN){
@@ -9710,12 +9699,7 @@ const GB_UNITS=['㎡','㎥','평','m','장','롤','개','개소','통','자','�
 /* 종류 — 분류(공정)와 달리 회계상 성격이라 4가지로 고정한다. 안 골라도 저장은 된다. */
 const GB_KINDS=['자재비','인건비','외주비','경비'];
 const GB_KCOL={'자재비':'#2563EB','인건비':'#B45309','외주비':'#7C3AED','경비':'#0D9488'};
-function _gbGuessKind(name){
-  const n=String(name||'');
-  if(/인건비|인부|일당|품값|공임|시공비|설치비|기공|조공/.test(n)) return '인건비';
-  if(/처리|운반|이사|청소|예치금|식대|잡비|보양|양생|주차|보관/.test(n)) return '경비';
-  return '자재비';
-}
+
 /* 우측 가이드 — 인테리어에서 보통 돈이 나가는 자리. 예시일 뿐 강제가 아니다. */
 const GB_GUIDE=[
   {cat:'철거',        items:[{n:'철거 인건비',u:'명'},{n:'폐기물 처리·운반',u:'차'},{n:'양생·보양재',u:'식'}]},
@@ -9749,57 +9733,15 @@ function fmtLedgerDate(d){
 }
 
 /* ── 데이터 ── */
-function _gbList(si){
-  const s=S.sites[si]; if(!s) return [];
-  if(!Array.isArray(s.ledger)) s.ledger=[];
-  // 구버전 데이터 1회 이관 — 이미 기록이 있으면 건드리지 않는다(중복 방지)
-  if(s.ldMig!=='v3'){
-    if(!s.ledger.length){
-      if(Array.isArray(s.costs)) s.costs.forEach(function(c){
-        if(c && (c.label||c.amount)) s.ledger.push({date:'',cat:'',name:c.label||'',qty:'',unit:'',amount:String(c.amount||'').replace(/[^0-9]/g,''),paid:!!c.paid});
-      });
-      if(Array.isArray(s.buylist)) s.buylist.forEach(function(b){
-        if(b && (b.name||b.price)) s.ledger.push({date:'',cat:'자재',name:b.name||'',qty:'',unit:'',amount:String(b.price||'').replace(/[^0-9]/g,''),paid:!!b.arrived});
-      });
-    }
-    s.ldMig='v3';
-  }
-  return s.ledger;
-}
-function _gbSum(si){ return _gbList(si).reduce(function(a,e){ return a+_n(e&&e.amount); },0); }
-function _gbUnpaid(si){ return _gbList(si).reduce(function(a,e){ return a+((e&&!e.paid)?_n(e.amount):0); },0); }
+
+
+
 
 
 /* 종류별 집계 — 안 고른 줄은 따로 센다(억지로 채우지 않는다) */
-function _gbKindStat(list){
-  const st={}; GB_KINDS.forEach(function(k){ st[k]={sum:0,n:0}; });
-  let none=0, total=0;
-  (list||[]).forEach(function(e){
-    const a=_n(e&&e.amount); total+=a;
-    const k=(e&&e.kind)||'';
-    if(st[k]){ st[k].sum+=a; st[k].n++; } else none++;
-  });
-  return {st:st,none:none,total:total};
-}
-function gbKindsHtml(si){
-  const r=_gbKindStat(_gbList(si));
-  let h=GB_KINDS.map(function(k,ki){
-    const c=r.st[k], pct=r.total>0?Math.round(c.sum/r.total*100):0;
-    return '<div class="gb-kind k'+ki+(c.sum?'':' zero')+'">'
-      + '<div class="gb-kind-k"><span class="gb-gdot" style="background:'+GB_KCOL[k]+'"></span>'+k+'<span class="gb-kind-n">'+c.n+'줄</span></div>'
-      + '<div class="gb-kind-v">₩'+c.sum.toLocaleString()+'</div>'
-      + '<div class="gb-kind-p">'+(r.total>0?(pct+'% 차지'):'아직 없음')+'</div></div>';
-  }).join('');
-  if(r.none>0) h+='<div class="gb-kind-none">종류를 안 고른 줄이 <b>'+r.none+'줄</b> 있습니다. 표의 <b>종류</b> 칸에서 골라 주시면 위 네 칸에 바로 반영됩니다. (안 골라도 합계에는 들어갑니다)</div>';
-  return '<div class="gb-kinds" id="gb-kinds-'+si+'">'+h+'</div>';
-}
-function gbRefreshKinds(si){
-  const box=document.getElementById('gb-kinds-'+si);
-  if(!box) return;
-  const tmp=document.createElement('div'); tmp.innerHTML=gbKindsHtml(si);
-  const nw=tmp.firstChild;
-  if(nw && box.parentNode) box.parentNode.replaceChild(nw,box);
-}
+
+
+
 function _gbCatKey(e){ const k=((e&&e.cat)||'').trim(); return k||GB_UNCAT; }
 /* 지금까지 실제로 쓰인 분류 + 가이드 분류 (중복 없이) — 자동완성 목록용 */
 function _gbKnownCats(si){
@@ -9811,15 +9753,8 @@ function _gbKnownCats(si){
   return used;
 }
 /* 가이드 항목이 이미 표에 적혀 있는가 */
-function _gbNorm(s){ return String(s||'').replace(/\s/g,'').toLowerCase(); }
-function _gbHasItem(si,cat,name){
-  const nn=_gbNorm(name);
-  return _gbList(si).some(function(e){
-    if(_gbNorm(e.cat)!==_gbNorm(cat)) return false;
-    const en=_gbNorm(e.name);
-    return en===nn || (en && nn && (en.indexOf(nn)>=0 || nn.indexOf(en)>=0));
-  });
-}
+
+
 
 /* ── 화면 상태 ── */
 let _gbSort='input';        // 'input' | 'cat' | 'date'
@@ -9827,467 +9762,62 @@ let _gbGOpen={};            // 가이드 그룹 펼침
 let _gbNewDraft={date:'',cat:'',kind:'',vendor:'',name:'',qty:'',unit:'',amount:'',acct:''};
 
 function setGbSort(v){ _gbSort=v; dnRerender(); }
-function gbToggleGuide(k){ _gbGOpen[k]=!_gbGOpen[k]; dnRerender(); }
+
 
 /* ── 표 편집 ── */
-function gbUpdate(si,i,field,val){
-  const l=_gbList(si); if(!l[i]) return;
-  if(field==='amount') val=String(val).replace(/[^0-9]/g,'');
-  else if(field==='qty') val=String(val).replace(/[^0-9.]/g,'');
-  l[i][field]=val;
-  clearTimeout(window._gbTimer); window._gbTimer=setTimeout(function(){ persist(); },500);
-  if(field==='amount') gbRefreshTotals(si);
-  if(field==='cat'||field==='name') gbRefreshGuide(si);
-}
+
 /* 우측 가이드만 새로 그린다 — 표 안의 커서를 건드리지 않기 위해서다 */
-function gbRefreshGuide(si){
-  const box=document.getElementById('gb-side-'+si);
-  if(!box) return;
-  const tmp=document.createElement('div');
-  tmp.innerHTML=gbGuideHtml(si);
-  const nw=tmp.firstChild;
-  if(nw && box.parentNode) box.parentNode.replaceChild(nw,box);
-}
+
 /* 분류를 다 고친 뒤(포커스가 빠질 때) — 분류별 보기일 때만 표를 다시 묶는다 */
-function gbCatChanged(si){
-  gbRefreshGuide(si);
-  if(_gbSort==='cat'){ const ae=document.activeElement; if(ae&&ae.blur) ae.blur(); dnRerender(); }
-}
-function gbSetKind(si,i,v){
-  const l=_gbList(si); if(!l[i]) return;
-  l[i].kind=(GB_KINDS.indexOf(v)>=0)?v:'';
-  const el=document.getElementById('gb-kd-'+si+'-'+i);
-  if(el) el.style.color = l[i].kind ? (GB_KCOL[l[i].kind]||'#12141C') : '#a8b1be';
-  clearTimeout(window._gbTimer); window._gbTimer=setTimeout(function(){ persist(); },500);
-  gbRefreshKinds(si);
-}
-function gbTogglePaid(si,i){
-  const l=_gbList(si); if(!l[i]) return;
-  l[i].paid=!l[i].paid; persist(); dnRerender();
-}
+
+
+
 
 /* ── 영수증 사진 — 줄마다 1장. 저장소에 올리고 경로만 기록한다(데이터가 무거워지지 않게) ── */
 const GB_RCPT_URL={};   // storage path → signed url
-function gbRcptClick(si,idx){
-  const l=_gbList(si); if(!l[idx]) return;
-  if(l[idx].rcpt) gbRcptOpen(si,idx); else gbRcptPick(si,idx);
-}
-function gbRcptPick(si,idx){
-  const inp=document.createElement('input');
-  inp.type='file'; inp.accept='image/*';
-  inp.onchange=function(){ if(inp.files&&inp.files[0]) gbRcptUpload(si,idx,inp.files[0]); };
-  inp.click();
-}
+
+
 /* 사진은 긴 변 1400px · JPEG 로 줄여 올린다 — 영수증은 이 정도면 글씨가 읽힌다 */
-function gbShrink(f){
-  return new Promise(function(res){
-    try{
-      const img=new Image(), u=URL.createObjectURL(f);
-      img.onload=function(){
-        const M=1400; let w=img.width,h=img.height;
-        if(!w||!h){ URL.revokeObjectURL(u); return res(f); }
-        if(Math.max(w,h)>M){ const r=M/Math.max(w,h); w=Math.round(w*r); h=Math.round(h*r); }
-        const c=document.createElement('canvas'); c.width=w; c.height=h;
-        c.getContext('2d').drawImage(img,0,0,w,h);
-        c.toBlob(function(b){ URL.revokeObjectURL(u); res(b||f); },'image/jpeg',0.82);
-      };
-      img.onerror=function(){ URL.revokeObjectURL(u); res(f); };
-      img.src=u;
-    }catch(_){ res(f); }
-  });
-}
-async function gbRcptUpload(si,idx,f){
-  const l=_gbList(si); if(!l[idx]) return;
-  if(!TEAM||!USER){ alert('영수증 사진은 로그인한 뒤에 올릴 수 있습니다.'); return; }
-  if(!/^image\//.test(f.type||'')){ alert('사진 파일만 올릴 수 있습니다. (JPG · PNG · HEIC)'); return; }
-  if(f.size>MAX_FILE){ alert('사진 1장당 20MB까지 올릴 수 있습니다.'); return; }
-  const btn=document.getElementById('gb-rc-'+si+'-'+idx);
-  if(btn){ btn.classList.add('up'); btn.textContent='올림'; }
-  try{
-    const small=await gbShrink(f);
-    const ext=((small.type||'').indexOf('png')>=0)?'png':'jpg';
-    const uid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));
-    const path=TEAM.id+'/'+si+'/rcpt_'+uid+'.'+ext;
-    const up=await fetch(SUPABASE_URL+'/storage/v1/object/files/'+path,{
-      method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':small.type||'image/jpeg'},
-      body:small
-    });
-    if(!up.ok){
-      const raw=await up.text(); let why=raw;
-      try{ const j=JSON.parse(raw); why=j.message||j.error||raw; }catch(_){}
-      if(/bucket not found/i.test(why)) throw new Error('저장소(files 버킷)가 아직 만들어지지 않았습니다.');
-      if(up.status===403||/policy|permission|denied/i.test(why)) throw new Error('저장소 접근 권한이 없습니다.');
-      throw new Error(why);
-    }
-    l[idx].rcpt=path;
-    persist();
-    if(btn){ btn.classList.remove('up'); btn.classList.add('has'); btn.textContent='🧾'; }
-    gbPaintRcpts(si);
-  }catch(err){
-    if(btn){ btn.classList.remove('up'); btn.textContent='＋'; }
-    alert('영수증 사진을 올리지 못했습니다.\n\n'+(err&&err.message?err.message:''));
-  }
-}
-async function gbRcptUrl(path){
-  if(GB_RCPT_URL[path]) return GB_RCPT_URL[path];
-  const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/files/'+path,{
-    method:'POST',
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':'application/json'},
-    body: JSON.stringify({ expiresIn: 3600 })
-  });
-  const j=await r.json(); const u=(j.signedURL||j.signedUrl);
-  if(!u) throw new Error('링크를 만들지 못했습니다');
-  const full=SUPABASE_URL+'/storage/v1'+((''+u).charAt(0)==='/'?'':'/')+u;
-  GB_RCPT_URL[path]=full;
-  return full;
-}
-async function gbPaintRcpts(si){
-  const l=_gbList(si);
-  for(let i=0;i<l.length;i++){
-    if(!l[i]||!l[i].rcpt) continue;
-    const btn=document.getElementById('gb-rc-'+si+'-'+i);
-    if(!btn || btn.querySelector('img')) continue;
-    try{
-      const u=await gbRcptUrl(l[i].rcpt);
-      const b2=document.getElementById('gb-rc-'+si+'-'+i);
-      if(b2 && !b2.querySelector('img')) b2.innerHTML='<img src="'+u+'" alt="영수증">';
-    }catch(_){}
-  }
-}
-function gbRcptOpen(si,idx){
-  const l=_gbList(si), e=l[idx];
-  if(!e||!e.rcpt) return;
-  gbRcptClose();
-  const box=document.createElement('div');
-  box.id='gb-lb'; box.className='gb-lb';
-  const nm=((e.name||'').trim()||'영수증')+(_n(e.amount)?(' · ₩'+_n(e.amount).toLocaleString()):'');
-  box.innerHTML='<div class="gb-lb-t">'+esc(nm)+'</div>'
-    + '<img id="gb-lb-img" alt="영수증">'
-    + '<div class="gb-lb-bar"><button class="gb-lb-b" onclick="gbRcptClose()">닫기</button>'
-    + '<button class="gb-lb-b" onclick="gbRcptPick('+si+','+idx+');gbRcptClose()">사진 바꾸기</button>'
-    + '<button class="gb-lb-b d" onclick="gbRcptDel('+si+','+idx+')">사진 떼기</button></div>';
-  box.onclick=function(ev){ if(ev.target===box) gbRcptClose(); };
-  document.body.appendChild(box);
-  gbRcptUrl(e.rcpt).then(function(u){ const im=document.getElementById('gb-lb-img'); if(im) im.src=u; }).catch(function(){});
-}
-function gbRcptClose(){ const b=document.getElementById('gb-lb'); if(b) b.remove(); }
-function gbRcptDel(si,idx){
-  const l=_gbList(si); if(!l[idx]) return;
-  l[idx].rcpt=''; persist(); gbRcptClose();
-  const btn=document.getElementById('gb-rc-'+si+'-'+idx);
-  if(btn){ btn.classList.remove('has'); btn.innerHTML='＋'; }
-}
+
+
+
+
+
+
+
 /* 표 안에서 Ctrl+V — 커서가 놓인 줄에 사진을 붙인다 */
-function gbSheetPaste(si,ev){
-  const items=(ev.clipboardData&&ev.clipboardData.items)||[];
-  let f=null;
-  for(let i=0;i<items.length;i++){
-    if(items[i].type && items[i].type.indexOf('image/')===0){ f=items[i].getAsFile(); break; }
-  }
-  if(!f) return;
-  const t=(ev.target && ev.target.closest) ? ev.target.closest('[data-gbrow]') : null;
-  if(!t) return;
-  ev.preventDefault();
-  gbRcptUpload(si, parseInt(t.getAttribute('data-gbrow')), f);
-}
-function gbDel(si,i){ const l=_gbList(si); l.splice(i,1); persist(); dnRerender(); }
-function gbSetBudget(si,val){
-  const s=S.sites[si]; if(!s) return;
-  s.budget=String(val).replace(/[^0-9]/g,'');
-  clearTimeout(window._gbTimer); window._gbTimer=setTimeout(function(){ persist(); },500);
-  gbRefreshTotals(si);
-}
-function gbRefreshTotals(si){
-  const total=_gbSum(si), unpaid=_gbUnpaid(si), bud=_budget(si);
-  const set=function(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; };
-  set('gb-total-'+si,'₩'+total.toLocaleString());
-  set('gb-ft-'+si,'₩'+total.toLocaleString());
-  set('gb-ftu-'+si, unpaid>0?('아직 안 낸 돈 ₩'+unpaid.toLocaleString()):'');
-  gbRefreshKinds(si);
-  const rem=document.getElementById('gb-rem-'+si);
-  if(rem){
-    if(bud>0){ const left=bud-total;
-      rem.className='gb-rem'+(left<0?' over':'');
-      rem.textContent = left>=0 ? ('남은 예산 ₩'+left.toLocaleString()) : ('예산 ₩'+Math.abs(left).toLocaleString()+' 초과');
-    } else { rem.className='gb-rem none'; rem.textContent='예산은 안 넣어도 됩니다'; }
-  }
-  const bar=document.getElementById('gb-bar-'+si);
-  if(bar){
-    if(bud>0){ const pct=Math.min(100,Math.round(total/bud*100));
-      bar.style.display=''; bar.innerHTML='<div class="'+(total>bud?'over':'')+'" style="width:'+pct+'%"></div>';
-    } else bar.style.display='none';
-  }
-}
+
+
+
+
 
 /* ── 맨 아래 빈 줄(엑셀처럼 그냥 타이핑하면 새 줄이 된다) ── */
-function gbNewDraft(f,v){ _gbNewDraft[f]=v; }
+
 let _gbBusy=false;   /* 다시 그리는 도중 blur 가 또 들어오는 것을 막는다 */
-function gbCommitNew(si,keepFocus){
-  if(_gbBusy) return false;
-  const g=function(id){ const el=document.getElementById(id); return el?el.value:''; };
-  const name=(g('gb-n-name-'+si)||'').trim();
-  const amount=(g('gb-n-amt-'+si)||'').replace(/[^0-9]/g,'');
-  const cat=(g('gb-n-cat-'+si)||'').trim();
-  const kind0=(g('gb-n-kind-'+si)||'').trim();
-  const kind=(GB_KINDS.indexOf(kind0)>=0)?kind0:'';
-  const qty=(g('gb-n-qty-'+si)||'').replace(/[^0-9.]/g,'');
-  const unit=(g('gb-n-unit-'+si)||'').trim();
-  const date=g('gb-n-date-'+si)||'';
-  const vendor=(g('gb-n-vd-'+si)||'').trim();
-  const acct=(g('gb-n-ac-'+si)||'').trim();
-  if(!name && !amount){ return false; }
-  _gbBusy=true;
-  try{
-    _gbList(si).push({date:date,cat:cat,kind:kind,vendor:vendor,name:name,qty:qty,unit:unit,amount:amount,acct:acct,paid:false,rcpt:''});
-    _gbNewDraft={date:date,cat:cat,kind:kind,vendor:vendor,name:'',qty:'',unit:unit,amount:'',acct:acct};   // 분류·종류·거래처·계좌·단위·날짜는 이어서 쓰기 좋게 남긴다
-    const ae=document.activeElement; if(ae && ae.blur) ae.blur();
-    persist(); dnRerender();
-  } finally { _gbBusy=false; }
-  if(keepFocus) setTimeout(function(){ const el=document.getElementById('gb-n-name-'+si); if(el) el.focus(); },60);
-  return true;
-}
-function gbNewBlur(si,ev){
-  if(_gbBusy) return;
-  const wrap=document.getElementById('gb-newrow-'+si);
-  if(wrap && ev && ev.relatedTarget && wrap.contains(ev.relatedTarget)) return;
-  /* 다른 곳을 눌러 생긴 blur 는 그 클릭이 먼저 처리되도록 한 박자 늦춘다 */
-  setTimeout(function(){ if(!_gbBusy) gbCommitNew(si,false); },0);
-}
+
+
 /* 우측 가이드에서 한 줄 넣기 — 금액은 비워 두고 커서만 금액칸에 놓는다 */
-function gbAddFromGuide(si,cat,name,unit){
-  if(_gbBusy) return;
-  const l=_gbList(si);
-  l.push({date:_ymdToday(),cat:cat,kind:_gbGuessKind(name),vendor:'',name:name,qty:'',unit:unit||'',amount:'',acct:'',paid:false,rcpt:''});
-  const idx=l.length-1;
-  _gbBusy=true;
-  try{ persist(); dnRerender(); } finally { _gbBusy=false; }
-  setTimeout(function(){
-    const el=document.getElementById('gb-amt-'+si+'-'+idx);
-    if(el){ el.focus(); el.scrollIntoView({block:'center',behavior:'smooth'}); }
-  },80);
-}
+
 
 /* ── 표 한 줄 ── */
-function gbKindCell(id,val,onch){
-  const kv=(GB_KINDS.indexOf(val)>=0)?val:'';
-  let o='<option value=""'+(kv?'':' selected')+'>—</option>';
-  GB_KINDS.forEach(function(k){ o+='<option value="'+k+'"'+(kv===k?' selected':'')+'>'+k+'</option>'; });
-  return '<span class="gb-cell"><select id="'+id+'" class="gb-in kd" style="color:'+(kv?(GB_KCOL[kv]||'#12141C'):'#a8b1be')+'" title="자재비 · 인건비 · 외주비 · 경비" onchange="'+onch+'">'+o+'</select></span>';
-}
-function gbSheetRow(si,e,idx){
-  const catList='gb-cats-'+si, unitList='gb-units', vdList='gb-vds-'+si;
-  return '<div class="gb-row" data-gbrow="'+idx+'">'
-    + '<span class="gb-cell"><input class="gb-in dt" type="date" value="'+esc(e.date||'')+'" onchange="gbUpdate('+si+','+idx+',\'date\',this.value)"></span>'
-    + '<span class="gb-cell"><input class="gb-in cat" data-dl="'+catList+'" value="'+esc(e.cat||'')+'" placeholder="미분류" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'cat\',this.value)" onchange="gbCatChanged('+si+')"></span>'
-    + gbKindCell('gb-kd-'+si+'-'+idx, e.kind||'', 'gbSetKind('+si+','+idx+',this.value)')
-    + '<span class="gb-cell"><input class="gb-in vd" data-dl="'+vdList+'" value="'+esc(e.vendor||'')+'" placeholder="—" spellcheck="false" oninput="gbVendorIn('+si+','+idx+',this.value)"></span>'
-    + '<span class="gb-cell"><input class="gb-in" value="'+esc(e.name||'')+'" placeholder="내용" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'name\',this.value)"></span>'
-    + '<span class="gb-cell"><input class="gb-in num" value="'+esc(e.qty||'')+'" placeholder="—" inputmode="decimal" oninput="gbUpdate('+si+','+idx+',\'qty\',this.value)"></span>'
-    + '<span class="gb-cell"><input class="gb-in" data-dl="'+unitList+'" value="'+esc(e.unit||'')+'" placeholder="—" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'unit\',this.value)"></span>'
-    + '<span class="gb-cell"><input id="gb-amt-'+si+'-'+idx+'" class="gb-in num amt" value="'+(_n(e.amount)?_n(e.amount).toLocaleString():'')+'" placeholder="0" inputmode="numeric"'
-    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';gbUpdate('+si+','+idx+',\'amount\',this.value)"></span>'
-    + '<span class="gb-cell"><input id="gb-ac-'+si+'-'+idx+'" class="gb-in ac" value="'+esc(e.acct||'')+'" placeholder="—" spellcheck="false" oninput="gbUpdate('+si+','+idx+',\'acct\',this.value)"></span>'
-    + '<span class="gb-cell"><button class="gb-paybtn'+(e.paid?' on':'')+'" onclick="gbTogglePaid('+si+','+idx+')" title="지불 여부">'+(e.paid?'지불함':'미지불')+'</button></span>'
-    + '<span class="gb-cell"><button id="gb-rc-'+si+'-'+idx+'" class="gb-rc'+(e.rcpt?' has':'')+'" onclick="gbRcptClick('+si+','+idx+')" title="'+(e.rcpt?'영수증 사진 보기':'영수증 사진 붙이기 (칸을 누르고 Ctrl+V 도 됩니다)')+'">'+(e.rcpt?'🧾':'＋')+'</button></span>'
-    + '<span class="gb-cell"><button class="gb-xbtn" onclick="gbDel('+si+','+idx+')" title="줄 삭제">✕</button></span>'
-    + '</div>';
-}
-function gbNewRow(si){
-  const catList='gb-cats-'+si, unitList='gb-units', vdList='gb-vds-'+si;
-  const ent="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();gbCommitNew("+si+",true);}";
-  return '<div class="gb-row new" id="gb-newrow-'+si+'" onfocusout="gbNewBlur('+si+',event)">'
-    + '<span class="gb-cell"><input id="gb-n-date-'+si+'" class="gb-in dt" type="date" value="'+esc(_gbNewDraft.date||_ymdToday())+'" onchange="gbNewDraft(\'date\',this.value)"></span>'
-    + '<span class="gb-cell"><input id="gb-n-cat-'+si+'" class="gb-in cat" data-dl="'+catList+'" value="'+esc(_gbNewDraft.cat||'')+'" placeholder="분류" spellcheck="false" oninput="gbNewDraft(\'cat\',this.value)" onkeydown="'+ent+'"></span>'
-    + gbKindCell('gb-n-kind-'+si, _gbNewDraft.kind||'', 'gbNewDraft(\'kind\',this.value);this.style.color=this.value?(GB_KCOL[this.value]||\'#12141C\'):\'#a8b1be\'')
-    + '<span class="gb-cell"><input id="gb-n-vd-'+si+'" class="gb-in vd" data-dl="'+vdList+'" value="'+esc(_gbNewDraft.vendor||'')+'" placeholder="거래처" spellcheck="false" oninput="gbNewVendorIn('+si+',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="gb-cell"><input id="gb-n-name-'+si+'" class="gb-in" value="'+esc(_gbNewDraft.name||'')+'" placeholder="여기에 바로 적으세요" spellcheck="false" oninput="gbNewDraft(\'name\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="gb-cell"><input id="gb-n-qty-'+si+'" class="gb-in num" value="'+esc(_gbNewDraft.qty||'')+'" placeholder="—" inputmode="decimal" oninput="gbNewDraft(\'qty\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="gb-cell"><input id="gb-n-unit-'+si+'" class="gb-in" data-dl="'+unitList+'" value="'+esc(_gbNewDraft.unit||'')+'" placeholder="—" spellcheck="false" oninput="gbNewDraft(\'unit\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="gb-cell"><input id="gb-n-amt-'+si+'" class="gb-in num amt" value="'+esc(_gbNewDraft.amount||'')+'" placeholder="0" inputmode="numeric"'
-    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';gbNewDraft(\'amount\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="gb-cell"><input id="gb-n-ac-'+si+'" class="gb-in ac" value="'+esc(_gbNewDraft.acct||'')+'" placeholder="—" spellcheck="false" oninput="gbNewDraft(\'acct\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="gb-cell"><button class="gb-paybtn" onclick="gbCommitNew('+si+',true)" title="줄 추가">+ 추가</button></span>'
-    + '<span class="gb-cell"><span class="gb-rc" style="cursor:default;color:#d8dee7" title="줄이 만들어진 뒤에 붙일 수 있습니다">🧾</span></span>'
-    + '<span class="gb-cell"></span>'
-    + '</div>';
-}
+
+
+
 
 /* ── 거래처 · 계좌 ── */
 /* 이 현장에서 이미 쓴 거래처 + 협력팀에 적어 둔 이름을 자동완성 목록으로 */
-function _gbVendors(si){
-  const out=[], seen={};
-  (_gbList(si)||[]).forEach(function(e){
-    const v=((e&&e.vendor)||'').trim();
-    if(v && !seen[v]){ seen[v]=1; out.push(v); }
-  });
-  (S.globalContacts||[]).forEach(function(c){
-    const v=((c&&c.name)||'').trim();
-    if(v && !seen[v]){ seen[v]=1; out.push(v); }
-  });
-  return out;
-}
+
 /* 같은 거래처로 마지막에 적었던 계좌를 찾아 온다 */
-function _gbAcctFor(si,vendor){
-  const v=(vendor||'').trim(); if(!v) return '';
-  const l=_gbList(si)||[];
-  for(let i=l.length-1;i>=0;i--){
-    const e=l[i];
-    if(e && ((e.vendor||'').trim()===v) && (e.acct||'').trim()) return e.acct;
-  }
-  // 지출 기록에 없으면 협력팀에 적어 둔 계좌를 찾는다
-  let hit='';
-  (S.globalContacts||[]).forEach(function(c){
-    if(hit || !c) return;
-    if(((c.name||'').trim()===v) && (c.acct||'').trim()) hit=c.acct;
-  });
-  return hit;
-}
+
 /* 거래처를 적으면 계좌가 비어 있을 때만 지난 값을 채워 준다 (덮어쓰지 않음) */
-function gbVendorIn(si,idx,val){
-  gbUpdate(si,idx,'vendor',val);
-  const l=_gbList(si); if(!l[idx]) return;
-  if((l[idx].acct||'').trim()) return;
-  const a=_gbAcctFor(si,val); if(!a) return;
-  l[idx].acct=a;
-  const el=document.getElementById('gb-ac-'+si+'-'+idx);
-  if(el) el.value=a;
-}
-function gbNewVendorIn(si,val){
-  gbNewDraft('vendor',val);
-  if((_gbNewDraft.acct||'').trim()) return;
-  const a=_gbAcctFor(si,val); if(!a) return;
-  _gbNewDraft.acct=a;
-  const el=document.getElementById('gb-n-ac-'+si);
-  if(el) el.value=a;
-}
+
+
 
 /* ── 우측 기록 가이드 ── */
-function gbGuideHtml(si){
-  let done=0, all=0;
-  const groups=GB_GUIDE.map(function(g){
-    const items=g.items.map(function(it){
-      const ok=_gbHasItem(si,g.cat,it.n); all++; if(ok) done++;
-      return {n:it.n,u:it.u,ok:ok};
-    });
-    return {cat:g.cat, items:items, done:items.filter(function(x){return x.ok;}).length};
-  });
-  const pct=all>0?Math.round(done/all*100):0;
-  const body=groups.map(function(g){
-    const open=!!_gbGOpen[g.cat];
-    const col=gbColor(g.cat);
-    let h='<button class="gb-gh" onmousedown="event.preventDefault()" onclick="gbToggleGuide(\''+gbQ(g.cat)+'\')">'
-      + '<span class="gb-gdot" style="background:'+col+'"></span>'
-      + '<span class="gb-gn">'+esc(g.cat)+'</span>'
-      + '<span class="gb-gc'+(g.done===g.items.length?' done':'')+'">'+g.done+'/'+g.items.length+'</span>'
-      + '<span class="gb-ga">'+(open?'▲':'▼')+'</span></button>';
-    let l='';
-    if(open){
-      l='<div class="gb-gl">'+g.items.map(function(it){
-        return '<button class="gb-gi'+(it.ok?' done':'')+'" onmousedown="event.preventDefault()" onclick="gbAddFromGuide('+si+',\''+gbQ(g.cat)+'\',\''+gbQ(it.n)+'\',\''+gbQ(it.u)+'\')" title="표에 한 줄 넣기">'
-          + '<span class="gb-gi-n">'+esc(it.n)+'</span>'
-          + '<span class="gb-gi-u">'+esc(it.u)+'</span>'
-          + '<span class="gb-gi-plus">'+(it.ok?'✓ 적음':'＋')+'</span></button>';
-      }).join('')+'</div>';
-    }
-    return '<div class="gb-g">'+h+l+'</div>';
-  }).join('');
-  return '<div class="gb-side" id="gb-side-'+si+'"><div class="gb-side-box">'
-    + '<div class="gb-side-h"><div class="gb-side-t">📋 뭘 적어야 하나요</div>'
-    +   '<div class="gb-side-d">인테리어에서 돈이 나가는 자리를 공정 순서대로 모아 뒀습니다. 해당되는 것만 골라 적으시면 됩니다.</div>'
-    +   '<div class="gb-side-p"><span class="gb-side-pb"><div style="width:'+pct+'%"></div></span><span class="gb-side-pn">'+done+'/'+all+'</span></div></div>'
-    + '<div class="gb-side-body">'+body+'</div>'
-    + '<div class="gb-side-f">항목을 누르면 표에 <b>빈 줄 하나</b>가 들어갑니다. 금액만 채우시면 되고, 안 눌러도 그냥 표에 직접 적으셔도 됩니다.<br>여기 없는 지출은 <b>표에 직접</b> 쓰시면 그 분류가 새로 생깁니다.</div>'
-    + '</div></div>';
-}
+
 
 /* ── 본문 ── */
-function renderLedger(si){
-  const s=S.sites[si]; if(!s) return '';
-  const list=_gbList(si);
-  const total=_gbSum(si), unpaid=_gbUnpaid(si), bud=_budget(si);
-  const won=function(n){ return '₩'+(n||0).toLocaleString(); };
 
-  /* 상단 요약 */
-  const left=bud-total;
-  const remHtml = bud>0
-    ? '<span class="gb-rem'+(left<0?' over':'')+'" id="gb-rem-'+si+'">'+(left>=0?('남은 예산 '+won(left)):('예산 '+won(Math.abs(left))+' 초과'))+'</span>'
-    : '<span class="gb-rem none" id="gb-rem-'+si+'">예산은 안 넣어도 됩니다</span>';
-  const top='<div class="gb-top">'
-    + '<div class="gb-top-l"><div class="gb-top-k">지금까지 쓴 돈</div><div class="gb-top-v" id="gb-total-'+si+'">'+won(total)+'</div></div>'
-    + '<div class="gb-top-sub"><span class="gb-tag">기록 <b>'+list.length+'줄</b></span>'
-    +   (unpaid>0?'<span class="gb-tag due">아직 안 낸 돈 <b>'+won(unpaid)+'</b></span>':'')
-    +   (total-unpaid>0?'<span class="gb-tag">지불 완료 <b>'+won(total-unpaid)+'</b></span>':'')
-    + '</div>'
-    + '<div class="gb-bud"><span class="gb-bud-k">예산</span>'
-    +   '<input class="gb-bud-in" value="'+(bud?bud.toLocaleString():'')+'" placeholder="선택" inputmode="numeric"'
-    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';gbSetBudget('+si+',this.value)">'
-    +   '<span class="gb-won">원</span>'+remHtml+'</div>'
-    + '<div class="gb-bar" id="gb-bar-'+si+'"'+(bud>0?'':' style="display:none"')+'>'
-    +   (bud>0?'<div class="'+(total>bud?'over':'')+'" style="width:'+Math.min(100,Math.round(total/bud*100))+'%"></div>':'')+'</div>'
-    + '</div>';
-
-  /* 자동완성 목록 */
-  const dl='<datalist id="gb-cats-'+si+'">'+_gbKnownCats(si).map(function(k){ return '<option value="'+esc(k)+'">'; }).join('')+'</datalist>'
-    + '<datalist id="gb-vds-'+si+'">'+_gbVendors(si).map(function(v){ return '<option value="'+esc(v)+'">'; }).join('')+'</datalist>'
-    + '<datalist id="gb-units">'+GB_UNITS.map(function(u){ return '<option value="'+esc(u)+'">'; }).join('')+'</datalist>';
-
-  /* 표 본문 — 정렬 방식에 따라 줄 사이에 소계를 끼워 넣는다 */
-  const rows=list.map(function(e,idx){ return {e:e,idx:idx}; });
-  let bodyRows='';
-  if(!rows.length){
-    bodyRows='';
-  } else if(_gbSort==='input'){
-    bodyRows=rows.map(function(r){ return gbSheetRow(si,r.e,r.idx); }).join('');
-  } else {
-    const keyOf=(_gbSort==='cat') ? function(r){ return _gbCatKey(r.e); } : function(r){ return (r.e.date||''); };
-    const map={};
-    rows.forEach(function(r){ const k=keyOf(r); (map[k]=map[k]||[]).push(r); });
-    let keys=Object.keys(map);
-    if(_gbSort==='cat'){
-      keys.sort(function(a,b){
-        if(a===GB_UNCAT) return 1; if(b===GB_UNCAT) return -1;
-        const sa=map[a].reduce(function(x,r){ return x+_n(r.e.amount); },0);
-        const sb=map[b].reduce(function(x,r){ return x+_n(r.e.amount); },0);
-        return sb-sa;
-      });
-    } else {
-      keys.sort(function(a,b){ if(!a) return 1; if(!b) return -1; return a<b?1:-1; });
-    }
-    bodyRows=keys.map(function(k){
-      const sum=map[k].reduce(function(x,r){ return x+_n(r.e.amount); },0);
-      const label=(_gbSort==='cat') ? k : fmtLedgerDate(k);
-      const col=(_gbSort==='cat') ? gbColor(k) : '#94A3B8';
-      return '<div class="gb-row grp"><span class="gb-grp-n"><span class="gb-gdot" style="background:'+col+'"></span>'+esc(label)+' <span style="color:#7a8494;font-weight:600">'+map[k].length+'줄</span></span><span class="gb-grp-s">'+won(sum)+'</span></div>'
-        + map[k].map(function(r){ return gbSheetRow(si,r.e,r.idx); }).join('');
-    }).join('');
-  }
-
-  const tools='<div class="gb-tools"><span class="gb-tk">보기</span>'
-    + '<button class="gb-view'+(_gbSort==='input'?' on':'')+'" onclick="setGbSort(\'input\')">적은 순</button>'
-    + '<button class="gb-view'+(_gbSort==='cat'?' on':'')+'" onclick="setGbSort(\'cat\')">분류별</button>'
-    + '<button class="gb-view'+(_gbSort==='date'?' on':'')+'" onclick="setGbSort(\'date\')">날짜별</button>'
-    + '<button class="gb-view xl" onclick="gbPreviewOpen('+si+')">📄 미리보기 · 인쇄</button>'
-    + '<span class="gb-hint">칸을 눌러 바로 고치고, 맨 아랫줄에 새로 적으세요</span></div>';
-
-  const sheet='<div class="gb-sheetwrap"><div class="gb-sheet" onpaste="gbSheetPaste('+si+',event)">'
-    + '<div class="gb-row gb-hd"><span>날짜</span><span>분류</span><span>종류</span><span>거래처</span><span>내용</span><span>물량</span><span>단위</span><span>금액</span><span>계좌</span><span>지불</span><span style="padding:10px 4px;font-size:10.5px">영수증</span><span></span></div>'
-    + bodyRows
-    + gbNewRow(si)
-    + '<div class="gb-ft"><span class="gb-ft-k">합계 <span id="gb-ftu-'+si+'" style="color:#c0451a;font-weight:700;margin-left:8px">'+(unpaid>0?('아직 안 낸 돈 ₩'+unpaid.toLocaleString()):'')+'</span></span>'
-    +   '<span class="gb-ft-v" id="gb-ft-'+si+'">'+won(total)+'</span></div>'
-    + '</div></div>';
-
-  const note = list.length
-    ? '<div class="gb-note">영수증은 <b>🧾 칸</b>을 눌러 사진을 고르거나, 그 줄의 아무 칸에 커서를 두고 <b>Ctrl+V</b> 로 붙이시면 됩니다.</div>'
-    : '<div class="gb-note">표는 <b>비어 있는 채로</b> 시작합니다. 맨 아랫줄에 금액만 적어도 한 줄이 만들어지고, 오른쪽 목록은 <b>참고용</b>이라 누르지 않으면 아무것도 생기지 않습니다.</div>';
-
-  setTimeout(function(){ gbPaintRcpts(si); },0);
-
-  return '<div class="gb-wrap">'+top+gbKindsHtml(si)+dl
-    + '<div class="gb-split"><div class="gb-main">'+tools+sheet+note+'</div>'
-    + gbGuideHtml(si)+'</div></div>';
-}
 
 /* ══════════ 프로젝트가 없을 때 — 견적서부터 시작 ══════════ */
 function renderQuoteStart(){
@@ -10363,142 +9893,30 @@ function schedPick(key){
 
 /* 견적을 만들면서 프로젝트도 함께 만듭니다 */
 let _qtTempSi=null;   /* 견적서 만들기로 방금 만든 프로젝트 (아직 확정 전) */
-function qtStartNew(){
-  if(!Array.isArray(S.sites)) S.sites=[];
-  S.sites.push({
-    name:'', addr:'', pw:'', key:'', memo:'',
-    procs:[...DEFAULT_PROCS], procColors:{}, newProcName:'', selectedProcs:[], cells:{},
-    ldMig:'v3', ledger:[], quotes:[], budget:'', procAuto:true
-  });
-  const si=S.sites.length-1;
-  _qtTempSi=si;
-  _ledgerTab=si;
-  _lgMode='quote';
-  dnRerender(); renderTabs();
-  setTimeout(function(){ qmOpen(si,'new'); },0);
-}
+
 /* 손도 안 댄 임시 프로젝트는 지웁니다 — 공정을 고르기 전엔 아무것도 만들지 않습니다 */
-function _qtDropTemp(){
-  if(_qtTempSi===null) return false;
-  const si=_qtTempSi; _qtTempSi=null;
-  const st=S.sites[si];
-  if(!st) return false;
-  const untouched =
-      !String(st.name||'').trim()
-   && !((st.quotes||[]).length)
-   && !((st.ledger||[]).length)
-   && !Object.keys(st.cells||{}).length
-   && !((st.procs||[]).some(function(p){ return String((typeof p==='string'?p:(p&&p.name))||'').trim(); }));
-  if(!untouched) return false;
-  S.sites.splice(si,1);
-  if(_ledgerTab===si) _ledgerTab=null;
-  if(String(S.tab)===String(si)) S.tab='ledger';
-  dnRerender(); renderTabs();
-  return true;
-}
+
 /* 공사명을 적으면 프로젝트 이름이 아직 비어 있을 때 따라갑니다 */
 /* ── 견적서 → 일정표 ────────────────────────────────
    견적에 잡아 둔 공정을 일정표 작업 줄로 옮깁니다. */
-function _qtScheduleDiff(si,q){
-  const st=S.sites[si];
-  const have=((st&&st.procs)||[]).map(function(p){
-    return procName(String((typeof p==='string'?p:(p&&p.name))||'').trim());
-  }).filter(Boolean);
-  const add=[], seen={};
-  ((q&&q.groups)||[]).forEach(function(g){
-    const c=String((g&&g.cat)||'').trim();
-    if(!c) return;
-    const key=procName(c);
-    if(seen[key] || have.indexOf(key)>=0) return;
-    seen[key]=1; add.push(c);
-  });
-  return add;
-}
+
 /* ── 자동 잇기 ──────────────────────────────────
    일정표를 아직 직접 손보지 않았다면, 견적에 공정을 넣을 때마다 일정표에도 저절로 들어갑니다.
    작업을 한 번이라도 지우시면 그때부터 자동은 멈춥니다. */
-function _qtAutoOn(si){
-  const st=S.sites[si];
-  return !!st && st.procAuto!==false;
-}
-function qtAutoOff(si){
-  const st=S.sites[si]; if(!st) return;
-  if(st.procAuto===false) return;
-  st.procAuto=false; persist();
-}
-function _qtAutoSync(si){
-  if(!_qtAutoOn(si)) return 0;
-  const st=S.sites[si]; if(!st) return 0;
-  const q=_qtCurQ(si); if(!q) return 0;
-  const add=_qtScheduleDiff(si,q);
-  if(!add.length) return 0;
-  if(!Array.isArray(st.procs)) st.procs=[];
-  add.forEach(function(c){
-    const empty=st.procs.findIndex(function(p){
-      return !String((typeof p==='string'?p:(p&&p.name))||'').trim();
-    });
-    if(empty>=0) st.procs[empty]=c; else st.procs.push(c);
-  });
-  persist();
-  return add.length;
-}
+
+
+
 /* 견적을 건드린 뒤에 부릅니다 */
-function qtAfterChange(si){
-  const n=_qtAutoSync(si);
-  if(n>0) showToast('일정표에 '+n+'개 작업이 함께 들어갔습니다');
-}
+
 /* 자동 잇기를 다시 켭니다 */
-function qtAutoOn(si){
-  const st=S.sites[si]; if(!st) return;
-  st.procAuto=true;
-  const n=_qtAutoSync(si);
-  renderAll();
-  showToast(n>0 ? ('견적서와 다시 이었습니다 — '+n+'개 들어감') : '견적서와 다시 이었습니다');
-}
+
 /* 눌러서 한 번에 옮기기 */
-async function qtToSchedule(si){
-  const q=_qtCurQ(si);
-  if(!q){ showToast('먼저 견적을 만들어 주세요'); return; }
-  const st=S.sites[si]; if(!st) return;
-  const add=_qtScheduleDiff(si,q);
-  const total=((q.groups||[]).length);
-  if(!total){ showToast('이 견적에는 공정이 없습니다'); return; }
-  if(!add.length){ showToast('견적의 공정이 이미 일정표에 다 들어 있습니다'); return; }
 
-  const skip=total-add.length;
-  const ok=await askConfirm(
-    '견적서를 일정표로 옮길까요?',
-    '**'+add.length+'개** 작업이 일정표에 새로 들어갑니다. 견적 순서 그대로 잡힙니다.\n\n'
-      + add.join(' · ')
-      + (skip>0 ? '\n\n이미 있는 '+skip+'개는 건너뜁니다. 날짜 칠하기는 그대로 둡니다.' : ''),
-    '일정표에 넣기', false);
-  if(!ok) return;
-
-  if(!Array.isArray(st.procs)) st.procs=[];
-  add.forEach(function(c){
-    const empty=st.procs.findIndex(function(p){ return !String((typeof p==='string'?p:(p&&p.name))||'').trim(); });
-    if(empty>=0) st.procs[empty]=c; else st.procs.push(c);
-  });
-  persist(); renderAll();
-  showToast(add.length+'개 작업을 일정표에 넣었습니다');
-}
 /* 프로젝트 작업 목록 쪽에서 부를 때 */
-function procFromQuote(si){ qtToSchedule(si); }
-function _qtHasQuote(si){ return _qtList(si).length>0; }
 
-function qtSyncSiteName(si){
-  const st=S.sites[si], q=_qtCurQ(si);
-  if(!st||!q) return;
-  const n=String(q.name||'').trim();
-  if(!n) return;
-  const cur=String(st.name||'').trim();
-  /* 아직 이름을 안 지으셨거나 처음 만들어질 때 붙은 기본 이름이면 공사명을 따라갑니다.
-     직접 지으신 이름은 건드리지 않습니다. */
-  if(!cur || _isDefaultSiteName(si,cur)){
-    st.name=n; persist(); renderTabs();
-    if(String(S.tab)===String(si)) dnRerender();
-  }
-}
+
+
+
 /* 손대지 않은 기본 이름인지 — '우리 집', '우리 집 2', '프로젝트 1' 같은 것들 */
 function _isDefaultSiteName(si,nm){
   const t=String(nm||'').trim();
@@ -10531,413 +9949,45 @@ const IN_KINDS=['계약금','중도금','잔금','추가공사','기타'];
 let _inNewDraft={date:'',kind:'',name:'',amount:'',memo:''};
 let _inBusy=false;
 
-function _inList(si){
-  const s=S.sites[si]; if(!s) return [];
-  if(!Array.isArray(s.income)) s.income=[];
-  return s.income;
-}
-function _inSum(si){
-  return _inList(si).reduce(function(a,e){ return a+(_n(e&&e.amount)||0); },0);
-}
-function inUpdate(si,idx,f,v){
-  const l=_inList(si); if(!l[idx]) return;
-  l[idx][f]=v; persist(); inRefresh(si);
-}
-function inDel(si,idx){
-  const l=_inList(si); if(!l[idx]) return;
-  l.splice(idx,1); persist(); dnRerender();
-}
-function inNewDraft(f,v){ _inNewDraft[f]=v; }
-function inCommitNew(si,focus){
-  if(_inBusy) return false;
-  const g=function(id){ const el=document.getElementById(id); return el?el.value:''; };
-  const date=g('in-n-date-'+si)||_ymdToday();
-  const kind=g('in-n-kind-'+si)||'';
-  const name=(g('in-n-name-'+si)||'').trim();
-  const amount=(g('in-n-amt-'+si)||'').replace(/[^0-9]/g,'');
-  const memo=(g('in-n-memo-'+si)||'').trim();
-  if(!name && !amount) return false;
-  _inBusy=true;
-  try{
-    _inList(si).push({date:date,kind:kind,name:name,amount:amount,memo:memo});
-    _inNewDraft={date:date,kind:kind,name:'',amount:'',memo:''};
-    persist(); dnRerender();
-    if(focus) setTimeout(function(){
-      const el=document.getElementById('in-n-name-'+si); if(el) el.focus();
-    },30);
-  } finally { _inBusy=false; }
-  return true;
-}
+
+
+
+
+
+
 /* 화면 전체를 다시 그리지 않고 숫자만 고칩니다 (커서 유지) */
-function inRefresh(si){
-  const t=_inSum(si);
-  const el=document.getElementById('in-total-'+si);
-  if(el) el.textContent='₩'+t.toLocaleString();
-  const q=_qtCurQ(si);
-  const est=q?_qtGrand(q):0;
-  const r=document.getElementById('in-rest-'+si);
-  if(r) r.textContent='₩'+Math.max(0,est-t).toLocaleString();
-}
 
-function renderIncome(si){
-  const st=S.sites[si]||{};
-  const l=_inList(si);
-  const total=_inSum(si);
-  const q=_qtCurQ(si);
-  const est=q?_qtGrand(q):0;
-  const rest=Math.max(0,est-total);
-  const pct=est>0?Math.min(100,Math.round(total/est*100)):0;
 
-  let h='<div class="in-wrap">';
-  /* 위 요약 */
-  h+='<div class="in-top">'
-    + '<div class="in-c"><span class="in-k">받기로 한 돈</span><span class="in-v">₩'+est.toLocaleString()+'</span>'
-    +   '<span class="in-s">'+(q?('견적 '+esc(q.title||'')):'견적 없음')+'</span></div>'
-    + '<div class="in-c"><span class="in-k">받은 돈</span><span class="in-v g" id="in-total-'+si+'">₩'+total.toLocaleString()+'</span>'
-    +   '<span class="in-s">'+l.length+'번 들어옴</span></div>'
-    + '<div class="in-c"><span class="in-k">아직 못 받은 돈</span><span class="in-v'+(rest>0?' r':'')+'" id="in-rest-'+si+'">₩'+rest.toLocaleString()+'</span>'
-    +   '<span class="in-s">'+(est>0?pct+'% 받음':'—')+'</span></div>'
-    + '<div class="in-bar"><div class="in-bar-f" style="width:'+pct+'%"></div></div>'
-    + '</div>';
 
-  /* 표 */
-  h+='<div class="in-scroll"><div class="in-tbl">'
-    + '<div class="in-row in-hd"><span>날짜</span><span>명목</span><span>내용</span><span>금액</span><span>메모</span><span></span></div>';
-  l.forEach(function(e,i){
-    h+='<div class="in-row">'
-      + '<span class="in-c2"><input class="in-in dt" type="date" value="'+esc(e.date||'')+'" onchange="inUpdate('+si+','+i+',\'date\',this.value)"></span>'
-      + '<span class="in-c2"><input class="in-in ctr" data-dl="in-kinds" value="'+esc(e.kind||'')+'" placeholder="명목" spellcheck="false" oninput="inUpdate('+si+','+i+',\'kind\',this.value)"></span>'
-      + '<span class="in-c2"><input class="in-in" value="'+esc(e.name||'')+'" placeholder="내용" spellcheck="false" oninput="inUpdate('+si+','+i+',\'name\',this.value)"></span>'
-      + '<span class="in-c2"><input class="in-in num" value="'+(_n(e.amount)?_n(e.amount).toLocaleString():'')+'" placeholder="0" inputmode="numeric"'
-      +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';inUpdate('+si+','+i+',\'amount\',this.value)"></span>'
-      + '<span class="in-c2"><input class="in-in" value="'+esc(e.memo||'')+'" placeholder="메모" spellcheck="false" oninput="inUpdate('+si+','+i+',\'memo\',this.value)"></span>'
-      + '<span class="in-c2"><button class="in-x" onclick="inDel('+si+','+i+')" title="줄 지우기">✕</button></span>'
-      + '</div>';
-  });
-  /* 새 줄 */
-  const ent="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();inCommitNew("+si+",true);}";
-  h+='<div class="in-row new">'
-    + '<span class="in-c2"><input id="in-n-date-'+si+'" class="in-in dt" type="date" value="'+esc(_inNewDraft.date||_ymdToday())+'" onchange="inNewDraft(\'date\',this.value)"></span>'
-    + '<span class="in-c2"><input id="in-n-kind-'+si+'" class="in-in ctr" data-dl="in-kinds" value="'+esc(_inNewDraft.kind||'')+'" placeholder="명목" spellcheck="false" oninput="inNewDraft(\'kind\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="in-c2"><input id="in-n-name-'+si+'" class="in-in" value="'+esc(_inNewDraft.name||'')+'" placeholder="여기에 바로 적으세요" spellcheck="false" oninput="inNewDraft(\'name\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="in-c2"><input id="in-n-amt-'+si+'" class="in-in num" value="'+esc(_inNewDraft.amount||'')+'" placeholder="0" inputmode="numeric"'
-    +   ' oninput="const d=this.value.replace(/[^0-9]/g,\'\');this.value=d?Number(d).toLocaleString(\'ko-KR\'):\'\';inNewDraft(\'amount\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="in-c2"><input id="in-n-memo-'+si+'" class="in-in" value="'+esc(_inNewDraft.memo||'')+'" placeholder="메모" spellcheck="false" oninput="inNewDraft(\'memo\',this.value)" onkeydown="'+ent+'"></span>'
-    + '<span class="in-c2"><button class="in-add" onclick="inCommitNew('+si+',true)">+ 추가</button></span>'
-    + '</div>';
-  h+='</div></div>';
-  h+='<datalist id="in-kinds">'+IN_KINDS.map(function(k){ return '<option value="'+esc(k)+'">'; }).join('')+'</datalist>';
-  h+='<div class="in-note">고객에게서 <b>받은 돈</b>을 적어 두는 곳입니다. 견적 금액과 견주어 <b>얼마나 들어왔는지</b>가 위에 나옵니다.</div>';
-  h+='</div>';
-  return h;
-}
 
 /* ══════════════════════════════════════════════════════════════
    정산 — 견적 · 입금 · 지출을 한 자리에서 맞대어 봅니다. 대표만 봅니다.
    ══════════════════════════════════════════════════════════════ */
 
 /* 이익은 부가세를 뺀 공급가액 기준으로 셉니다. 부가세는 나중에 나라에 내는 돈이라 이익이 아닙니다. */
-function _slFigures(si){
-  const st=S.sites[si]||{};
-  const q=_qtCurQ(si);
-  const sup   = q?_qtSupply(q):0;      /* 받기로 한 돈 (부가세 뺀 것) */
-  const grand = q?_qtGrand(q):0;       /* 부가세까지 붙인 것 */
-  const got   = _inSum(si);            /* 받은 돈 */
-  const spent = _gbSum(si);            /* 쓴 돈 */
-  const unpaid=(_gbList(si)||[]).reduce(function(a,e){ return a+((e&&e.paid)?0:(_n(e.amount)||0)); },0);
-  return {
-    q:q, sup:sup, grand:grand, got:got, spent:spent, unpaid:unpaid,
-    recv: Math.max(0, grand-got),        /* 아직 못 받은 돈 */
-    profit: sup-spent,                    /* 예상 이익 (원가 기준) */
-    cash: got-spent,                      /* 지금 현금 */
-    rate: sup>0 ? Math.round((sup-spent)/sup*1000)/10 : 0
-  };
-}
+
 /* 공정별로 견적과 실제를 맞댑니다 */
-function _slByProc(si){
-  const q=_qtCurQ(si);
-  const map={}, order=[];
-  ((q&&q.groups)||[]).forEach(function(g){
-    const c=procName(g.cat||'')||'미분류';
-    if(!map[c]){ map[c]={cat:c, est:0, act:0}; order.push(c); }
-    map[c].est += _qtGroupSum(g);
-  });
-  (_gbList(si)||[]).forEach(function(e){
-    const c=procName(String(e.cat||'').trim())||'미분류';
-    if(!map[c]){ map[c]={cat:c, est:0, act:0}; order.push(c); }
-    map[c].act += (_n(e.amount)||0);
-  });
-  return order.map(function(c){ return map[c]; });
-}
 
-function renderMoneySettle(si){
-  const f=_slFigures(si);
-  const rows=_slByProc(si);
-  const won=function(n){ return '₩'+Math.round(n||0).toLocaleString(); };
-  const KINDS=(typeof GB_KINDS!=='undefined')?GB_KINDS:['자재비','인건비','외주비','경비'];
 
-  let h='<div class="sl-wrap">';
 
-  /* 큰 숫자 넷 */
-  h+='<div class="sl-cards">'
-    + slCard('받기로 한 돈', won(f.grand), (f.q?('견적 '+esc(f.q.title||'')+' · 부가세 포함'):'견적 없음'), '')
-    + slCard('받은 돈', won(f.got), (f.recv>0?('아직 '+won(f.recv)+' 남음'):'모두 받았습니다'), 'g')
-    + slCard('쓴 돈', won(f.spent), (f.unpaid>0?('아직 안 낸 돈 '+won(f.unpaid)):'모두 지불했습니다'), 'b')
-    + slCard('예상 이익', won(f.profit), (f.sup>0?(f.rate+'% · 부가세 뺀 금액 기준'):'견적을 먼저 넣어 주세요'), (f.profit<0?'r':'g'))
-    + '</div>';
 
-  /* 지금 현금 */
-  h+='<div class="sl-cash'+(f.cash<0?' minus':'')+'">'
-    + '<span class="sl-cash-k">지금 현금</span>'
-    + '<span class="sl-cash-v">'+won(f.cash)+'</span>'
-    + '<span class="sl-cash-d">'+(f.cash<0
-        ? '받은 돈보다 <b>'+won(-f.cash)+'</b> 더 썼습니다. 수금을 서두르셔야 합니다.'
-        : '받은 돈에서 쓴 돈을 뺀 금액입니다.')+'</span>'
-    + '</div>';
-
-  /* 공정별 */
-  h+='<div class="sl-sec"><div class="sl-sec-t">공정별로 보기</div>';
-  if(!rows.length){
-    h+='<div class="sl-empty">아직 견적도 지출도 없습니다.</div>';
-  } else {
-    h+='<div class="sl-scroll"><div class="sl-tbl">'
-      + '<div class="sl-row sl-hd"><span>공정</span><span>견적</span><span>실제</span><span>차액</span><span>돈 나간 비율</span></div>';
-    rows.forEach(function(r){
-      const diff=r.est-r.act;
-      const pct=r.est>0?Math.round(r.act/r.est*100):(r.act>0?999:0);
-      const over=(r.est>0 && r.act>r.est);
-      h+='<div class="sl-row">'
-        + '<span class="sl-c"><span class="sl-dot" style="background:'+(typeof gbColor==='function'?gbColor(r.cat):'#2f9e5e')+'"></span>'+esc(r.cat)+'</span>'
-        + '<span class="sl-c num">'+(r.est?r.est.toLocaleString():'—')+'</span>'
-        + '<span class="sl-c num">'+(r.act?r.act.toLocaleString():'—')+'</span>'
-        + '<span class="sl-c num '+(diff<0?'r':(diff>0?'g':''))+'">'+(r.est||r.act?((diff>0?'+':'')+diff.toLocaleString()):'—')+'</span>'
-        + '<span class="sl-c"><span class="sl-bar"><span class="sl-bar-f'+(over?' over':'')+'" style="width:'+Math.min(100,pct)+'%"></span></span>'
-        +   '<em class="'+(over?'r':'')+'">'+(r.est>0?(pct+'%'):(r.act>0?'견적 없음':'—'))+'</em></span>'
-        + '</div>';
-    });
-    const te=rows.reduce(function(a,r){ return a+r.est; },0);
-    const ta=rows.reduce(function(a,r){ return a+r.act; },0);
-    const td=te-ta;
-    h+='<div class="sl-row sl-ft"><span class="sl-c">합계</span>'
-      + '<span class="sl-c num">'+te.toLocaleString()+'</span>'
-      + '<span class="sl-c num">'+ta.toLocaleString()+'</span>'
-      + '<span class="sl-c num '+(td<0?'r':'g')+'">'+((td>0?'+':'')+td.toLocaleString())+'</span>'
-      + '<span class="sl-c"><em>'+(te>0?Math.round(ta/te*100)+'%':'—')+'</em></span></div>';
-    h+='</div></div>';
-  }
-  h+='</div>';
-
-  /* 종류별 */
-  const kinds=KINDS.map(function(k){
-    return {k:k, v:(_gbList(si)||[]).reduce(function(a,e){ return a+((String(e.kind||'').trim()===k)?(_n(e.amount)||0):0); },0)};
-  }).filter(function(x){ return x.v>0; });
-  if(kinds.length){
-    const mx=Math.max.apply(null, kinds.map(function(x){ return x.v; }));
-    h+='<div class="sl-sec"><div class="sl-sec-t">어디에 썼나</div><div class="sl-kinds">'
-      + kinds.map(function(x){
-          const c=(typeof GB_KCOL!=='undefined' && GB_KCOL[x.k])?GB_KCOL[x.k]:'#8a94a6';
-          return '<div class="sl-kr"><span class="sl-kk">'+esc(x.k)+'</span>'
-            + '<span class="sl-kb"><span style="width:'+Math.round(x.v/mx*100)+'%;background:'+c+'"></span></span>'
-            + '<span class="sl-kv">'+won(x.v)+'</span>'
-            + '<span class="sl-kp">'+(f.spent>0?Math.round(x.v/f.spent*100):0)+'%</span></div>';
-        }).join('')
-      + '</div></div>';
-  }
-
-  h+='<div class="sl-note">이익은 <b>부가세를 뺀 금액</b>으로 셉니다. 부가세는 나중에 나라에 내는 돈이라 이익이 아닙니다.<br>'
-   + '「돈 나간 비율」은 공사 진행률이 아니라 <b>그 공정에 돈이 얼마나 나갔는지</b>입니다. 자재를 미리 사면 높게 나옵니다.</div>';
-  h+='</div>';
-  return h;
-}
-function slCard(k,v,d,cls){
-  return '<div class="sl-card"><span class="sl-k">'+esc(k)+'</span>'
-    + '<span class="sl-v '+(cls||'')+'">'+v+'</span>'
-    + '<span class="sl-d">'+d+'</span></div>';
-}
 
 /* ══════════════════════════════════════════════════════════════
    장부 — 받은 돈과 쓴 돈. 맨 위에 정산 요약이 늘 보입니다.
    ══════════════════════════════════════════════════════════════ */
 
 /* 위쪽 요약 — 정산 탭을 대신합니다 */
-function bkSummary(si){
-  const f=_slFigures(si);
-  const won=function(n){ return '₩'+Math.round(n||0).toLocaleString(); };
-  const card=function(k,v,d,cls){
-    return '<div class="bk-c"><span class="bk-k">'+esc(k)+'</span>'
-      + '<span class="bk-v '+(cls||'')+'">'+v+'</span>'
-      + '<span class="bk-d">'+d+'</span></div>';
-  };
-  let h='<div class="bk-sum">';
-  h+='<div class="bk-cards">'
-    + card('받기로 한 돈', won(f.grand), (f.q?('견적 '+esc(f.q.title||'')):'견적 없음'), '')
-    + card('받은 돈', won(f.got), (f.recv>0?('아직 '+won(f.recv)):'모두 받았습니다'), 'g')
-    + card('쓴 돈', won(f.spent), (f.unpaid>0?('안 낸 돈 '+won(f.unpaid)):'모두 지불'), 'b')
-    + card('예상 이익', won(f.profit), (f.sup>0?(f.rate+'% · 부가세 뺀 기준'):'견적을 먼저'), (f.profit<0?'r':'g'))
-    + '</div>';
-  h+='<div class="bk-cash'+(f.cash<0?' minus':'')+'">'
-    + '<span class="bk-cash-k">지금 현금</span>'
-    + '<span class="bk-cash-v">'+won(f.cash)+'</span>'
-    + '<span class="bk-cash-d">'+(f.cash<0
-        ? '받은 돈보다 <b>'+won(-f.cash)+'</b> 더 썼습니다. 수금을 서두르셔야 합니다.'
-        : '받은 돈에서 쓴 돈을 뺀 금액입니다.')+'</span>'
-    + '</div>';
-  /* 자세히 보기 — 공정별·종류별 */
-  h+='<button class="bk-more" onclick="bkToggleDetail('+si+')" id="bk-more-'+si+'">'
-    + (_bkDetail?'▴ 공정별로 접기':'▾ 공정별로 자세히 보기')+'</button>';
-  if(_bkDetail) h+='<div class="bk-detail">'+bkDetailHtml(si)+'</div>';
-  h+='</div>';
-  return h;
-}
-let _bkDetail=false;
-function bkToggleDetail(si){ _bkDetail=!_bkDetail; dnRerender(); }
 
-function bkDetailHtml(si){
-  const rows=_slByProc(si);
-  const f=_slFigures(si);
-  const won=function(n){ return '₩'+Math.round(n||0).toLocaleString(); };
-  const KINDS=(typeof GB_KINDS!=='undefined')?GB_KINDS:['자재비','인건비','외주비','경비'];
-  let h='';
-  if(rows.length){
-    h+='<div class="bk-sec-t">공정별</div><div class="bk-scroll"><div class="sl-tbl">'
-      + '<div class="sl-row sl-hd"><span>공정</span><span>견적</span><span>실제</span><span>차액</span><span>돈 나간 비율</span></div>';
-    rows.forEach(function(r){
-      const diff=r.est-r.act;
-      const pct=r.est>0?Math.round(r.act/r.est*100):(r.act>0?999:0);
-      const over=(r.est>0 && r.act>r.est);
-      h+='<div class="sl-row">'
-        + '<span class="sl-c"><span class="sl-dot" style="background:'+(typeof gbColor==='function'?gbColor(r.cat):'#2f9e5e')+'"></span>'+esc(r.cat)+'</span>'
-        + '<span class="sl-c num">'+(r.est?r.est.toLocaleString():'—')+'</span>'
-        + '<span class="sl-c num">'+(r.act?r.act.toLocaleString():'—')+'</span>'
-        + '<span class="sl-c num '+(diff<0?'r':(diff>0?'g':''))+'">'+(r.est||r.act?((diff>0?'+':'')+diff.toLocaleString()):'—')+'</span>'
-        + '<span class="sl-c"><span class="sl-bar"><span class="sl-bar-f'+(over?' over':'')+'" style="width:'+Math.min(100,pct)+'%"></span></span>'
-        +   '<em class="'+(over?'r':'')+'">'+(r.est>0?(pct+'%'):(r.act>0?'견적 없음':'—'))+'</em></span>'
-        + '</div>';
-    });
-    const te=rows.reduce(function(a,r){ return a+r.est; },0);
-    const ta=rows.reduce(function(a,r){ return a+r.act; },0);
-    const td=te-ta;
-    h+='<div class="sl-row sl-ft"><span class="sl-c">합계</span>'
-      + '<span class="sl-c num">'+te.toLocaleString()+'</span>'
-      + '<span class="sl-c num">'+ta.toLocaleString()+'</span>'
-      + '<span class="sl-c num '+(td<0?'r':'g')+'">'+((td>0?'+':'')+td.toLocaleString())+'</span>'
-      + '<span class="sl-c"><em>'+(te>0?Math.round(ta/te*100)+'%':'—')+'</em></span></div>';
-    h+='</div></div>';
-  }
-  const kinds=KINDS.map(function(k){
-    return {k:k, v:(_gbList(si)||[]).reduce(function(a,e){ return a+((String(e.kind||'').trim()===k)?(_n(e.amount)||0):0); },0)};
-  }).filter(function(x){ return x.v>0; });
-  if(kinds.length){
-    const mx=Math.max.apply(null, kinds.map(function(x){ return x.v; }));
-    h+='<div class="bk-sec-t mt">어디에 썼나</div><div class="sl-kinds">'
-      + kinds.map(function(x){
-          const c=(typeof GB_KCOL!=='undefined' && GB_KCOL[x.k])?GB_KCOL[x.k]:'#8a94a6';
-          return '<div class="sl-kr"><span class="sl-kk">'+esc(x.k)+'</span>'
-            + '<span class="sl-kb"><span style="width:'+Math.round(x.v/mx*100)+'%;background:'+c+'"></span></span>'
-            + '<span class="sl-kv">'+won(x.v)+'</span>'
-            + '<span class="sl-kp">'+(f.spent>0?Math.round(x.v/f.spent*100):0)+'%</span></div>';
-        }).join('')
-      + '</div>';
-  }
-  if(!h) h='<div class="bk-none">아직 견적도 지출도 없습니다.</div>';
-  h+='<div class="bk-note">이익은 <b>부가세를 뺀 금액</b>으로 셉니다. '
-   + '「돈 나간 비율」은 공사 진행률이 아니라 <b>그 공정에 돈이 얼마나 나갔는지</b>입니다.</div>';
-  return h;
-}
+let _bkDetail=false;
+
+
+
 
 /* 장부 화면 — 요약 + 받은 돈/쓴 돈 */
-function renderBook(si){
-  const inn=_inList(si).length, spn=_gbList(si).length;
-  let h='<div class="bk-wrap">';
-  h+=bkSummary(si);
-  /* 받은 돈 / 쓴 돈 전환 */
-  h+='<div class="bk-tabs">'
-    + '<button class="bk-tab'+(_lgMode==='income'?' on':'')+'" onclick="setLgMode(\'income\')">받은 돈'
-    +   (inn?'<span class="bk-n">'+inn+'</span>':'')+'</button>'
-    + '<button class="bk-tab'+(_lgMode==='spend'?' on':'')+'" onclick="setLgMode(\'spend\')">쓴 돈'
-    +   (spn?'<span class="bk-n">'+spn+'</span>':'')+'</button>'
-    + '</div>';
-  h+= (_lgMode==='spend') ? renderLedger(si) : renderIncome(si);
-  h+='</div>';
-  return h;
-}
 
-function renderLedgerTab(){
-  const sites=S.sites||[];
-  const unit=isSelf()?'공간':'프로젝트';
-  if(!sites.length) return renderQuoteStart();
-  const multi = sites.length>1;
-  if(multi){
-    if(_ledgerTab==null) _ledgerTab='all';
-    if(_ledgerTab!=='all' && (isNaN(_ledgerTab)||_ledgerTab<0||_ledgerTab>=sites.length)) _ledgerTab='all';
-  } else { _ledgerTab=0; }
 
-  if((_lgMode==='spend'||_lgMode==='income'||_lgMode==='settle') && !canSeeSpend()) _lgMode='quote';
-  if(multi && _ledgerTab==='all' && !canSeeSpend()) _ledgerTab=0;
-  let subbar='';
-  if(multi){
-    let btns = canSeeSpend()
-      ? '<button class="lg-sub'+(_ledgerTab==='all'?' on':'')+'" onclick="setLedgerTab(\'all\')">전체 합계</button>'
-      : '';
-    sites.forEach(function(s,i){
-      const sc=SITE_COLORS[i%SITE_COLORS.length];
-      const nm=(s.name||'').trim()||('프로젝트 '+(i+1));
-      btns+='<button class="lg-sub'+(_ledgerTab===i?' on':'')+'" onclick="setLedgerTab('+i+')"><span class="lg-dot" style="background:'+sc+'"></span>'+esc(nm)+'</button>';
-    });
-    subbar='<div class="lg-subs">'+btns+'</div>';
-  }
-  const csi = multi?_ledgerTab:0;
-  const body = (multi && _ledgerTab==='all') ? renderLedgerAll()
-    : ( _lgMode==='quote' ? renderQuoteView(csi) : renderBook(csi) );
-  return '<div class="lg-page">'
-    + '<div class="lg-head"><div class="lg-title">🧾 공사대금</div>'
-    + '<div class="lg-desc">'+(canSeeSpend()
-        ? '<b>받을 돈</b>은 견적에, <b>쓴 돈</b>은 지출에 적으시면 됩니다. 견적 합계는 그대로 지출 화면의 <b>예산</b>으로 넘길 수 있습니다.'
-        : '고객에게 드릴 <b>견적서</b>를 만드는 곳입니다. 실제로 나간 돈은 대표님만 보실 수 있습니다.')+'</div></div>'
-    + subbar
-    + ((multi && _ledgerTab==='all') ? '' : lgModeBar(csi))
-    + '<div class="lg-body">'+body+'</div></div>';
-}
-function renderLedgerAll(){
-  const sites=S.sites||[];
-  let bud=0,total=0,unpaid=0;
-  sites.forEach(function(s,i){ bud+=_budget(i); total+=_gbSum(i); unpaid+=_gbUnpaid(i); });
-  const paid=Math.max(0,total-unpaid);
-  const won=function(n){ return '₩'+(n||0).toLocaleString(); };
-  const cards=sites.map(function(s,i){
-    const sc=SITE_COLORS[i%SITE_COLORS.length];
-    const nm=(s.name||'').trim()||('프로젝트 '+(i+1));
-    const t=_gbSum(i), b=_budget(i);
-    const rem = b>0 ? (b-t>=0? ('남은 ₩'+(b-t).toLocaleString()) : ('₩'+Math.abs(b-t).toLocaleString()+' 초과')) : '예산 미설정';
-    return '<button class="lg-pcard" onclick="setLedgerTab('+i+')">'
-      + '<div class="lg-pcard-h"><span class="lg-dot" style="background:'+sc+'"></span>'+esc(nm)+'</div>'
-      + '<div class="lg-pcard-t">'+won(t)+'</div>'
-      + '<div class="lg-pcard-r">'+esc(rem)+'</div></button>';
-  }).join('');
-  return '<div class="proc-panel st-panel">'
-    + '<div class="proc-panel-title"><span>전체 합계 <span style="font-size:12.5px;font-weight:400;color:#5f6b7c">— 모든 프로젝트 합산</span></span></div>'
-    + '<div class="lg-sum-grid">'
-    +   '<div class="lg-sum-c"><span>총 예산</span><b>'+won(bud)+'</b></div>'
-    +   '<div class="lg-sum-c strong"><span>총 지출</span><b>'+won(total)+'</b></div>'
-    +   '<div class="lg-sum-c"><span>지불 완료</span><b>'+won(paid)+'</b></div>'
-    +   '<div class="lg-sum-c"><span>아직 안 낸 돈</span><b>'+won(unpaid)+'</b></div>'
-    + '</div>'
-    + (bud>0?'<div class="st-total-row"><span>예산 대비</span><span class="st-total" style="color:'+(bud-total>=0?'#2f7a4d':'#DC2626')+'">'+(bud-total>=0?('남음 '+won(bud-total)):('초과 '+won(Math.abs(bud-total))))+'</span></div>':'')
-    + '<div class="lg-pcards-t">종류별</div>'
-    + (function(){
-        let all=[]; sites.forEach(function(s,i){ all=all.concat(_gbList(i)); });
-        const r=_gbKindStat(all);
-        return '<div class="gb-kinds">'+GB_KINDS.map(function(k,ki){
-          const c=r.st[k], pct=r.total>0?Math.round(c.sum/r.total*100):0;
-          return '<div class="gb-kind k'+ki+(c.sum?'':' zero')+'">'
-            + '<div class="gb-kind-k"><span class="gb-gdot" style="background:'+GB_KCOL[k]+'"></span>'+k+'<span class="gb-kind-n">'+c.n+'줄</span></div>'
-            + '<div class="gb-kind-v">₩'+c.sum.toLocaleString()+'</div>'
-            + '<div class="gb-kind-p">'+(r.total>0?(pct+'% 차지'):'아직 없음')+'</div></div>';
-        }).join('')+'</div>';
-      })()
-    + '<div class="lg-pcards-t">프로젝트별</div>'
-    + '<div class="lg-pcards">'+cards+'</div></div>';
-}
+
+
 
 
 /* ══════════ 견적서 — 공사대금 탭 안 '견적' 서브 화면 ══════════ */
@@ -10945,287 +9995,72 @@ function renderLedgerAll(){
 let _lgMode='spend';        // 'quote' | 'spend'
 let _qtCur={};              // 사이트 인덱스 → 선택한 견적 id
 
-function setLgMode(m){
-  if((m==='spend'||m==='income'||m==='settle') && !canSeeSpend()){ showToast('대표님만 보실 수 있습니다'); return; }
-  if(m==='settle') m='income';   /* 정산은 장부 위 요약으로 옮겼습니다 */
-  _lgMode=(m==='quote'||m==='spend'||m==='income')?m:'quote';
-  dnRerender();
-}
-function qtRe(){
-  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(_){}
-  setTimeout(function(){ dnRerender(); },0);
-}
-function qtSave(){ clearTimeout(window._qtTimer); window._qtTimer=setTimeout(function(){ persist(); },500); }
 
-function _qtList(si){
-  const s=S.sites[si]; if(!s) return [];
-  if(!Array.isArray(s.quotes)) s.quotes=[];
-  return s.quotes;
-}
-function _qtId(){ return 'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function _qtCurQ(si){
-  const l=_qtList(si); if(!l.length) return null;
-  const id=_qtCur[si]; let q=null;
-  l.forEach(function(x){ if(x.id===id) q=x; });
-  return q||l[l.length-1];
-}
-function _qtNum(v){ const x=parseFloat(String(v==null?'':v).replace(/[^0-9.\-]/g,'')); return isNaN(x)?0:x; }
+
+
+
+
+
+
+
 /* 재료비·노무비를 나눠 적으셨으면 그 둘을 더합니다 */
-function _qtItemAmt(it){
-  const q=_qtNum(it&&it.q);
-  if(_n(it&&it.mat) || _n(it&&it.lab)) return Math.round(q*(_n(it&&it.mat)||0)) + Math.round(q*(_n(it&&it.lab)||0));
-  return Math.round(q*_n(it&&it.p));
-}
+
 /* 세부 줄이 있으면 그 합, 없으면 한 줄에 직접 적으신 금액 */
-function _qtGroupSum(g){
-  const det=((g&&g.items)||[]).some(function(it){
-    return _n(it&&it.q) || _n(it&&it.p) || String((it&&it.n)||'').trim();
-  });
-  if(det) return ((g.items)||[]).reduce(function(a,it){ return a+_qtItemAmt(it); },0);
-  return _n(g&&g.lump)||0;
-}
-function _qtSum(q){ return ((q&&q.groups)||[]).reduce(function(a,g){ return a+_qtGroupSum(g); },0); }
+
+
 /* ── 견적 금액 쌓기 ─────────────────────────────────
    순수 공사비 → 공과잡비 → 기업이윤 → 공급가액 → 부가세 → 합계
    공과잡비·기업이윤은 사장님이 넣거나 뺄 수 있습니다. 원 단위는 버립니다. */
 const QT_OVH_DEF=2, QT_PROF_DEF=5;                       /* 처음 넣을 때 기본 비율 */
-function _qtOvhOn(q){ return !!(q && q.ovh); }           /* 기본은 안 넣음 */
-function _qtProfOn(q){ return !!(q && q.prof); }
-function _qtVatOn(q){ return !(q && q.vat===false); }    /* 부가세는 기본 넣음 */
-function _qtRate(v,def){ const n=parseFloat(v); return isFinite(n)&&n>=0 ? n : def; }
-function _qtOvhRate(q){ return _qtRate(q&&q.ovhRate, QT_OVH_DEF); }
-function _qtProfRate(q){ return _qtRate(q&&q.profRate, QT_PROF_DEF); }
-function _qtOvh(q){  return _qtOvhOn(q)  ? Math.floor(_qtSum(q)*_qtOvhRate(q)/100)  : 0; }
-function _qtProf(q){ return _qtProfOn(q) ? Math.floor(_qtSum(q)*_qtProfRate(q)/100) : 0; }
-function _qtSupply(q){ return _qtSum(q)+_qtOvh(q)+_qtProf(q); }   /* 공급가액 */
-function _qtVat(q){ return _qtVatOn(q) ? Math.floor(_qtSupply(q)*0.1) : 0; }
-function _qtGrand(q){ return _qtSupply(q)+_qtVat(q); }
+           /* 기본은 안 넣음 */
 
-function qtVatToggle(si){ const q=_qtCurQ(si); if(!q) return; q.vat=!_qtVatOn(q); qtSave(); qtRe(si); }
-function qtOvhToggle(si){
-  const q=_qtCurQ(si); if(!q) return;
-  q.ovh=!_qtOvhOn(q);
-  if(q.ovh && q.ovhRate===undefined) q.ovhRate=QT_OVH_DEF;
-  qtSave(); qtRe(si);
-}
-function qtProfToggle(si){
-  const q=_qtCurQ(si); if(!q) return;
-  q.prof=!_qtProfOn(q);
-  if(q.prof && q.profRate===undefined) q.profRate=QT_PROF_DEF;
-  qtSave(); qtRe(si);
-}
+    /* 부가세는 기본 넣음 */
+
+
+
+
+
+   /* 공급가액 */
+
+
+
+
+
+
 /* 비율은 적는 동안 화면을 다시 그리지 않습니다 (커서 유지) */
-function qtRateIn(si,which,v){
-  const q=_qtCurQ(si); if(!q) return;
-  if(which==='ovh') q.ovhRate=v; else q.profRate=v;
-  qtSave(); qtRefreshTotal(si);
-}
-function _qtCount(q){
-  return ((q&&q.groups)||[]).reduce(function(a,g){
-    const n=((g&&g.items)||[]).filter(function(it){ return String((it&&it.n)||'').trim(); }).length;
-    return a + (n || (_n(g&&g.lump)?1:0));
-  },0);
-}
-function _qtNextTitle(si){ return (_qtList(si).length+1)+'차'; }
+
+
+
 
 /* ── 견적 만들기 · 고르기 · 지우기 ── */
-function qtSel(si,id){ _qtCur[si]=id; qtRe(); }
-function qtCreate(si,cats){
-  const l=_qtList(si);
-  const st=S.sites[si]||{};
-  const q={ id:_qtId(), title:_qtNextTitle(si), date:_ymdToday(),
-            to:String(st.client||'').trim(),
-            toTel:String(st.clientTel||'').trim(),
-            toAddr:String(st.addr||'').trim(),
-            name:'', status:'작성 중', groups:[] };
-  (cats||[]).forEach(function(c){ q.groups.push({cat:c, items:[], lump:'', memo:''}); });
-  l.push(q); _qtCur[si]=q.id;
-  persist(); qtAfterChange(si); qtRe();
-}
-function _qtBlankItem(){ return {n:'',spec:'',q:'',u:'',p:'',mat:'',lab:'',note:''}; }
-function qtDup(si){
-  const q=_qtCurQ(si); if(!q) return;
-  const c=JSON.parse(JSON.stringify(q));
-  c.id=_qtId(); c.title=_qtNextTitle(si); c.date=_ymdToday(); c.status='작성 중';
-  _qtList(si).push(c); _qtCur[si]=c.id;
-  persist(); qtRe();
-}
-async function qtDel(si){
-  const q=_qtCurQ(si); if(!q) return;
-  const ok=await askConfirm((q.title||'견적')+' 견적을 지울까요?','항목 '+_qtCount(q)+'줄과 합계 ₩'+_qtGrand(q).toLocaleString()+'이 함께 없어집니다. 되돌릴 수 없습니다.','지우기',true);
-  if(!ok) return;
-  const l=_qtList(si); const i=l.indexOf(q);
-  if(i>=0) l.splice(i,1);
-  _qtCur[si]=l.length?l[l.length-1].id:'';
-  persist(); qtRe();
-}
+
+
+
+
+
 
 /* ── 머리말(견적일자·수신자·공사명·상태) ── */
-function qtUp(si,f,v){
-  if(f==='name'){ setTimeout(function(){ qtSyncSiteName(si); },0); }
-  const q=_qtCurQ(si); if(!q) return;
-  q[f]=v; qtSave();
-  if(f==='title'||f==='status'){
-    const el=document.getElementById('qt-r-t-'+si+'-'+q.id);
-    if(el && f==='title') el.firstChild && (el.firstChild.nodeValue=v);
-  }
-}
+
 
 /* ── 항목 · 그룹 ── */
-function qtItemUp(si,gi,ii,f,v){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  const it=q.groups[gi].items[ii]; if(!it) return;
-  it[f]=v; qtSave();
-  if(f==='q'||f==='p') qtRefreshAmt(si,gi,ii);
-}
-function qtFmtPrice(si,gi,ii,el){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  const it=q.groups[gi].items[ii]; if(!it) return;
-  /* 화면에 치신 값을 먼저 받습니다 */
-  const d=String((el&&el.value!==undefined)?el.value:(it.p||'')).replace(/[^0-9]/g,'');
-  it.p = d;
-  if(el) el.value = d ? Number(d).toLocaleString('ko-KR') : '';
-  qtSave(); qtRefreshAmt(si,gi,ii);
-}
-function qtRefreshAmt(si,gi,ii){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  const g=q.groups[gi];
-  const it=g.items[ii];
-  const a=_qtItemAmt(it);
-  /* 줄 금액 */
-  const el=document.getElementById('qt-amt-'+si+'-'+gi+'-'+ii);
-  if(el){ el.textContent = a ? a.toLocaleString() : '—'; el.className='d6'+(a?'':' zero'); }
-  /* 공정 소계 · 머리 금액 */
-  const box=document.getElementById('qz-g-'+si+'-'+gi);
-  if(box){
-    const sum=_qtGroupSum(g);
-    const gh=box.querySelector('.qz-gs');
-    if(gh) gh.textContent=sum.toLocaleString();
-    const ds=box.querySelector('.ds-t');
-    if(ds) ds.textContent=sum.toLocaleString();
-    const mn=box.querySelectorAll('.ds-v');
-    if(mn.length===2){
-      mn[0].textContent=_qzGroupMat(g).toLocaleString();
-      mn[1].textContent=_qzGroupLab(g).toLocaleString();
-    }
-  }
-  qtRefreshTotal(si);
-}
-function qtFootHtml(si,q){
-  const pure=_qtSum(q);
-  const ovhOn=_qtOvhOn(q), profOn=_qtProfOn(q), vatOn=_qtVatOn(q);
-  const ovh=_qtOvh(q), prof=_qtProf(q), sup=_qtSupply(q), vat=_qtVat(q), grand=_qtGrand(q);
-  const rateBox=function(which,val){
-    return '<input class="qt-rate" id="qt-rate-'+which+'-'+si+'" value="'+esc(String(val))+'" inputmode="decimal"'
-      + ' oninput="qtRateIn('+si+',\''+which+'\',this.value)" title="비율(%)">%';
-  };
-  let h='<div class="qt-foot">'
-    + '<div class="qt-fr"><span class="qt-fr-k">순수 공사비</span><span class="qt-fr-v" id="qt-fpure-'+si+'">₩'+pure.toLocaleString()+'</span></div>';
 
-  if(ovhOn){
-    h+='<div class="qt-fr"><span class="qt-fr-k">공과잡비 '+rateBox('ovh',_qtOvhRate(q))
-      + '<button class="qt-xr" onclick="qtOvhToggle('+si+')" title="빼기">✕</button></span>'
-      + '<span class="qt-fr-v" id="qt-fovh-'+si+'">₩'+ovh.toLocaleString()+'</span></div>';
-  }
-  if(profOn){
-    h+='<div class="qt-fr"><span class="qt-fr-k">기업이윤 '+rateBox('prof',_qtProfRate(q))
-      + '<button class="qt-xr" onclick="qtProfToggle('+si+')" title="빼기">✕</button></span>'
-      + '<span class="qt-fr-v" id="qt-fprof-'+si+'">₩'+prof.toLocaleString()+'</span></div>';
-  }
-  if(!ovhOn || !profOn){
-    h+='<div class="qt-fr add">'
-      + (!ovhOn ?'<button class="qt-addr" onclick="qtOvhToggle('+si+')">＋ 공과잡비</button>':'')
-      + (!profOn?'<button class="qt-addr" onclick="qtProfToggle('+si+')">＋ 기업이윤</button>':'')
-      + '</div>';
-  }
-  h+= '<div class="qt-fr"><span class="qt-fr-k">공급가액</span><span class="qt-fr-v" id="qt-fsup-'+si+'">₩'+sup.toLocaleString()+'</span></div>'
-    + '<div class="qt-fr"><span class="qt-fr-k">부가세 <button class="qt-vat'+(vatOn?' on':'')+'" onclick="qtVatToggle('+si+')" title="부가세를 넣거나 뺍니다">'+(vatOn?'10% 포함':'없음')+'</button></span>'
-    +   '<span class="qt-fr-v" id="qt-fvat-'+si+'">'+(vatOn?('₩'+vat.toLocaleString()):'—')+'</span></div>'
-    + '<div class="qt-fr grand"><span class="qt-fr-k">합계</span><span class="qt-fr-v" id="qt-ftv-'+si+'">₩'+grand.toLocaleString()+'</span></div>'
-    + '</div>';
-  return h;
-}
 
-function qtRefreshTotal(si){
-  const q=_qtCurQ(si); if(!q) return;
-  const set=function(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; };
-  const pure=_qtSum(q), ovh=_qtOvh(q), prof=_qtProf(q);
-  const sup=_qtSupply(q), vat=_qtVat(q), grand=_qtGrand(q);
-  set('qt-tot-'+si,'₩'+grand.toLocaleString());
-  set('qt-fpure-'+si,'₩'+pure.toLocaleString());
-  set('qt-fovh-'+si,'₩'+ovh.toLocaleString());
-  set('qt-fprof-'+si,'₩'+prof.toLocaleString());
-  set('qt-fsup-'+si,'₩'+sup.toLocaleString());
-  set('qt-fvat-'+si,_qtVatOn(q)?('₩'+vat.toLocaleString()):'—');
-  set('qt-ftv-'+si,'₩'+grand.toLocaleString());
-  set('qt-totn-'+si, _qtCount(q)+'개 항목 · '+((q.groups||[]).length)+'개 공정');
-  const r=document.getElementById('qt-r-v-'+si+'-'+q.id);
-  if(r) r.textContent='₩'+grand.toLocaleString();
-  qtRefreshCmp(si);
-}
-function qtRefreshCmp(si){
-  const box=document.getElementById('qt-cmp-'+si);
-  if(!box) return;
-  const tmp=document.createElement('div'); tmp.innerHTML=qtCmpHtml(si);
-  const nw=tmp.firstChild;
-  if(nw && box.parentNode) box.parentNode.replaceChild(nw,box);
-}
-function qtAddItem(si,gi){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  q.groups[gi].items.push(_qtBlankItem());
-  persist(); qtRe();
-}
-function qtDelItem(si,gi,ii){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  q.groups[gi].items.splice(ii,1);
-  if(!q.groups[gi].items.length) q.groups[gi].items.push(_qtBlankItem());
-  persist(); qtRe();
-}
-async function qtDelGroup(si,gi){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  const g=q.groups[gi];
-  const s=_qtGroupSum(g);
-  const ok=await askConfirm('‘'+(g.cat||'공정')+'’ 묶음을 뺄까요?', '이 묶음의 '+((g.items||[]).length)+'줄(₩'+s.toLocaleString()+')이 견적에서 빠집니다.','빼기',true);
-  if(!ok) return;
-  q.groups.splice(gi,1);
-  persist(); qtRe();
-}
-function qtGroupUp(si,gi,v){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  q.groups[gi].cat=v; qtSave();
-  if(_qtAutoOn(si)) _qtAutoSync(si);
-}
+
+
+
+
+
+
+
+
+
 
 /* ── 견적 합계를 지출 예산으로 ── */
-async function qtToBudget(si){
-  const q=_qtCurQ(si); if(!q) return;
-  const t=_qtGrand(q);
-  if(t<=0){ alert('합계가 0원이라 넣을 것이 없습니다. 수량과 단가를 먼저 적어 주세요.'); return; }
-  const cur=_budget(si);
-  const ok=await askConfirm('견적 합계를 공사대금 예산으로 넣을까요?',
-    (cur>0?('지금 예산 ₩'+cur.toLocaleString()+' → '):'')+'₩'+t.toLocaleString()+' 으로 바뀝니다. 지출 화면의 남은 예산이 이 금액을 기준으로 계산됩니다.','넣기',false);
-  if(!ok) return;
-  const s=S.sites[si]; if(!s) return;
-  s.budget=String(t);
-  persist(); qtRe();
-}
+
 
 /* ── 공정 선택 창 ── */
 let _qmSi=-1, _qmMode='new', _qmPick=[], _qmCustom=[];
-function _qmCats(si){
-  const out=[], seen={};
-  const push=function(c){ c=String(c||'').trim(); if(!c||seen[c]) return; seen[c]=1; out.push(c); };
-  const s=S.sites[si];
-  if(s && Array.isArray(s.procs)) s.procs.forEach(function(p){ push(typeof p==='string'?p:(p&&p.name)); });
-  GB_GUIDE.forEach(function(g){ push(g.cat); });
-  _qmCustom.forEach(push);
-  if(_qmMode==='add'){
-    const q=_qtCurQ(si); const have={};
-    ((q&&q.groups)||[]).forEach(function(g){ have[String(g.cat||'').trim()]=1; });
-    return out.filter(function(c){ return !have[c]; });
-  }
-  return out;
-}
+
 /* 이 현장 일정표에 적어 둔 작업 순서 그대로 */
 function _qmSiteProcs(si){
   const out=[], seen={};
@@ -11237,66 +10072,14 @@ function _qmSiteProcs(si){
   return out;
 }
 /* 새 견적 — 일정표를 그대로 쓸지 먼저 묻는다. 적어 둔 작업이 없으면 곧장 고르기로. */
-function qtNew(si){
-  const procs=_qmSiteProcs(si);
-  if(!procs.length){ qmOpen(si,'new'); return; }
-  qmClose(true);
-  const box=document.createElement('div');
-  box.id='qm'; box.className='qm';
-  box.innerHTML='<div class="qm-box qs-box">'
-    + '<div class="qm-h"><div class="qm-t">새 견적</div>'
-    +   '<div class="qm-d">이 현장 <b>일정표</b>에 적어 두신 작업이 <b>'+procs.length+'개</b> 있습니다. 그대로 쓰시면 순서까지 똑같이 잡힙니다.</div></div>'
-    + '<div class="qs-body"><div class="qs-list">'
-    +   procs.map(function(c,i){
-          const col=_qtDotColor(si,c);
-          return '<div class="qs-i"><span class="qs-n">'+(i+1)+'</span>'
-            + '<span class="qs-dot" style="background:'+col+'"></span>'+esc(c)+'</div>';
-        }).join('')
-    + '</div></div>'
-    + '<div class="qm-f"><div class="qm-f-d">일정표 순서 그대로 견적서 줄이 잡힙니다</div>'
-    +   '<button class="qt-b" onclick="qmClose()">닫기</button>'
-    +   '<button class="qt-b" onclick="qtNewEmpty('+si+')">빈 견적</button>'
-    +   '<button class="qt-b" onclick="qmOpen('+si+',\'new\')">골라서 쓰기</button>'
-    +   '<button class="qt-b p" onclick="qtNewFromSite('+si+')">그대로 쓰기 · '+procs.length+'개</button></div></div>';
-  box.onclick=function(ev){ if(ev.target===box) qmClose(); };
-  document.body.appendChild(box);
-}
-function qtNewFromSite(si){ const p=_qmSiteProcs(si); qmClose(true); _qtTempSi=null; qtCreate(si,p); }
-function qtNewEmpty(si){ qmClose(true); _qtTempSi=null; qtCreate(si,[]); }
-/* 일정표에서 그 작업에 칠한 색 — 견적서와 일정표를 같은 색으로 잇는다 */
-function _qtDotColor(si,cat){
-  const st=S.sites[si]; if(!st) return '#c8d0da';
-  const idx=((st.procs)||[]).findIndex(function(p){
-    return String((typeof p==='string'?p:(p&&p.name))||'').trim()===cat;
-  });
-  if(idx<0) return '#c8d0da';
-  return (st.procColors&&st.procColors[idx]) || (typeof SITE_COLORS!=='undefined' ? SITE_COLORS[idx%SITE_COLORS.length] : '#c8d0da');
-}
 
-function qmOpen(si,mode){
-  _qmSi=si; _qmMode=(mode==='add')?'add':'new'; _qmPick=[]; _qmCustom=[];
-  qmClose(true);
-  const box=document.createElement('div');
-  box.id='qm'; box.className='qm';
-  box.innerHTML='<div class="qm-box">'
-    + '<div class="qm-h"><div class="qm-t">'+(_qmMode==='add'?'공정 묶음 더하기':'새 견적 — 공정 고르기')+'</div>'
-    + '<div class="qm-d">누른 <b>순서대로</b> 견적서에 줄이 잡힙니다. 나중에 이름을 고치거나 더 넣을 수 있으니 지금은 대충 골라도 됩니다.</div></div>'
-    + '<div class="qm-b"><div class="qm-l"><div class="qm-grid" id="qm-grid"></div>'
-    +   '<div class="qm-add"><input id="qm-new" placeholder="목록에 없는 공정을 직접 적어 주세요" spellcheck="false" onkeydown="if(event.key===\'Enter\'){event.preventDefault();qmAddCustom()}">'
-    +   '<button class="qt-b" onclick="qmAddCustom()">추가</button></div></div>'
-    + '<div class="qm-side"><div class="qm-side-t">고른 순서</div><div class="qm-pick" id="qm-pick"></div></div></div>'
-    + '<div class="qm-f"><div class="qm-f-d" id="qm-f-d"></div>'
-    +   (_qmMode==='add'?'':'<button class="qt-b" onclick="qmSkip()">빈 견적으로 시작</button>')
-    +   '<button class="qt-b" onclick="qmClose()">닫기</button>'
-    +   '<button class="qt-b p" id="qm-ok" onclick="qmDone()">'+(_qmMode==='add'?'더하기':'견적 만들기')+'</button></div></div>';
-  box.onclick=function(ev){ if(ev.target===box) qmClose(); };
-  document.body.appendChild(box);
-  qmPaint();
-}
-function qmClose(keep){
-  const b=document.getElementById('qm'); if(b) b.remove();
-  if(!keep && typeof _qtDropTemp==='function') _qtDropTemp();
-}
+
+
+/* 일정표에서 그 작업에 칠한 색 — 견적서와 일정표를 같은 색으로 잇는다 */
+
+
+
+
 function qmToggle(c){
   const i=_qmPick.indexOf(c);
   if(i>=0) _qmPick.splice(i,1); else _qmPick.push(c);
@@ -11333,263 +10116,43 @@ function qmPaint(){
     : (_qmMode==='add'?'더하기':'견적 만들기');
 }
 function qmSkip(){ const si=_qmSi; qmClose(true); _qtTempSi=null; qtCreate(si,[]); }
-function qmDone(){
-  const si=_qmSi, mode=_qmMode, pick=_qmPick.slice();
-  qmClose(true); _qtTempSi=null;
-  if(mode==='add'){
-    const q=_qtCurQ(si); if(!q) return;
-    pick.forEach(function(c){ q.groups.push({cat:c, items:[_qtBlankItem()]}); });
-    persist(); qtAfterChange(si); qtRe();
-  } else {
-    qtCreate(si,pick);
-  }
-}
+
 
 /* ── 그리기 ── */
-function lgModeBar(si){
-  return '';   /* 전환은 위 탭(견적서·장부)과 장부 안 「받은 돈·쓴 돈」이 맡습니다 */
-}
-function _lgModeBarOld(si){
-  const qn=_qtList(si).length, ln=_gbList(si).length;
-  let h='<div class="lg-mode">'
-    + '<button class="lg-mode-b'+(_lgMode==='quote'?' on':'')+'" onclick="setLgMode(\'quote\')">견적'
-    +   (qn?'<span class="lg-mode-n">'+qn+'</span>':'')+'</button>';
-  if(canSeeSpend()){
-    const inn=_inList(si).length;
-    h+= '<button class="lg-mode-b'+(_lgMode==='income'?' on':'')+'" onclick="setLgMode(\'income\')">입금'
-      +   (inn?'<span class="lg-mode-n">'+inn+'</span>':'')+'</button>';
-    h+= '<button class="lg-mode-b'+(_lgMode==='spend'?' on':'')+'" onclick="setLgMode(\'spend\')">지출'
-      +   (ln?'<span class="lg-mode-n">'+ln+'</span>':'')+'</button>';
-    h+= '<button class="lg-mode-b'+(_lgMode==='settle'?' on':'')+'" onclick="setLgMode(\'settle\')">정산</button>';
-  }
-  return h+'</div>';
-}
-function qtCmpHtml(si){
-  if(!canSeeSpend()) return '';   /* 실제 지출은 대표만 봅니다 */
-  const q=_qtCurQ(si);
-  const est=_qtGrand(q), act=_gbSum(si);
-  const pct=est>0?Math.min(100,Math.round(act/est*100)):0;
-  const diff=est-act;
-  return '<div class="qt-cmp" id="qt-cmp-'+si+'">'
-    + '<div class="qt-cmp-c"><span class="qt-cmp-k">견적 합계</span><span class="qt-cmp-v">₩'+est.toLocaleString()+'</span></div>'
-    + '<div class="qt-cmp-c"><span class="qt-cmp-k">실제 지출</span><span class="qt-cmp-v">₩'+act.toLocaleString()+'</span></div>'
-    + '<div class="qt-cmp-c"><span class="qt-cmp-k">'+(diff>=0?'아직 안 쓴 돈':'견적 초과')+'</span><span class="qt-cmp-v '+(diff>=0?'g':'r')+'">₩'+Math.abs(diff).toLocaleString()+'</span></div>'
-    + '<div class="qt-cmp-bar"><div class="'+(act>est&&est>0?'over':'')+'" style="width:'+(est>0?(act>est?100:pct):0)+'%"></div></div>'
-    + '<div class="qt-cmp-c" style="min-width:0"><span class="qt-cmp-k">진행</span><span class="qt-cmp-v">'+(est>0?(Math.round(act/est*100)+'%'):'—')+'</span></div>'
-    + '</div>';
-}
+
+
+
 /* ══════════ 견적서 작업명 목록 — 공정별 (고객이 보는 단위) ══════════ */
 /* 자재명이 아니라 '무엇을 해 드리는지'를 적는 자리입니다. 자재는 지출 쪽으로 갑니다. */
 /* 공정 이름이 조금 달라도 찾아 준다 ('도장·필름' → '도장') */
-function _qtTaskBase(cat){
-  const p=_procFind(cat);
-  if(!p || !(p.tasks||[]).length) return null;
-  return {cat:p.cat, items:p.tasks};
-}
+
 /* 예전에 이 공정으로 적으신 내용을 많이 쓴 순서로 */
-function _qtUsedNames(cat){
-  const c=String(cat||'').trim(); if(!c) return [];
-  const cnt={}, unit={};
-  (S.sites||[]).forEach(function(st){
-    ((st&&st.quotes)||[]).forEach(function(q){
-      ((q&&q.groups)||[]).forEach(function(g){
-        if(procName(g.cat)!==procName(c)) return;
-        ((g.items)||[]).forEach(function(it){
-          const n=String((it&&it.n)||'').trim(); if(!n) return;
-          cnt[n]=(cnt[n]||0)+1;
-          if(!unit[n] && (it.u||'').trim()) unit[n]=it.u.trim();
-        });
-      });
-    });
-  });
-  return Object.keys(cnt)
-    .sort(function(a,b){ return cnt[b]-cnt[a]; })
-    .map(function(n){ return {n:n, u:unit[n]||''}; });
-}
+
 /* 자주 쓰신 것 먼저, 그다음 기본 목록 */
-function _qtTaskList(cat){
-  const out=[], seen={};
-  const base=_qtTaskBase(cat);
-  const baseU={};
-  if(base) base.items.forEach(function(x){ baseU[x.n]=x.u; });
-  _qtUsedNames(cat).forEach(function(x){
-    if(seen[x.n]) return;
-    seen[x.n]=1;
-    /* 기본 목록에 있는 이름이면 단위는 언제나 기본 목록을 따릅니다.
-       예전에 잘못 적어 두신 단위가 기본값을 덮어쓰지 않게 하려는 것입니다. */
-    out.push({n:x.n, u: (baseU[x.n]!==undefined ? baseU[x.n] : (x.u||'')) });
-  });
-  if(base) base.items.forEach(function(x){ if(!seen[x.n]){ seen[x.n]=1; out.push(x); } });
-  return out;
-}
+
 /* 내용 칸에서 쓸 목록 id — 공정마다 하나 */
-function _qtTaskListId(si,gi){ return 'qt-t-'+si+'-'+gi; }
+
 /* 내용을 고르면 단위를 맞춰 준다 */
-function qtNameIn(si,gi,ii,val){
-  qtItemUp(si,gi,ii,'n',val);
-  const q=_qtCurQ(si); if(!q) return;
-  const g=(q.groups||[])[gi]; if(!g) return;
-  const it=(g.items||[])[ii]; if(!it) return;
-  const v=String(val||'').trim();
-  const hit=_qtTaskList(g.cat).find(function(x){ return x.n===v; });
-  if(!hit || !hit.u) return;
-  /* 목록에서 고른 이름이면 그 이름의 단위로 맞춥니다.
-     단위를 따로 쓰시려면 고른 뒤에 단위 칸을 고치시면 됩니다. */
-  if((it.u||'').trim()===hit.u) return;
-  it.u=hit.u; qtSave();
-  const el=document.getElementById('qt-u-'+si+'-'+gi+'-'+ii);
-  if(el) el.value=hit.u;
-}
+
 
 /* ══════════════════════════════════════════════════════════════
    견적 항목 사진 — 마감재가 어떤 제품인지 보여 주는 자리
    사진을 끌어다 놓거나, 칸을 눌러 고르거나, 그 줄에서 Ctrl+V 로 붙입니다.
    저장 방식은 영수증 사진과 같습니다 (긴 변 1400px JPEG → Supabase Storage).
    ══════════════════════════════════════════════════════════════ */
-function _qtItemAt(si,gi,ii){
-  const q=_qtCurQ(si); if(!q) return null;
-  const g=(q.groups||[])[gi]; if(!g) return null;
-  return (g.items||[])[ii]||null;
-}
-function qtPhotoClick(si,gi,ii){
-  const it=_qtItemAt(si,gi,ii); if(!it) return;
-  if(it.img) qtPhotoOpen(si,gi,ii); else qtPhotoPick(si,gi,ii);
-}
-function qtPhotoPick(si,gi,ii){
-  const inp=document.createElement('input');
-  inp.type='file'; inp.accept='image/*';
-  inp.onchange=function(){ if(inp.files&&inp.files[0]) qtPhotoUp(si,gi,ii,inp.files[0]); };
-  inp.click();
-}
-async function qtPhotoUp(si,gi,ii,f){
-  const it=_qtItemAt(si,gi,ii); if(!it) return;
-  if(!TEAM||!USER){ alert('사진은 로그인한 뒤에 올릴 수 있습니다.'); return; }
-  if(!/^image\//.test(f.type||'')){ alert('사진 파일만 올릴 수 있습니다. (JPG · PNG · HEIC)'); return; }
-  if(f.size>MAX_FILE){ alert('사진 1장당 20MB까지 올릴 수 있습니다.'); return; }
-  const cell=document.getElementById('qt-img-'+si+'-'+gi+'-'+ii);
-  if(cell){ cell.classList.add('up'); cell.textContent='…'; }
-  try{
-    const small=await gbShrink(f);
-    const ext=((small.type||'').indexOf('png')>=0)?'png':'jpg';
-    const uid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));
-    const path=TEAM.id+'/'+si+'/mat_'+uid+'.'+ext;
-    const up=await fetch(SUPABASE_URL+'/storage/v1/object/files/'+path,{
-      method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+ACCESS_TOKEN,'Content-Type':small.type||'image/jpeg'},
-      body:small
-    });
-    if(!up.ok){
-      const raw=await up.text(); let why=raw;
-      try{ const j=JSON.parse(raw); why=j.message||j.error||raw; }catch(_){}
-      if(/bucket not found/i.test(why)) throw new Error('저장소(files 버킷)가 아직 만들어지지 않았습니다.');
-      if(up.status===403||/policy|permission|denied/i.test(why)) throw new Error('저장소 접근 권한이 없습니다.');
-      throw new Error(why);
-    }
-    it.img=path; qtSave();
-    qtPhotoPaint(si,gi,ii);
-    showToast('사진을 넣었습니다');
-  }catch(e){
-    if(cell){ cell.classList.remove('up'); }
-    qtPhotoPaint(si,gi,ii);
-    alert('사진을 올리지 못했습니다.\n'+((e&&e.message)||e));
-  }
-}
+
+
+
+
 /* 사진 칸만 다시 그립니다 — 화면 전체를 건드리지 않아 커서가 안 날아갑니다 */
-function qtPhotoPaint(si,gi,ii){
-  const it=_qtItemAt(si,gi,ii);
-  const cell=document.getElementById('qt-img-'+si+'-'+gi+'-'+ii);
-  if(!cell||!it) return;
-  cell.classList.remove('up');
-  if(it.img){
-    cell.classList.add('has');
-    cell.innerHTML='<img alt="자재 사진">';
-    cell.title='사진 크게 보기';
-    gbRcptUrl(it.img).then(function(u){
-      const im=cell.querySelector('img'); if(im) im.src=u;
-    }).catch(function(){});
-  } else {
-    cell.classList.remove('has');
-    cell.innerHTML='＋';
-    cell.title='사진을 끌어다 놓거나 눌러서 고르세요';
-  }
-}
-function qtPhotoDel(si,gi,ii){
-  const it=_qtItemAt(si,gi,ii); if(!it) return;
-  it.img=''; qtSave(); qtPhotoClose();
-  qtPhotoPaint(si,gi,ii);
-}
-function qtPhotoClose(){ const b=document.getElementById('qt-lb'); if(b) b.remove(); }
-function qtPhotoOpen(si,gi,ii){
-  const it=_qtItemAt(si,gi,ii);
-  if(!it||!it.img) return;
-  qtPhotoClose();
-  const box=document.createElement('div');
-  box.id='qt-lb'; box.className='gb-lb';
-  const nm=[(it.n||'').trim(),(it.spec||'').trim()].filter(Boolean).join(' · ')||'자재 사진';
-  box.innerHTML='<div class="gb-lb-t">'+esc(nm)+'</div>'
-    + '<img id="qt-lb-img" alt="자재 사진">'
-    + '<div class="gb-lb-bar"><button class="gb-lb-b" onclick="qtPhotoClose()">닫기</button>'
-    + '<button class="gb-lb-b" onclick="qtPhotoPick('+si+','+gi+','+ii+');qtPhotoClose()">사진 바꾸기</button>'
-    + '<button class="gb-lb-b d" onclick="qtPhotoDel('+si+','+gi+','+ii+')">사진 떼기</button></div>';
-  box.onclick=function(ev){ if(ev.target===box) qtPhotoClose(); };
-  document.body.appendChild(box);
-  gbRcptUrl(it.img).then(function(u){ const im=document.getElementById('qt-lb-img'); if(im) im.src=u; }).catch(function(){});
-}
+
+
+
+
 
 /* 끌어다 놓기 · 붙여넣기 — 화면을 다시 그려도 계속 먹도록 문서에 한 번만 겁니다 */
-(function qtPhotoInit(){
-  const cellOf=function(t){ return t && t.closest ? t.closest('.qc-img[data-qi]') : null; };
-  const rowOf =function(t){ return t && t.closest ? t.closest('.qc-row[data-qi]') : null; };
-  const parse =function(el){
-    const v=(el.getAttribute('data-qi')||'').split('-');
-    return v.length===3 ? {si:+v[0],gi:+v[1],ii:+v[2]} : null;
-  };
-  document.addEventListener('dragover', function(e){
-    const c=cellOf(e.target); if(!c) return;
-    e.preventDefault(); c.classList.add('drop');
-  });
-  document.addEventListener('dragleave', function(e){
-    const c=cellOf(e.target); if(c) c.classList.remove('drop');
-  });
-  document.addEventListener('drop', function(e){
-    const c=cellOf(e.target); if(!c) return;
-    e.preventDefault(); c.classList.remove('drop');
-    const p=parse(c); if(!p) return;
-    const dt=e.dataTransfer; if(!dt) return;
-    let f=null;
-    if(dt.files && dt.files.length) f=dt.files[0];
-    else if(dt.items){
-      for(let i=0;i<dt.items.length;i++){
-        if(dt.items[i].kind==='file'){ f=dt.items[i].getAsFile(); break; }
-      }
-    }
-    if(f) qtPhotoUp(p.si,p.gi,p.ii,f);
-  });
-  /* 줄 안에 커서를 두고 Ctrl+V */
-  document.addEventListener('paste', function(e){
-    const r=rowOf(document.activeElement)||rowOf(e.target);
-    if(!r) return;
-    const p=parse(r); if(!p) return;
-    const items=(e.clipboardData&&e.clipboardData.items)||[];
-    for(let i=0;i<items.length;i++){
-      if(items[i].type && items[i].type.indexOf('image')===0){
-        const f=items[i].getAsFile();
-        if(f){ e.preventDefault(); qtPhotoUp(p.si,p.gi,p.ii,f); }
-        return;
-      }
-    }
-  });
-})();
-
-
 /* 공정 색을 흰색과 섞어 파스텔로 — 카드 머리 배경에 씁니다 */
-function _qtSoft(hex,ratio){
-  const h=String(hex||'#2f9e5e').replace('#','');
-  if(h.length!==6) return '#f7f9fc';
-  const mix=function(v){ return Math.round(v+(255-v)*ratio); };
-  const p=function(n){ return n.toString(16).padStart(2,'0'); };
-  return '#'+p(mix(parseInt(h.slice(0,2),16)))+p(mix(parseInt(h.slice(2,4),16)))+p(mix(parseInt(h.slice(4,6),16)));
-}
+
 /* ══════════════════════════════════════════════════════════════
    고르기 목록 — 브라우저 기본 목록(datalist) 대신 쓰는 우리 창
    input 에 data-dl="목록id" 를 달면 눌렀을 때 이 창이 뜹니다.
@@ -11729,137 +10292,12 @@ let _qvSi = null;
    ══════════════════════════════════════════════════════════════ */
 let _gvSi=null;
 
-function gbPreviewOpen(si){
-  if(!canSeeSpend()){ showToast('지출 내역은 대표님만 보실 수 있습니다'); return; }
-  const l=_gbList(si)||[];
-  if(!l.length){ showToast('아직 적으신 지출이 없습니다'); return; }
-  _gvSi=si;
-  const box=document.createElement('div');
-  box.id='qv'; box.className='qv';
-  box.innerHTML=
-      '<div class="qv-bar">'
-    +   '<div class="qv-bar-t">이대로 나옵니다</div>'
-    +   '<div class="qv-bar-b">'
-    +     '<button class="qv-b" onclick="gbPreviewClose()">닫기</button>'
-    +     '<button class="qv-b p" onclick="gbPreviewPrint()">🖨 인쇄 · PDF</button>'
-    +   '</div>'
-    + '</div>'
-    + '<div class="qv-notice"><div class="qv-n-r warn"><span class="qv-n-i">🔒</span>'
-    +   '실제로 나간 돈이 담긴 종이입니다. 고객에게 드리는 견적서와 다릅니다.</div></div>'
-    + '<div class="qv-hint">두 손가락으로 벌리면 크게 볼 수 있습니다</div>'
-    + '<div class="qv-scroll"><div class="qv-paper" id="qv-paper">'+gbPaperHtml(si)+'</div></div>';
-  box.onclick=function(ev){ if(ev.target===box) gbPreviewClose(); };
-  document.body.appendChild(box);
-  document.body.style.overflow='hidden';
-  qvFit();
-  window.addEventListener('resize', qvFit);
-}
-function gbPreviewClose(){
-  window.removeEventListener('resize', qvFit);
-  const b=document.getElementById('qv'); if(b) b.remove();
-  document.body.style.overflow='';
-  _gvSi=null;
-}
-function gbPreviewPrint(){
-  const paper=document.getElementById('qv-paper');
-  if(!paper) return;
-  const pa=document.getElementById('print-area');
-  if(!pa){ window.print(); return; }
-  pa.innerHTML='<div class="qv-paper qv-print">'+paper.innerHTML+'</div>';
-  let ps=document.getElementById('page-size');
-  if(!ps){ ps=document.createElement('style'); ps.id='page-size'; document.head.appendChild(ps); }
-  ps.textContent='@page{size:A4 portrait;margin:10mm}';
-  document.body.classList.add('printing');
-  document.body.style.overflow='';
-  setTimeout(function(){
-    window.print();
-    setTimeout(function(){
-      document.body.classList.remove('printing');
-      if(pa) pa.innerHTML='';
-      if(document.getElementById('qv')) document.body.style.overflow='hidden';
-    },300);
-  },60);
-}
+
+
+
 
 /* ── 종이 한 장 ─────────────────────────────────── */
-function gbPaperHtml(si){
-  const st=S.sites[si]||{}, co=S.company||{};
-  const rows=(_gbList(si)||[]).slice();
-  const N=function(v){ return _n(v)||0; };
-  const won=function(n){ return '₩'+(n||0).toLocaleString(); };
-  const total=rows.reduce(function(a,e){ return a+N(e.amount); },0);
-  const paid =rows.reduce(function(a,e){ return a+(e.paid?N(e.amount):0); },0);
-  const budget=N(st.budget);
-  const KINDS=(typeof GB_KINDS!=='undefined')?GB_KINDS:['자재비','인건비','외주비','경비'];
 
-  let h='<div class="pp-t">지 출 내 역 서</div>'
-      + '<div class="pp-sub">'+esc([(st.name||'').trim(),(co.name||'').trim(),_ymdToday()].filter(Boolean).join('   |   '))+'</div>';
-
-  /* 요약 — 왼쪽 돈 흐름, 오른쪽 종류별 */
-  const left=[['예    산',budget],['지금까지 쓴 돈',total],['지 불 완 료',paid],['아직 안 낸 돈',total-paid]];
-  if(budget) left.push(['남 은  예 산',budget-total]);
-  const kinds=KINDS.map(function(k){
-    return [k, rows.reduce(function(a,e){ return a+((String(e.kind||'').trim()===k)?N(e.amount):0); },0)];
-  });
-  const etc=rows.reduce(function(a,e){ return a+(String(e.kind||'').trim()?0:N(e.amount)); },0);
-  if(etc) kinds.push(['미 분 류',etc]);
-  const rowsN=Math.max(left.length, kinds.length);
-  h+='<table class="pp-head gv-sum"><tbody>';
-  for(let i=0;i<rowsN;i++){
-    h+='<tr>'
-      + (left[i]  ? '<th>'+esc(left[i][0])+'</th><td class="num'+(i===1?' big':'')+'">'+won(left[i][1])+'</td>'
-                  : '<th class="blank"></th><td></td>')
-      + (kinds[i] ? '<th class="k2">'+esc(kinds[i][0])+'</th><td class="num">'+won(kinds[i][1])+'</td>'
-                  : '<th class="blank"></th><td></td>')
-      + '</tr>';
-  }
-  h+='</tbody></table>';
-
-  /* 본문 */
-  h+='<table class="pp-tbl gv-tbl"><thead><tr>'
-   + '<th class="g1">날짜</th><th class="g2">내 &nbsp;용</th><th class="g3">거래처</th>'
-   + '<th class="g4">종류</th><th class="g5">수량</th><th class="g6">단위</th>'
-   + '<th class="g7">금 &nbsp;액</th><th class="g8">지불</th></tr></thead><tbody>';
-
-  const order=[], byCat={};
-  rows.forEach(function(e){
-    const c=(String(e.cat||'').trim())||'미분류';
-    if(!byCat[c]){ byCat[c]=[]; order.push(c); }
-    byCat[c].push(e);
-  });
-  order.forEach(function(cat,gi){
-    const list=byCat[cat];
-    const col=(typeof gbColor==='function')?gbColor(cat):'#2f9e5e';
-    const sub=list.reduce(function(a,e){ return a+N(e.amount); },0);
-    h+='<tr class="pp-band" style="background:'+_qtSoft(col,0.84)+'">'
-      + '<td colspan="6">'+(gi+1)+'. &nbsp;'+esc(cat)+' &nbsp;<span class="gv-n">'+list.length+'줄</span></td>'
-      + '<td class="num">'+won(sub)+'</td><td></td></tr>';
-    list.forEach(function(e){
-      h+='<tr>'
-        + '<td class="ctr sm">'+esc(String(e.date||''))+'</td>'
-        + '<td class="pp-in">'+esc(String(e.name||''))+'</td>'
-        + '<td class="sm">'+esc(String(e.vendor||''))+'</td>'
-        + '<td class="ctr sm">'+esc(String(e.kind||''))+'</td>'
-        + '<td class="ctr">'+(_n(e.qty)?_n(e.qty).toLocaleString():'')+'</td>'
-        + '<td class="ctr sm">'+esc(String(e.unit||''))+'</td>'
-        + '<td class="num">'+(N(e.amount)?N(e.amount).toLocaleString():'')+'</td>'
-        + '<td class="ctr sm '+(e.paid?'ok':'no')+'">'+(e.paid?'지불함':'미지불')+'</td></tr>';
-    });
-  });
-  h+='</tbody></table>';
-
-  /* 합계 */
-  h+='<table class="pp-sum"><tbody>';
-  h+=qvSum('지 출 합 계',won(total));
-  h+=qvSum('지 불 완 료',won(paid),'sm');
-  h+=qvSum('아직 안 낸 돈',won(total-paid),'sm');
-  if(budget) h+=qvSum('예산 대비 남은 돈',won(budget-total),'big');
-  h+='</tbody></table>';
-
-  const foot=[(co.name||''),(co.tel||''),(co.addr||'')].filter(Boolean).join('    ');
-  if(foot) h+='<div class="pp-foot">'+esc(foot)+'</div>';
-  return h;
-}
 
 /* 뽑기 전에 봐 두시면 좋은 것들 */
 function _qvChecks(si,q){
@@ -11953,7 +10391,7 @@ function cnPrint(){
 /* ── 종이 ─────────────────────────────────────── */
 function cnPaperHtml(si){
   const st=S.sites[si]||{}, co=S.company||{};
-  const q=(typeof _qtCurQ==='function')?_qtCurQ(si):null;
+  const q=null;   /* 견적서를 없앴으므로 프로젝트에 적어 두신 것만 씁니다 */
   const site=String(st.name||'').trim();
   const E=function(v){ return esc(String(v||'')); };
   const box=function(v){ return v?('<span class="cn-v">'+E(v)+'</span>'):''; };
@@ -12014,7 +10452,11 @@ function cnPaperHtml(si){
 
   /* 3 공사내용정리 */
   h+=cnSec('3','공사내용정리');
-  const groups=((q&&q.groups)||[]);
+  /* 일정표에 잡아 두신 작업을 그대로 적어 드립니다 */
+  const groups=((st.procs||[]).map(function(p){
+    const n=String((typeof p==='string'?p:(p&&p.name))||'').trim();
+    return n?{cat:n, items:[], memo:''}:null;
+  }).filter(Boolean));
   let rows='';
   const nRow=Math.max(10, groups.length);
   for(let i=0;i<nRow;i++){
@@ -12024,7 +10466,7 @@ function cnPaperHtml(si){
     const memo=g?String(g.memo||'').trim():'';
     const items=g?((g.items||[]).map(function(it){ return String((it&&it.n)||'').trim(); }).filter(Boolean).join(', ')):'';
     const txt = memo || items;
-    const amt = g?_qtGroupSum(g):0;
+    const amt = 0;
     rows+='<tr><td class="cn-no">'+(i+1)+'</td>'
       + '<td class="cn-in cn-cat">'+box(cat)+'</td>'
       + '<td class="cn-in">'+box(txt)+'</td>'
@@ -12093,38 +10535,7 @@ function cnSec(n,t){
   return '<div class="cn-sec"><span class="cn-sec-n">'+esc(n)+'</span>_'+esc(t)+'</div>';
 }
 
-function qtPreviewOpen(si){
-  const q=_qtCurQ(si);
-  if(!q){ showToast('먼저 견적을 만들어 주세요'); return; }
-  _qvSi=si;
-  const box=document.createElement('div');
-  box.id='qv'; box.className='qv';
-  const ck=_qvChecks(si,q);
-  let notice='';
-  if(ck.miss.length || ck.warn.length){
-    notice='<div class="qv-notice">'
-      + (ck.miss.length ? '<div class="qv-n-r"><span class="qv-n-i">📝</span>아직 안 적으신 것 — <b>'+esc(ck.miss.join(' · '))+'</b></div>' : '')
-      + ck.warn.map(function(w){ return '<div class="qv-n-r warn"><span class="qv-n-i">⚠️</span>'+esc(w)+'</div>'; }).join('')
-      + '<div class="qv-n-x">비어 있어도 뽑을 수는 있습니다</div>'
-      + '</div>';
-  }
-  box.innerHTML=
-      '<div class="qv-bar">'
-    +   '<div class="qv-bar-t">이대로 나옵니다</div>'
-    +   '<div class="qv-bar-b">'
-    +     '<button class="qv-b" onclick="qtPreviewClose()">닫기</button>'
-    +     '<button class="qv-b p" onclick="qtPreviewPrint()">🖨 인쇄 · PDF</button>'
-    +   '</div>'
-    + '</div>'
-    + notice
-    + '<div class="qv-hint">두 손가락으로 벌리면 크게 볼 수 있습니다</div>'
-    + '<div class="qv-scroll"><div class="qv-paper" id="qv-paper">'+qtPaperHtml(si,q)+'</div></div>';
-  box.onclick=function(ev){ if(ev.target===box) qtPreviewClose(); };
-  document.body.appendChild(box);
-  document.body.style.overflow='hidden';
-  qvFit();
-  window.addEventListener('resize', qvFit);
-}
+
 /* 좁은 화면에서는 종이를 줄여 가로가 안 잘리게 합니다 */
 function qvFit(){
   const wrap=document.querySelector('.qv-scroll');
@@ -12146,128 +10557,19 @@ function qvFit(){
     paper.style.marginRight='';
   }
 }
-function qtPreviewClose(){
-  window.removeEventListener('resize', qvFit);
-  const b=document.getElementById('qv'); if(b) b.remove();
-  document.body.style.overflow='';
-  _qvSi=null;
-}
-function qtPreviewPrint(){
-  const paper=document.getElementById('qv-paper');
-  if(!paper) return;
-  const pa=document.getElementById('print-area');
-  if(!pa){ window.print(); return; }
-  pa.innerHTML='<div class="qv-paper qv-print">'+paper.innerHTML+'</div>';
-  let ps=document.getElementById('page-size');
-  if(!ps){ ps=document.createElement('style'); ps.id='page-size'; document.head.appendChild(ps); }
-  ps.textContent='@page{size:A4 portrait;margin:10mm}';
-  document.body.classList.add('printing');
-  document.body.style.overflow='';
-  setTimeout(function(){
-    window.print();
-    setTimeout(function(){
-      document.body.classList.remove('printing');
-      if(pa) pa.innerHTML='';
-      if(document.getElementById('qv')) document.body.style.overflow='hidden';
-    },300);
-  },60);
-}
+
+
 
 /* ── 종이 한 장 ─────────────────────────────────── */
 /* 일정표에서 칠한 첫 칸 ~ 마지막 칸으로 공사기간을 잡습니다.
    month 는 1~12 로 저장되어 있어 siteSpan() 이 이미 그렇게 읽습니다. */
-function _qtAutoPeriod(si){
-  if(typeof siteSpan!=='function') return '';
-  const sp=siteSpan(si);
-  if(!sp || !sp.start || !sp.end) return '';
-  const f=function(d){
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  };
-  return f(sp.start)+' ~ '+f(sp.end);
-}
+
 /* 견적에 직접 적어 두셨으면 그것을 쓰고, 비어 있으면 일정표에서 가져옵니다 */
-function qtPeriod(si,q){
-  const v=String((q&&q.period)||'').trim();
-  return v || _qtAutoPeriod(si);
-}
+
 /* 일정표 기간을 견적 칸에 넣어 둡니다 (고쳐 쓰실 수 있게) */
-function qtPullPeriod(si){
-  const v=_qtAutoPeriod(si);
-  if(!v){ showToast('일정표에 아직 칠한 날짜가 없습니다'); return; }
-  const q=_qtCurQ(si); if(!q) return;
-  q.period=v; qtSave(); qtRe(si);
-  showToast('일정표에서 가져왔습니다 — '+v);
-}
 
-function qtPaperHtml(si,q){
-  const st=S.sites[si]||{}, co=S.company||{};
-  const groups=(q.groups||[]);
-  const pure=_qtSum(q);
-  const ovhOn=_qtOvhOn(q), profOn=_qtProfOn(q), vatOn=_qtVatOn(q);
-  const ovh=_qtOvh(q), prof=_qtProf(q), sup=_qtSupply(q), vat=_qtVat(q), grand=_qtGrand(q);
-  const gname=(q.name||st.name||'').trim();
-  const won=function(n){ return '₩'+(n||0).toLocaleString(); };
-  let h='';
-  h+='<div class="pp-t">견 &nbsp;적 &nbsp;서</div>'
-   + (gname?'<div class="pp-sub">'+esc(gname)+'</div>':'');
 
-  /* 머리 정보 */
-  h+='<table class="pp-head"><tbody>'
-   + qvRow('작성일',(q.date||''),'사업자번호',(co.bizno||''))
-   + qvRow('상호',(q.to||''),'상호',(co.name||''))
-   + qvRow('현장명',gname,'사업장',(co.addr||''))
-   + qvRow('공사기간',qtPeriod(si,q),'전화번호',(co.tel||co.mgrTel||''))
-   + qvRow('합계금액',won(grand),'공사규모',(q.size||''),true)
-   + '</tbody></table>';
 
-  /* 본문 표 */
-  h+='<table class="pp-tbl"><thead><tr>'
-   + '<th class="c1">항 &nbsp;목</th><th class="c2">규 격 · 자 재</th>'
-   + '<th class="c3">단위</th><th class="c4">수량</th><th class="c5">단 &nbsp;가</th>'
-   + '<th class="c6">금 &nbsp;액</th><th class="c7">비 &nbsp;고</th></tr></thead><tbody>';
-  if(!groups.length){
-    h+='<tr><td colspan="7" class="pp-empty">아직 공정이 없습니다.</td></tr>';
-  }
-  groups.forEach(function(g,gi){
-    const col=_qtDotColor(si,g.cat)||'#2f9e5e';
-    h+='<tr class="pp-band" style="background:'+_qtSoft(col,0.84)+'">'
-      + '<td colspan="5">'+(gi+1)+'. &nbsp;'+esc(procName(g.cat||''))+'</td>'
-      + '<td class="num">'+won(_qtGroupSum(g))+'</td><td></td></tr>';
-    (g.items||[]).forEach(function(it){
-      const a=_qtItemAmt(it);
-      h+='<tr>'
-        + '<td class="pp-in">'+esc(it.n||'')+'</td>'
-        + '<td>'+esc(it.spec||'')+'</td>'
-        + '<td class="ctr">'+esc(it.u||'')+'</td>'
-        + '<td class="ctr">'+(_n(it.q)?_n(it.q).toLocaleString():'')+'</td>'
-        + '<td class="num">'+(_n(it.p)?_n(it.p).toLocaleString():'')+'</td>'
-        + '<td class="num">'+(a?a.toLocaleString():'')+'</td>'
-        + '<td>'+esc(it.note||'')+'</td></tr>';
-    });
-  });
-  h+='</tbody></table>';
-
-  /* 합계 */
-  h+='<table class="pp-sum"><tbody>';
-  h+=qvSum('합 &nbsp;계',won(pure));
-  if(ovhOn)  h+=qvSum('공과잡비 ('+_qtOvhRate(q)+'%)',won(ovh),'sm');
-  if(profOn) h+=qvSum('기업이윤 ('+_qtProfRate(q)+'%)',won(prof),'sm');
-  if(ovhOn||profOn) h+=qvSum('공 급 가 액',won(sup));
-  if(vatOn)  h+=qvSum('부 가 세 액',won(vat),'sm');
-  h+=qvSum('합 &nbsp;계',won(grand),'big');
-  h+='</tbody></table>';
-
-  /* 특기사항 */
-  const notes=String(q.notes||'').split(/[\n·]/).filter(function(x){ return x.trim(); });
-  const lines=notes.length?notes:['VAT '+(vatOn?'포함':'별도'),'견적 외 공사 별도'];
-  h+='<div class="pp-note"><div class="pp-note-t">특 기 사 항</div>'
-   + lines.map(function(t){ return '<div class="pp-note-l">· '+esc(t.trim().replace(/^[*·]\s*/,''))+'</div>'; }).join('')
-   + '</div>';
-
-  const foot=[(co.name||''),(co.tel||''),(co.addr||'')].filter(Boolean).join('    ');
-  if(foot) h+='<div class="pp-foot">'+esc(foot)+'</div>';
-  return h;
-}
 function qvRow(k1,v1,k2,v2,big){
   return '<tr>'
     + '<th>'+esc(k1)+'</th><td class="'+(big?'big':'')+'">'+esc(v1)+'</td>'
@@ -12289,126 +10591,31 @@ const QT_ORDER = [
   '바닥재','석재','유리·거울','욕실','주방·가구','조명','금속·철물',
   '사인·간판','청소·준공'
 ];
-function _qtOrderIdx(cat){
-  const n=procName(String(cat||'').trim());
-  const i=QT_ORDER.indexOf(n);
-  return i<0 ? 999 : i;
-}
+
 /* 공사 차례대로 다시 줄 세웁니다 */
-function qtSortGroups(si){
-  const q=_qtCurQ(si); if(!q||!q.groups) return;
-  q.groups.sort(function(a,b){ return _qtOrderIdx(a.cat)-_qtOrderIdx(b.cat); });
-  qtSave(); qtRe(si);
-  showToast('공사 차례대로 정리했습니다');
-}
+
 
 /* ── 어느 줄이 펼쳐져 있는지 ── */
 let _qtOpen = {};                       /* si_gi → true */
-function qtToggleRow(si,gi){
-  const k=si+'_'+gi;
-  _qtOpen[k] = !_qtOpen[k];
-  qtRe(si);
-}
-function _qtIsOpen(si,gi){ return !!_qtOpen[si+'_'+gi]; }
+
+
 
 /* ── 공정 한 줄의 금액 ──
    세부 줄이 있으면 그 합, 없으면 직접 적으신 금액 */
-function _qtRowHasDetail(g){
-  return ((g&&g.items)||[]).some(function(it){
-    return _n(it&&it.q) || _n(it&&it.p) || String((it&&it.n)||'').trim();
-  });
-}
-function _qtRowSum(g){
-  if(_qtRowHasDetail(g)) return _qtGroupSum(g);
-  return _n(g&&g.lump)||0;
-}
-function qtLumpIn(si,gi,el){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  const d=String(el.value||'').replace(/[^0-9]/g,'');
-  el.value = d ? Number(d).toLocaleString('ko-KR') : '';
-  q.groups[gi].lump = d;
-  qtSave(); qtRefreshTotal(si);
-}
-function qtMemoIn(si,gi,v){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  q.groups[gi].memo=v; qtSave();
-}
+
+
+
+
 
 /* ── 공정 고르기 (세로 목록) ─────────────────── */
 let _qpSi=null, _qpPick=[];
-function qtPickOpen(si){
-  _qpSi=si;
-  const q=_qtCurQ(si);
-  _qpPick = ((q&&q.groups)||[]).map(function(g){ return procName(g.cat||''); });
-  qmClose(true);
-  const box=document.createElement('div');
-  box.id='qm'; box.className='qm';
-  box.innerHTML='<div class="qm-box qp-box">'
-    + '<div class="qm-h"><div class="qm-t">어떤 공사를 하십니까?</div>'
-    +   '<div class="qm-d">고르시면 <b>공사 차례대로</b> 표가 만들어집니다. 나중에 더하거나 뺄 수 있습니다.</div></div>'
-    + '<div class="qp-list" id="qp-list">'+qtPickRows()+'</div>'
-    + '<div class="qm-f"><div class="qm-f-d" id="qp-n">'+_qpPick.length+'개 고름</div>'
-    +   '<button class="qt-b" onclick="qmClose()">닫기</button>'
-    +   '<button class="qt-b p" onclick="qtPickDone()">표 만들기</button></div></div>';
-  box.onclick=function(ev){ if(ev.target===box) qmClose(); };
-  document.body.appendChild(box);
-}
-function qtPickRows(){
-  const known={};
-  (typeof PROC_LIB!=='undefined'?PROC_LIB:[]).forEach(function(p){ known[p.cat]=p; });
-  return QT_ORDER.map(function(cat){
-    const p=known[cat];
-    const on=_qpPick.indexOf(cat)>=0;
-    const sub=p&&p.sub ? p.sub.slice(0,4).join(' · ') : '';
-    const col=(typeof gbColor==='function')?gbColor(cat):'#8a94a6';
-    return '<button type="button" class="qp-r'+(on?' on':'')+'" onclick="qtPickToggle(\''+gbQ(cat)+'\')">'
-      + '<span class="qp-ck">'+(on?'✓':'')+'</span>'
-      + '<span class="qp-dot" style="background:'+col+'"></span>'
-      + '<span class="qp-t">'+esc(cat)+(sub?'<em>'+esc(sub)+'</em>':'')+'</span>'
-      + '</button>';
-  }).join('');
-}
-function qtPickToggle(cat){
-  const i=_qpPick.indexOf(cat);
-  if(i>=0) _qpPick.splice(i,1); else _qpPick.push(cat);
-  const l=document.getElementById('qp-list');
-  if(l) l.innerHTML=qtPickRows();
-  const n=document.getElementById('qp-n');
-  if(n) n.textContent=_qpPick.length+'개 고름';
-}
-function qtPickDone(){
-  const si=_qpSi;
-  const q=_qtCurQ(si);
-  if(!q){ qmClose(true); qtCreate(si,_qpPick.slice()); return; }
-  const cur={}; (q.groups||[]).forEach(function(g,i){ cur[procName(g.cat||'')]=g; });
-  const next=[];
-  QT_ORDER.forEach(function(cat){
-    if(_qpPick.indexOf(cat)<0) return;
-    next.push(cur[cat] || {cat:cat, items:[], lump:'', memo:''});
-  });
-  /* 목록에 없는 공정(직접 적으신 것)은 뒤에 남깁니다 */
-  (q.groups||[]).forEach(function(g){
-    const n=procName(g.cat||'');
-    if(QT_ORDER.indexOf(n)<0) next.push(g);
-  });
-  q.groups=next;
-  _qtOpen={};
-  qmClose(true); _qtTempSi=null;
-  qtSave(); qtAfterChange(si); qtRe(si);
-  showToast(next.length+'개 공정으로 표를 만들었습니다');
-}
+
+
+
+
 
 /* ── 줄 옮기기 ───────────────────────────── */
-function qtMoveRow(si,gi,dir){
-  const q=_qtCurQ(si); if(!q||!q.groups) return;
-  const j=gi+dir;
-  if(j<0||j>=q.groups.length) return;
-  const t=q.groups[gi]; q.groups[gi]=q.groups[j]; q.groups[j]=t;
-  /* 펼침 상태도 같이 옮깁니다 */
-  const a=_qtOpen[si+'_'+gi], b=_qtOpen[si+'_'+j];
-  _qtOpen[si+'_'+gi]=b; _qtOpen[si+'_'+j]=a;
-  qtSave(); qtRe(si);
-}
+
 
 /* ── 표 그리기 ───────────────────────────── */
 /* ══════════════════════════════════════════════════════════════
@@ -12418,451 +10625,68 @@ function qtMoveRow(si,gi,dir){
 
 /* 어느 장을 보고 계신지 */
 let _qzPage = {};                      /* si → 'ap' | 'eul' | 'det' */
-function qzPage(si){ return _qzPage[si] || 'eul'; }
-function qzGo(si,p){ _qzPage[si]=p; qtRe(si); }
+
+
 
 /* 켜고 끄기 — 견적마다 따로 기억합니다 */
-function qzOn(q,k){
-  if(!q) return false;
-  if(k==='ap')  return !!q.useAp;                 /* 갑지 — 기본 꺼짐 */
-  if(k==='det') return q.useDet!==false;          /* 내역서 — 기본 켜짐 */
-  if(k==='mn')  return !!q.useMatLab;             /* 재료비·노무비 나누기 — 기본 꺼짐 */
-  return false;
-}
-function qzToggle(si,k){
-  const q=_qtCurQ(si); if(!q) return;
-  if(k==='ap')  q.useAp=!qzOn(q,'ap');
-  if(k==='det'){ q.useDet=!qzOn(q,'det'); if(!q.useDet && qzPage(si)==='det') _qzPage[si]='eul'; }
-  if(k==='mn')  q.useMatLab=!qzOn(q,'mn');
-  qtSave(); qtRe(si);
-}
+
+
 
 /* ── 금액 셈 ─────────────────────────────────
    재료비·노무비를 나눠 적으시면 그 둘을 더합니다. */
-function _qzItemMat(it){ return Math.round((_n(it&&it.q)||0)*(_n(it&&it.mat)||0)); }
-function _qzItemLab(it){ return Math.round((_n(it&&it.q)||0)*(_n(it&&it.lab)||0)); }
-function _qzHasMN(it){ return !!(_n(it&&it.mat) || _n(it&&it.lab)); }
+
+
+
 /* 항목 하나의 금액 — 나눠 적었으면 재료비+노무비, 아니면 수량×단가 */
-function _qzItemAmt(it){
-  if(_qzHasMN(it)) return _qzItemMat(it)+_qzItemLab(it);
-  return Math.round((_n(it&&it.q)||0)*(_n(it&&it.p)||0));
-}
-function _qzGroupMat(g){ return ((g&&g.items)||[]).reduce(function(a,it){ return a+_qzItemMat(it); },0); }
-function _qzGroupLab(g){ return ((g&&g.items)||[]).reduce(function(a,it){ return a+_qzItemLab(it); },0); }
+
+
+
 
 /* ── 갑지 ─────────────────────────────────── */
-function qzApHtml(si,q){
-  const co=S.company||{}, st=S.sites[si]||{};
-  const won=function(n){ return '₩'+Math.round(n||0).toLocaleString(); };
-  const grand=_qtGrand(q);
-  const nm=String(q.name||st.name||'').trim();
-  const rows=[
-    ['공 사 명', nm],
-    ['현    장', String(q.toAddr||st.addr||'').trim()],
-    ['공사규모', String(q.size||'').trim()],
-    ['공사기간', (typeof qtPeriod==='function')?qtPeriod(si,q):String(q.period||'')],
-    ['견적일자', String(q.date||'').trim()],
-  ];
-  let h='<div class="qz-ap">';
-  h+='<div class="qz-ap-h"><span class="qz-ap-k">갑지</span>'
-    + '<span class="qz-ap-d">인쇄할 때 맨 앞에 붙는 표지입니다. 화면에서는 여기서만 보입니다.</span></div>';
-  h+='<div class="qz-ap-box">'
-    + '<div class="qz-ap-t">견 &nbsp;적 &nbsp;서</div>'
-    + '<div class="qz-ap-sum"><span>합계금액</span><b>'+won(grand)+'</b>'
-    +   '<em>'+esc(_xlHangulSafe(grand))+'</em></div>'
-    + '<table class="qz-ap-tbl"><tbody>'
-    +   rows.map(function(r){
-          return '<tr><th>'+esc(r[0])+'</th><td>'+(r[1]?esc(r[1]):'<span class="qz-none">—</span>')+'</td></tr>';
-        }).join('')
-    + '</tbody></table>'
-    + '<div class="qz-ap-two">'
-    +   '<div class="qz-ap-col"><div class="qz-ap-ct">받는 분</div>'
-    +     '<div class="qz-ap-r"><span>상호</span>'+(String(q.to||'').trim()?esc(q.to):'—')+'</div>'
-    +     '<div class="qz-ap-r"><span>연락처</span>'+(String(q.toTel||'').trim()?esc(q.toTel):'—')+'</div>'
-    +   '</div>'
-    +   '<div class="qz-ap-col"><div class="qz-ap-ct">공급자</div>'
-    +     '<div class="qz-ap-r"><span>상호</span>'+(String(co.name||'').trim()?esc(co.name):'—')+'</div>'
-    +     '<div class="qz-ap-r"><span>사업자</span>'+(String(co.bizno||'').trim()?esc(co.bizno):'—')+'</div>'
-    +     '<div class="qz-ap-r"><span>전화</span>'+(String(co.tel||'').trim()?esc(co.tel):'—')+'</div>'
-    +   '</div>'
-    + '</div>';
-  const notes=String(q.notes||'').split(/[\n·]/).map(function(x){ return x.trim(); }).filter(Boolean);
-  if(notes.length){
-    h+='<div class="qz-ap-note"><div class="qz-ap-ct">특기사항</div>'
-      + notes.map(function(t){ return '<div class="qz-ap-nl">· '+esc(t)+'</div>'; }).join('')
-      + '</div>';
-  }
-  h+='</div></div>';
-  return h;
-}
+
 /* 한글 금액 — 미리보기에서 쓰던 것을 그대로 (없으면 빈 글자) */
 function _xlHangulSafe(n){
   try{ return (typeof _qtHangul==='function') ? _qtHangul(n) : _qzHangul(n); }
   catch(e){ return ''; }
 }
-function _qzHangul(n){
-  n=Math.round(n||0);
-  if(!n) return '일금 영원정';
-  const D=['','일','이','삼','사','오','육','칠','팔','구'];
-  const S4=['','십','백','천'];
-  const B=['','만','억','조'];
-  const parts=[];
-  let s=String(n);
-  while(s.length){ parts.push(s.slice(-4)); s=s.slice(0,-4); }   /* 뒤에서 4자리씩 */
-  let out='';
-  parts.forEach(function(part,bi){
-    let seg='';
-    for(let i=0;i<part.length;i++){
-      const d=+part[part.length-1-i];
-      if(d) seg = D[d]+S4[i] + seg;
-    }
-    if(seg) out = seg + B[bi] + out;
-  });
-  return '일금 '+out+'원정';
-}
+
 
 /* ── 을지 (공정별 요약) ───────────────────── */
 /* 공정은 목록에서만 고릅니다 — 직접 적을 수 없습니다 */
-function qzCatPick(si,gi){
-  const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
-  const cur=procName(q.groups[gi].cat||'');
-  const used={};
-  (q.groups||[]).forEach(function(g,i){ if(i!==gi) used[procName(g.cat||'')]=1; });
-  const box=document.createElement('div');
-  box.id='qzc'; box.className='qm';
-  box.innerHTML='<div class="qm-box qzc-box">'
-    + '<div class="qm-h"><div class="qm-t">어느 공정입니까?</div>'
-    +   '<div class="qm-d">이미 쓰고 계신 공정은 흐리게 보입니다.</div></div>'
-    + '<div class="qzc-list">'
-    +   QT_ORDER.map(function(c){
-          const on=(c===cur), dim=(!on && used[c]);
-          const col=(typeof gbColor==='function')?gbColor(c):'#8a94a6';
-          return '<button type="button" class="qzc-i'+(on?' on':'')+(dim?' dim':'')+'"'
-            + ' onclick="qzCatSet('+si+','+gi+',\''+gbQ(c)+'\')">'
-            + '<span class="qzc-dot" style="background:'+col+'"></span>'
-            + '<span class="qzc-t">'+esc(c)+'</span>'
-            + (on?'<span class="qzc-ck">✓</span>':(dim?'<em>쓰는 중</em>':''))
-            + '</button>';
-        }).join('')
-    + '</div>'
-    + '<div class="qm-f"><button class="qt-b" onclick="qzCatClose()">닫기</button></div></div>';
-  box.onclick=function(ev){ if(ev.target===box) qzCatClose(); };
-  document.body.appendChild(box);
-}
-function qzCatClose(){ const b=document.getElementById('qzc'); if(b) b.remove(); }
-function qzCatSet(si,gi,cat){
-  qtGroupUp(si,gi,cat);
-  qzCatClose();
-  qtRe(si);
-}
+
+
+
 
 /* ══════════════════════════════════════════════════════════════
    키보드로 다니기 — 마우스를 안 잡아도 됩니다.
      Enter / ↓  아래 줄        Shift+Enter / ↑  위 줄
      Tab        오른쪽 칸       Shift+Tab       왼쪽 칸
    ══════════════════════════════════════════════════════════════ */
-function qkNav(el, e){
-  const k=e.key;
-  const wrap = el.closest('.qz-tbl') || el.closest('.qz-det') || el.closest('.qz-dtbl');
-  if(!wrap) return;
 
-  /* 이 표 안에서 글자를 적을 수 있는 칸을 차례대로 모읍니다 */
-  const all=[...wrap.querySelectorAll('input:not([type=checkbox]):not([disabled])')];
-  const i=all.indexOf(el);
-  if(i<0) return;
-
-  /* 같은 자리(같은 열)의 위·아래 칸 찾기 */
-  const move=function(dir){
-    const row = el.closest('.qz-row') || el.closest('.qz-dr');
-    if(!row){ return all[i+dir] || null; }
-    const cell = el.parentElement;
-    const cols = [...row.children];
-    const ci = cols.indexOf(cell);
-    /* 형제 줄들 */
-    const rows = [...wrap.querySelectorAll('.qz-row, .qz-dr')];
-    let ri = rows.indexOf(row);
-    while(true){
-      ri += dir;
-      if(ri<0 || ri>=rows.length) return null;
-      const c = rows[ri].children[ci];
-      const inp = c && c.querySelector ? c.querySelector('input:not([disabled])') : null;
-      if(inp) return inp;
-      /* 같은 자리에 칸이 없으면(금액이 자동인 줄 등) 그 줄의 첫 칸으로 */
-      const any = rows[ri].querySelector('input:not([disabled])');
-      if(any) return any;
-    }
-  };
-
-  if(k==='Enter' && !e.isComposing){
-    e.preventDefault();
-    const t = e.shiftKey ? move(-1) : move(1);
-    if(t){ t.focus(); if(t.select) t.select(); }
-    else { el.blur(); }                       /* 마지막 줄이면 그냥 확정 */
-    return;
-  }
-  if((k==='ArrowDown'||k==='ArrowUp') && !e.isComposing){
-    /* 숫자 칸에서만 — 글자 칸은 커서 이동이 자연스럽습니다 */
-    if(!el.classList.contains('qz-lump') && !el.classList.contains('num')) return;
-    e.preventDefault();
-    const t=move(k==='ArrowDown'?1:-1);
-    if(t){ t.focus(); if(t.select) t.select(); }
-    return;
-  }
-}
 /* 칸에 들어가면 글자를 통째로 잡아 둡니다 — 바로 덮어쓰기 좋게 */
-function qkFocus(el){
-  if(el && el.select && (el.classList.contains('qz-lump') || el.classList.contains('num'))) el.select();
-}
 
-function qzEulHtml(si,q){
-  const groups=(q&&q.groups)||[];
-  if(!groups.length){
-    return '<div class="qs-empty">'
-      + '<div class="qs-empty-t">아직 공정이 없습니다</div>'
-      + '<div class="qs-empty-d">어떤 공사를 하시는지 고르시면 표가 만들어집니다.</div>'
-      + '<button class="qs-empty-b" onclick="qtPickOpen('+si+')">＋ 공정 고르기</button>'
-      + '</div>';
-  }
-  const det=qzOn(q,'det');
-  let h='<div class="qz-eul">';
-  h+='<div class="qz-tbl">'
-    + '<div class="qz-hd"><span class="z1">No</span><span class="z2">공 &nbsp;정</span>'
-    +   '<span class="z3">내용 · 비고</span><span class="z4">금 &nbsp;액</span><span class="z5"></span></div>';
-  groups.forEach(function(g,gi){
-    const cat=procName(g.cat||'')||'공정';
-    const col=_qtDotColor(si,g.cat)||'#8a94a6';
-    const hasItem=((g.items||[]).some(function(it){
-      return _n(it&&it.q)||_n(it&&it.p)||_n(it&&it.mat)||_n(it&&it.lab)||String((it&&it.n)||'').trim();
-    }));
-    const sum=_qtGroupSum(g);
-    h+='<div class="qz-row">'
-      + '<span class="z1">'+(gi+1)+'</span>'
-      + '<span class="z2"><span class="qz-dot" style="background:'+col+'"></span>'
-      +   '<button class="qz-cat" onclick="qzCatPick('+si+','+gi+')" title="공정 바꾸기">'
-      +     esc(cat)+'<em>▾</em></button></span>'
-      + '<span class="z3"><input class="qz-memo" value="'+esc(g.memo||'')+'"'
-      +   ' placeholder="예) 천장 전체 철거 후 노출천장" spellcheck="false"'
-      +   ' onkeydown="qkNav(this,event)"'
-      +   ' oninput="qtMemoIn('+si+','+gi+',this.value)"></span>'
-      + '<span class="z4">'
-      +   (hasItem
-          ? '<button class="qz-auto" onclick="qzOpenDet('+si+','+gi+')" title="내역서에서 넘어온 금액입니다">'
-            + sum.toLocaleString()+'</button>'
-          : '<input class="qz-lump" value="'+(_n(g.lump)?_n(g.lump).toLocaleString():'')+'"'
-            + ' placeholder="0" inputmode="numeric" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)"'
-            + ' oninput="qtLumpIn('+si+','+gi+',this)">')
-      + '</span>'
-      + '<span class="z5">'
-      +   (det?'<button class="qz-go" onclick="qzOpenDet('+si+','+gi+')" title="내역서에서 풀어 쓰기">내역</button>':'')
-      +   '<button class="qz-mv" onclick="qtMoveRow('+si+','+gi+',-1)" title="위로">↑</button>'
-      +   '<button class="qz-mv" onclick="qtMoveRow('+si+','+gi+',1)" title="아래로">↓</button>'
-      +   '<button class="qz-x" onclick="qtDelGroup('+si+','+gi+')" title="빼기">✕</button>'
-      + '</span></div>';
-  });
-  h+='</div>';
-  h+='<div class="qs-tools">'
-    + '<button class="qs-tool" onclick="qtPickOpen('+si+')">＋ 공정 고치기</button>'
-    + '<button class="qs-tool" onclick="qtSortGroups('+si+')">공사 차례대로</button>'
-    + '</div>';
-  h+='</div>';
-  return h;
-}
-function qzOpenDet(si,gi){
-  const q=_qtCurQ(si); if(!q) return;
-  if(!qzOn(q,'det')){ q.useDet=true; }
-  _qzPage[si]='det'; _qzFocus[si]=gi;
-  qtSave(); qtRe(si);
-  setTimeout(function(){
-    const el=document.getElementById('qz-g-'+si+'-'+gi);
-    if(el) el.scrollIntoView({block:'start',behavior:'smooth'});
-  },60);
-}
+
+
+
 let _qzFocus={};
 
 /* ── 내역서 ───────────────────────────────── */
-function qzDetHtml(si,q){
-  const groups=(q&&q.groups)||[];
-  const mn=qzOn(q,'mn');
-  if(!groups.length){
-    return '<div class="qs-empty"><div class="qs-empty-t">먼저 공정을 고르십시오</div>'
-      + '<button class="qs-empty-b" onclick="qtPickOpen('+si+')">＋ 공정 고르기</button></div>';
-  }
-  let h='<div class="qz-det">';
-  h+='<label class="qz-sw"><input type="checkbox"'+(mn?' checked':'')+' onchange="qzToggle('+si+',\'mn\')">'
-    + '<span>재료비 · 노무비 나눠 적기</span>'
-    + '<em>'+(mn?'수량 × 재료비 + 수량 × 노무비':'수량 × 단가')+'</em></label>';
-  groups.forEach(function(g,gi){
-    const cat=procName(g.cat||'')||'공정';
-    const col=_qtDotColor(si,g.cat)||'#8a94a6';
-    h+='<div class="qz-gb" id="qz-g-'+si+'-'+gi+'">'
-      + '<div class="qz-gh"><span class="qz-dot" style="background:'+col+'"></span>'
-      +   '<span class="qz-gt">'+esc(cat)+'</span>'
-      +   '<span class="qz-gs">'+_qtGroupSum(g).toLocaleString()+'</span></div>';
-    h+='<div class="qz-dtbl'+(mn?' mn':'')+'">'
-      + '<div class="qz-dh"><span class="d1">품 &nbsp;명</span><span class="d2">규 &nbsp;격</span>'
-      +   '<span class="d3">단위</span><span class="d4">수량</span>'
-      +   (mn ? '<span class="d5">재료비</span><span class="d5b">노무비</span>'
-            : '<span class="d5">단 &nbsp;가</span>')
-      +   '<span class="d6">금 &nbsp;액</span><span class="d7"></span></div>';
-    const items=(g.items||[]);
-    if(!items.length){
-      h+='<div class="qz-dnone">아직 없습니다. 아래에서 줄을 더하십시오.</div>';
-    }
-    items.forEach(function(it,ii){ h+=qzDetRow(si,gi,ii,it,mn); });
-    /* 소계 */
-    if(items.length){
-      h+='<div class="qz-dsum">'
-        + '<span class="ds-k">소 &nbsp;계</span>'
-        + (mn ? '<span class="ds-v">'+_qzGroupMat(g).toLocaleString()+'</span>'
-              + '<span class="ds-v">'+_qzGroupLab(g).toLocaleString()+'</span>' : '')
-        + '<span class="ds-t">'+_qtGroupSum(g).toLocaleString()+'</span>'
-        + '</div>';
-    }
-    h+='</div>';
-    h+='<button class="qs-add" onclick="qtAddItem('+si+','+gi+')">＋ 줄 추가</button>';
-    h+='</div>';
-  });
-  h+='</div>';
-  return h;
-}
-function qzDetRow(si,gi,ii,it,mn){
-  const a=_qzItemAmt(it);
-  const tl=_qtTaskListId(si,gi);
-  let h='<div class="qz-dr">'
-    + '<span class="d1"><input class="qs-in" data-dl="'+tl+'" value="'+esc((it&&it.n)||'')+'" placeholder="품명" spellcheck="false" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qtNameIn('+si+','+gi+','+ii+',this.value)"></span>'
-    + '<span class="d2"><input class="qs-in" value="'+esc((it&&it.spec)||'')+'" placeholder="규격·자재" spellcheck="false" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qtItemUp('+si+','+gi+','+ii+',\'spec\',this.value)"></span>'
-    + '<span class="d3"><input class="qs-in ctr" data-dl="qt-units" value="'+esc((it&&it.u)||'')+'" placeholder="단위" spellcheck="false" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qtItemUp('+si+','+gi+','+ii+',\'u\',this.value)"></span>'
-    + '<span class="d4"><input class="qs-in num" value="'+esc((it&&it.q)||'')+'" placeholder="0" inputmode="decimal" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qtItemUp('+si+','+gi+','+ii+',\'q\',this.value)"></span>';
-  if(mn){
-    h+= '<span class="d5"><input class="qs-in num" value="'+(_n(it&&it.mat)?_n(it.mat).toLocaleString():'')+'" placeholder="0" inputmode="numeric" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qzPriceIn('+si+','+gi+','+ii+',\'mat\',this)"></span>'
-      + '<span class="d5b"><input class="qs-in num" value="'+(_n(it&&it.lab)?_n(it.lab).toLocaleString():'')+'" placeholder="0" inputmode="numeric" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qzPriceIn('+si+','+gi+','+ii+',\'lab\',this)"></span>';
-  } else {
-    h+= '<span class="d5"><input class="qs-in num" value="'+(_n(it&&it.p)?_n(it.p).toLocaleString():'')+'" placeholder="0" inputmode="numeric" onkeydown="qkNav(this,event)" onfocus="qkFocus(this)" oninput="qtFmtPrice('+si+','+gi+','+ii+',this)"></span>';
-  }
-  h+= '<span class="d6'+(a?'':' zero')+'" id="qt-amt-'+si+'-'+gi+'-'+ii+'">'+(a?a.toLocaleString():'—')+'</span>'
-    + '<span class="d7"><button class="qs-x" onclick="qtDelItem('+si+','+gi+','+ii+')" title="줄 빼기">✕</button></span>'
-    + '</div>';
-  return h;
-}
-function qzPriceIn(si,gi,ii,field,el){
-  const d=String(el.value||'').replace(/[^0-9]/g,'');
-  el.value = d ? Number(d).toLocaleString('ko-KR') : '';
-  qtItemUp(si,gi,ii,field,d);
-}
+
+
+
 
 /* ── 장 넘기는 줄 ─────────────────────────── */
-function qzTabs(si,q){
-  const ap=qzOn(q,'ap'), det=qzOn(q,'det'), p=qzPage(si);
-  let h='<div class="qz-nav">';
-  h+='<div class="qz-nav-l">';
-  if(ap) h+='<button class="qz-nb'+(p==='ap'?' on':'')+'" onclick="qzGo('+si+',\'ap\')">갑지</button>';
-  h+='<button class="qz-nb'+(p==='eul'?' on':'')+'" onclick="qzGo('+si+',\'eul\')">을지</button>';
-  if(det) h+='<button class="qz-nb'+(p==='det'?' on':'')+'" onclick="qzGo('+si+',\'det\')">내역서</button>';
-  h+='</div>';
-  h+='<div class="qz-nav-r">'
-    + '<label class="qz-chk"><input type="checkbox"'+(ap?' checked':'')+' onchange="qzToggle('+si+',\'ap\')"><span>갑지</span></label>'
-    + '<label class="qz-chk"><input type="checkbox"'+(det?' checked':'')+' onchange="qzToggle('+si+',\'det\')"><span>내역서</span></label>'
-    + '</div>';
-  h+='</div>';
-  return h;
-}
+
 
 /* 견적 본문 — 세 장 중 하나 */
-function qtSheetHtml(si,q){
-  const p=qzPage(si);
-  let h=qzTabs(si,q);
-  if(p==='ap'  && qzOn(q,'ap'))  h+=qzApHtml(si,q);
-  else if(p==='det' && qzOn(q,'det')) h+=qzDetHtml(si,q);
-  else { if(p!=='eul') _qzPage[si]='eul'; h+=qzEulHtml(si,q); }
-  h+='<datalist id="qt-cats">'+QT_ORDER.map(function(c){ return '<option value="'+esc(c)+'">'; }).join('')+'</datalist>';
-  return h;
-}
+
 
 
 /* 펼친 세부 한 줄 */
-function qtDetRow(si,gi,ii,it){
-  const a=_qtItemAmt(it);
-  const tl=_qtTaskListId(si,gi);
-  return '<div class="qs-dr">'
-    + '<span class="d1"><input class="qs-in" data-dl="'+tl+'" value="'+esc((it&&it.n)||'')+'" placeholder="내용" spellcheck="false" oninput="qtNameIn('+si+','+gi+','+ii+',this.value)"></span>'
-    + '<span class="d2"><input class="qs-in" value="'+esc((it&&it.spec)||'')+'" placeholder="규격·자재" spellcheck="false" oninput="qtItemUp('+si+','+gi+','+ii+',\'spec\',this.value)"></span>'
-    + '<span class="d3"><input class="qs-in num" value="'+esc((it&&it.q)||'')+'" placeholder="0" inputmode="decimal" oninput="qtItemUp('+si+','+gi+','+ii+',\'q\',this.value)"></span>'
-    + '<span class="d4"><input id="qt-u-'+si+'-'+gi+'-'+ii+'" class="qs-in ctr" data-dl="qt-units" value="'+esc((it&&it.u)||'')+'" placeholder="단위" spellcheck="false" oninput="qtItemUp('+si+','+gi+','+ii+',\'u\',this.value)"></span>'
-    + '<span class="d5"><input class="qs-in num" value="'+(_n(it&&it.p)?_n(it.p).toLocaleString():'')+'" placeholder="단가" inputmode="numeric" oninput="qtFmtPrice('+si+','+gi+','+ii+',this)"></span>'
-    + '<span class="d6'+(a?'':' zero')+'" id="qt-amt-'+si+'-'+gi+'-'+ii+'">'+(a?a.toLocaleString():'—')+'</span>'
-    + '<span class="d7"><button class="qs-x" onclick="qtDelItem('+si+','+gi+','+ii+')" title="줄 빼기">✕</button></span>'
-    + '</div>';
-}
 
 
-function renderQuoteView(si){
-  const list=_qtList(si);
-  const s=S.sites[si]||{};
-  if(!list.length){
-    return '<div class="proc-panel st-panel">'
-      + '<div class="qt-empty">'
-      + '<div class="qt-empty-t">아직 만든 견적이 없습니다</div>'
-      + '<div class="qt-empty-d">공정을 고르면 그 순서대로 견적서 틀이 잡힙니다. 수량과 단가만 채우시면 금액·소계·합계는 알아서 계산됩니다. 다 쓰신 뒤에는 합계를 그대로 <b>공사대금 예산</b>으로 넘길 수 있습니다.</div>'
-      + '<button class="qt-b p" onclick="qtNew('+si+')">＋ 견적 만들기</button></div></div>';
-  }
-  const q=_qtCurQ(si);
-  const rail=list.map(function(x){
-    const on=(x.id===q.id);
-    return '<button class="qt-tab'+(on?' on':'')+'" onclick="qtSel('+si+',\''+gbQ(x.id)+'\')">'
-      + esc(x.title||'견적')
-      + '<em id="qt-r-v-'+si+'-'+x.id+'">₩'+_qtGrand(x).toLocaleString()+'</em>'
-      + '</button>';
-  }).join('');
 
-  const _st=S.sites[si]||{};
-  const _pn=((_st.procs)||[]).filter(function(p){ return String((typeof p==='string'?p:(p&&p.name))||'').trim(); }).length;
-  const _hasCell=Object.keys((_st.cells)||{}).length>0;
-  const nudge=(_pn>0 && !_hasCell)
-    ? '<div class="qt-nudge"><span class="qt-nudge-i">📅</span>'
-      + '<span class="qt-nudge-t">일정표에 <b>'+_pn+'개 작업</b>이 잡혔습니다. 이제 날짜만 칠하시면 됩니다.</span>'
-      + '<button class="qt-nudge-b" onclick="setTab(\''+si+'\')">날짜 잡으러 가기 →</button></div>'
-    : '';
-  const head='<div class="qt-head">'
-    + '<div class="qt-f w1"><span class="qt-f-k">견적 차수</span><input class="qt-f-in" value="'+esc(q.title||'')+'" placeholder="1차" spellcheck="false" oninput="qtUp('+si+',\'title\',this.value)"></div>'
-    + '<div class="qt-f w1"><span class="qt-f-k">견적일자</span><input class="qt-f-in" type="date" value="'+esc(q.date||'')+'" onchange="qtUp('+si+',\'date\',this.value)"></div>'
-    + '<div class="qt-f w2"><span class="qt-f-k">받는 분</span><input class="qt-f-in" value="'+esc(q.to||'')+'" placeholder="고객 성함 · 상호" spellcheck="false" oninput="qtUp('+si+',\'to\',this.value)"></div>'
-    + '<div class="qt-f w2"><span class="qt-f-k">받는 분 주소</span><input class="qt-f-in" value="'+esc(q.toAddr||'')+'" placeholder="현장 주소 (견적서에 들어갑니다)" spellcheck="false" oninput="qtUp('+si+',\'toAddr\',this.value)"></div>'
-    + '<div class="qt-f"><span class="qt-f-k">받는 분 연락처</span><input class="qt-f-in" value="'+esc(q.toTel||'')+'" placeholder="01012345678 (숫자만)" inputmode="tel" spellcheck="false" oninput="telIn(this,function(v){qtUp('+si+',\'toTel\',v);})"></div>'
-    + '<div class="qt-f w1"><span class="qt-f-k">공사규모</span><input class="qt-f-in" value="'+esc(q.size||'')+'" placeholder="100㎡ (30평)" spellcheck="false" oninput="qtUp('+si+',\'size\',this.value)"></div>'
-    + '<div class="qt-f w2"><span class="qt-f-k">공사기간'
-    +   ((typeof _qtAutoPeriod==='function' && _qtAutoPeriod(si)) ? ' <button class="qt-pull" onclick="qtPullPeriod('+si+')" title="일정표에서 가져오기">일정표에서</button>' : '')
-    +   '</span><input class="qt-f-in" value="'+esc(q.period||'')+'" placeholder="'
-    +   ((typeof _qtAutoPeriod==='function' && _qtAutoPeriod(si)) ? esc(_qtAutoPeriod(si))+' (일정표)' : '2026-07-01 ~ 2026-07-20')
-    +   '" spellcheck="false" oninput="qtUp('+si+',\'period\',this.value)"></div>'
-    + '<div class="qt-f w2"><span class="qt-f-k">공급자 상호</span><input class="qt-f-in" value="'+esc((S.company&&S.company.name)||'')+'" placeholder="우리 회사 상호" spellcheck="false" oninput="coUp(\'name\',this.value)"></div>'
-    + '<div class="qt-f w2"><span class="qt-f-k">공급자 사업자번호</span><input class="qt-f-in" value="'+esc((S.company&&S.company.bizno)||'')+'" placeholder="1234567890 (숫자만)" inputmode="numeric" spellcheck="false" oninput="bizIn(this)"></div>'
-    + '<div class="qt-f w3"><span class="qt-f-k">특기사항</span><input class="qt-f-in" value="'+esc(q.notes||'')+'" placeholder="예) VAT 별도 · 견적 외 공사 별도 (줄바꿈은 · 로 구분)" spellcheck="false" oninput="qtUp('+si+',\'notes\',this.value)"></div>'
-    + '<div class="qt-f gr"><span class="qt-f-k">공사명</span><input class="qt-f-in" value="'+esc(q.name||(s.name||''))+'" placeholder="예: ○○아파트 101동 전체 리모델링" spellcheck="false" oninput="qtUp('+si+',\'name\',this.value)"></div>'
-    + '<div class="qt-f w1"><span class="qt-f-k">상태</span><select class="qt-f-in" onchange="qtUp('+si+',\'status\',this.value);qtRe()">'
-    +   ['작성 중','발송','확정'].map(function(x){ return '<option'+((q.status||'작성 중')===x?' selected':'')+'>'+x+'</option>'; }).join('')
-    + '</select></div>'
-    + '<div class="qt-sum"><span class="qt-sum-k">견적 합계</span><span class="qt-sum-v" id="qt-tot-'+si+'">₩'+_qtGrand(q).toLocaleString()+'</span>'
-    +   '<span class="qt-sum-n" id="qt-totn-'+si+'">'+_qtCount(q)+'개 항목 · '+((q.groups||[]).length)+'개 공정</span></div>'
-    + '</div>';
 
-  const acts='<div class="qt-acts">'
-    + '<button class="qt-b p" onclick="qmOpen('+si+',\'add\')">＋ 공정 묶음</button>'
-    + '<button class="qt-b" onclick="qtPreviewOpen('+si+')">📄 미리보기</button>'
-    + '<button class="qt-b" onclick="cnOpen('+si+')">📝 상담지</button>'
-    + '<button class="qt-b" onclick="qtToSchedule('+si+')">📅 일정표에 넣기</button>'
-    + (canSeeSpend() ? '<button class="qt-b" onclick="qtToBudget('+si+')">지출 예산으로 넣기</button>' : '')
-    + '<button class="qt-b" onclick="qtDup('+si+')">이 견적 복제</button>'
-    + '<button class="qt-b d" onclick="qtDel('+si+')">견적 지우기</button>'
-    + '</div>';
-
-  const note='<div class="qt-note">금액 칸은 <b>수량 × 단가</b> 로 저절로 계산됩니다. 공정 이름은 눌러서 바로 고치실 수 있고, 묶음 오른쪽 <b>+ 줄</b> 로 항목을 늘리시면 됩니다. <b>부가세</b>는 합계 옆 단추로 넣거나 뺄 수 있습니다. 감리비·단수조정은 아직 없습니다 — 필요하시면 말씀해 주세요.</div>';
-
-  return '<div class="proc-panel st-panel" style="display:flex;flex-direction:column;gap:12px">'
-    +   '<div class="qt-bar">'+rail
-    +     '<button class="qt-newb" onclick="qtNew('+si+')">＋ 새 견적</button></div>'
-    +   nudge+head+acts+qtSheetHtml(si,q)+qtCmpHtml(si)+note
-    + '</div>';
-}
 
 /* ══════════ 프로 프로젝트 본문 패널 — 사진·자료 / 자재·구매 탭 ══════════ */
 let _projPanelTab = 'assets';   // 'assets' | 'buy'
@@ -14491,7 +12315,7 @@ function renderMain(){
   if(S.tab==='inquiries') return renderInquiriesTab();
   if(S.tab==='memo') return renderDailyNote();
   if(S.tab==='guide') return renderGuidePage();
-  if(S.tab==='ledger') return renderLedgerTab();
+
 
   // 프로젝트가 하나도 없으면 안내 화면
   if(S.sites.length===0 && S.tab!=='contacts') return renderEmptyState();
@@ -15483,8 +13307,9 @@ function renderGuideNoteBody(){
   +     '<div class="nt-dl-d">현장에 들고 나가 손으로 채우실 수 있습니다. '
   +       '<b>한글 · 워드</b> 파일은 한글에서 그대로 열리고, 칸을 늘리거나 글씨를 고치실 수 있습니다.</div></div>'
   +   '<div class="nt-dl-bs">'
-  +     '<button class="nt-dl-b" id="cn-dx" onclick="cnDocx(this)">⬇ 한글 · 워드로 받기</button>'
-  +     '<button class="nt-dl-b alt" id="cn-xl" onclick="cnXlsx(this)">⬇ 엑셀로 받기</button>'
+  +     '<button class="nt-dl-b" onclick="cnOpen(0)">📄 화면에서 보기</button>'
+  +     '<button class="nt-dl-b alt" id="cn-dx" onclick="cnDocx(this)">⬇ 한글 · 워드</button>'
+  +     '<button class="nt-dl-b alt" id="cn-xl" onclick="cnXlsx(this)">⬇ 엑셀</button>'
   +   '</div>'
   + '</div>'
   /* 왜 필요한가 */
@@ -15673,12 +13498,7 @@ function _placeSteps(startISO, steps, skip){
 }
 
 /* 선택한 템플릿을 편집용 초안으로 복사 */
-function initTplDraft(key){
-  const tpls=selfTemplates();
-  const t=tpls.find(x=>x.key===key)||tpls[0];
-  _tplPick=t.key;
-  _tplDraft=(t.steps||[]).map(s=>({name:s.name, days:s.days||1, tip:s.tip||''}));
-}
+
 function pickProcTpl(si,key){ initTplDraft(key); openProcTemplate(si); }
 /* 진입점 — 항상 새 초안(기본 템플릿·오늘 착공)으로 시작 */
 function startProcTemplate(si){ _tplDraft=null; _tplPick=null; _tplStart=tplToday(); openProcTemplate(si); }
@@ -16008,9 +13828,6 @@ const HK_LIST=[
   {k:'erase',  g:'일정표', t:'지우기',          d:'칠한 것을 지웁니다  (Erase)',       def:'e', fix:true, run:function(){ if(!ERASE_MODE) toggleErase(); showToast('지우기'); }},
   {k:'toggle', g:'일정표', t:'칠하기 ↔ 지우기',  d:'두 가지를 오갑니다  (Toggle)',      def:'t', fix:true, run:function(){ toggleErase(); showToast(ERASE_MODE?'지우기':'칠하기'); }},
   {k:'save',   g:'공통',   t:'저장',            d:'지금 바로 저장합니다  (Save)',      def:'s', fix:true, run:function(){ if(typeof manualSave==='function') manualSave(); }},
-  {k:'quote',  g:'공사대금', t:'견적 보기',      d:'공사대금 → 견적  (Quote)',          def:'q', fix:true, run:function(){ hkGoLedger('quote'); }},
-  {k:'spend',  g:'공사대금', t:'지출 보기',      d:'공사대금 → 지출  (Cost)',           def:'c', fix:true, run:function(){ hkGoLedger('spend'); }},
-  {k:'preview',g:'공사대금', t:'견적서 미리보기', d:'종이 모양으로 봅니다  (View)',       def:'v', fix:true, run:function(){ hkPreview(); }},
 
   /* ── 일정표 ── */
   {k:'prevM',  g:'일정표', t:'지난 달',          d:'일정표를 한 달 뒤로',              def:'ArrowLeft',  run:function(){ if(typeof changeMonth==='function') changeMonth(-1); }},
@@ -16020,17 +13837,9 @@ const HK_LIST=[
   {k:'print',  g:'일정표', t:'인쇄 · PDF',       d:'일정표를 인쇄합니다  (Print)',      def:'ctrl+p', run:function(){ if(typeof openPrint==='function') openPrint(); }},
 
   /* ── 공사대금 ── */
-  {k:'income', g:'공사대금', t:'입금 보기',       d:'공사대금 → 입금',                 def:'',  run:function(){ hkGoLedger('income'); }},
-  {k:'settle', g:'공사대금', t:'정산 보기',       d:'공사대금 → 정산',                 def:'',  run:function(){ hkGoLedger('settle'); }},
-  {k:'newQt',  g:'공사대금', t:'새 견적',         d:'견적을 하나 더 만듭니다',          def:'',  run:function(){ hkSi(function(si){ if(typeof qtNew==='function') qtNew(si); }); }},
-  {k:'addGrp', g:'공사대금', t:'공정 묶음 더하기', d:'견적에 공정을 넣습니다',           def:'',  run:function(){ hkSi(function(si){ if(typeof qmOpen==='function') qmOpen(si,'add'); }); }},
-  {k:'dupQt',  g:'공사대금', t:'이 견적 복제',     d:'같은 내용으로 하나 더',            def:'',  run:function(){ hkSi(function(si){ if(typeof qtDup==='function') qtDup(si); }); }},
-  {k:'toSch',  g:'공사대금', t:'일정표에 넣기',    d:'견적 공정을 일정표로',             def:'',  run:function(){ hkSi(function(si){ if(typeof qtToSchedule==='function') qtToSchedule(si); }); }},
-  {k:'gbPrev', g:'공사대금', t:'지출 미리보기',    d:'지출 내역서를 종이로',             def:'',  run:function(){ hkSi(function(si){ if(typeof gbPreviewOpen==='function') gbPreviewOpen(si); }); }},
 
   /* ── 화면 이동 ── */
   {k:'tabAll', g:'화면',   t:'프로젝트 통합',     d:'통합 화면으로',                   def:'',  run:function(){ if(typeof setTab==='function') setTab('all'); }},
-  {k:'tabMon', g:'화면',   t:'공사대금',          d:'공사대금 화면으로',                def:'',  run:function(){ if(typeof setTab==='function') setTab('ledger'); }},
   {k:'tabTeam',g:'화면',   t:'팀 관리',           d:'팀 관리 화면으로',                 def:'',  run:function(){ if(typeof setTab==='function') setTab('members'); }},
   {k:'site1',  g:'화면',   t:'첫 프로젝트',       d:'첫 번째 현장으로',                 def:'',  run:function(){ if((S.sites||[]).length && typeof setTab==='function') setTab('0'); }},
 
@@ -16090,14 +13899,8 @@ function _hkTyping(){
   if(el.isContentEditable) return true;
   return false;
 }
-function hkGoLedger(mode){
-  if(S.tab!=='ledger'){ setTab('ledger'); }
-  setTimeout(function(){ if(typeof setLgMode==='function') setLgMode(mode); }, S.tab==='ledger'?0:260);
-}
-function hkPreview(){
-  const si=(typeof _ledgerTab==='number')?_ledgerTab:0;
-  if(typeof qtPreviewOpen==='function') qtPreviewOpen(si);
-}
+
+
 
 (function hkInit(){
   document.addEventListener('keydown', function(e){
