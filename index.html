@@ -503,6 +503,8 @@ tr.divider td{height:5px;background:#dde3ed;border:none}
 .qt-b{font-size:12.5px;font-weight:700;font-family:inherit;color:#3d4654;background:#fff;border:1px solid #dfe5ee;border-radius:9px;padding:9px 13px;cursor:pointer;white-space:nowrap}
 .qt-b:hover{border-color:#2f9e5e;color:#1f6b45;background:#f7fdf9}
 .qt-b.p{background:#2f9e5e;border-color:#2f9e5e;color:#fff}
+.qt-b.d{color:#DC2626;border-color:#f0d5d2}
+.qt-b.d:hover{background:#DC2626;border-color:#DC2626;color:#fff}
 .qt-b.p:hover{background:#278a51;color:#fff}
 .qt-b:disabled,.qt-b.p:disabled,.qt-b.p:disabled:hover{background:#eef1f6;border-color:#eef1f6;color:#b0b8c4;cursor:default}
 /* 자주 쓰는 작업 고르기 모달 — 버튼(.qt-b)과 창(.qm) */
@@ -1014,18 +1016,15 @@ button.hk-x:hover{background:#fdeceb;color:#DC2626}
 .qv-paper .cn-work .cn-cat{width:38mm;text-align:center;font-weight:700}
 .qv-paper .cn-work td{height:7mm}
 
-.qv-paper .cn-taste{display:flex;border:1.2px solid #111827;margin-bottom:5mm}
-.qv-paper .cn-tcol{flex:1 1 0;min-width:0;
-  }
-.qv-paper .cn-w2{flex:1.6 1 0;
-  border-right:.7px solid #9CA3AF;display:flex;flex-direction:column}
-.qv-paper .cn-tcol:last-child{border-right:none}
-.qv-paper .cn-th{font-size:9pt;font-weight:700;text-align:center;padding:4px;border-bottom:.7px solid #9CA3AF}
-.qv-paper .cn-tcol .cn-tbl{border:none;margin:0;flex:1 1 auto}
-.qv-paper .cn-tcol .cn-tbl td{border:none;border-right:.7px solid #E5E7EB;border-bottom:.7px solid #E5E7EB}
-.qv-paper .cn-opt{text-align:center;color:#9CA3AF;font-size:8.5pt;letter-spacing:.08em;height:7mm}
-.qv-paper .cn-opt.sm{font-size:7.5pt;letter-spacing:0}
-.qv-paper .cn-memo{flex:1 1 auto;min-height:21mm}
+.qv-paper .cn-work td.cn-amt{text-align:right;font-size:9pt;font-weight:700;color:#1F6B45}
+.qv-paper .cn-work th.cn-rm{width:38mm}
+.qv-paper .cn-work td.cn-cat{font-weight:700}
+.qv-paper .cn-taste{width:100%;border-collapse:collapse;border:1.2px solid #111827;margin-bottom:5mm}
+.qv-paper .cn-taste th,.qv-paper .cn-taste td{border:.7px solid #9CA3AF;padding:5px 4px;
+  font-size:8.5pt;text-align:center;height:7mm}
+.qv-paper .cn-th{background:#fff;font-weight:700;font-size:9pt;white-space:nowrap}
+.qv-paper .cn-opt{color:#9CA3AF;letter-spacing:.06em}
+.qv-paper .cn-mm{width:30mm;vertical-align:top;padding-top:5px}
 
 .qv-paper .cn-two{display:flex;gap:5mm;margin-bottom:4mm}
 .qv-paper .cn-half{flex:1 1 0;min-width:0}
@@ -11096,7 +11095,7 @@ function qtRefreshAmt(si,gi,ii){
   /* 줄 금액 */
   const el=document.getElementById('qt-amt-'+si+'-'+gi+'-'+ii);
   if(el){ el.textContent = a ? a.toLocaleString() : '—'; el.className='d6'+(a?'':' zero'); }
-  /* 공종 소계 · 머리 금액 */
+  /* 공정 소계 · 머리 금액 */
   const box=document.getElementById('qz-g-'+si+'-'+gi);
   if(box){
     const sum=_qtGroupSum(g);
@@ -12017,47 +12016,50 @@ function cnPaperHtml(si){
   h+=cnSec('3','공사내용정리');
   const groups=((q&&q.groups)||[]);
   let rows='';
-  for(let i=0;i<10;i++){
+  const nRow=Math.max(10, groups.length);
+  for(let i=0;i<nRow;i++){
     const g=groups[i];
     const cat=g?procName(g.cat||''):'';
+    /* 적어 두신 한 줄 설명을 먼저, 없으면 세부 품명들을 이어 붙입니다 */
+    const memo=g?String(g.memo||'').trim():'';
     const items=g?((g.items||[]).map(function(it){ return String((it&&it.n)||'').trim(); }).filter(Boolean).join(', ')):'';
+    const txt = memo || items;
+    const amt = g?_qtGroupSum(g):0;
     rows+='<tr><td class="cn-no">'+(i+1)+'</td>'
       + '<td class="cn-in cn-cat">'+box(cat)+'</td>'
-      + '<td class="cn-in">'+box(items)+'</td>'
-      + '<td class="cn-in"></td></tr>';
+      + '<td class="cn-in">'+box(txt)+'</td>'
+      + '<td class="cn-in cn-amt">'+(amt?('<span class="cn-v">'+amt.toLocaleString()+'</span>'):'')+'</td></tr>';
   }
   h+='<table class="cn-tbl cn-work"><thead><tr>'
-   + '<th class="cn-no">NO</th><th>공사명</th><th>내 &nbsp;용</th><th class="cn-rm">비고</th>'
+   + '<th class="cn-no">NO</th><th>공사명</th><th>내 &nbsp;용</th><th class="cn-rm">가견적 · 비고</th>'
    + '</tr></thead><tbody>'+rows+'</tbody></table>';
 
-  /* 4 취향분석 */
+  /* 4 취향분석 — 한 표로 묶어 칸이 어긋나지 않게 */
   h+=cnSec('4','취향분석');
-  const cell3=function(arr,n){
-    let out='';
-    for(let r=0;r<n;r++){
-      out+='<tr>';
-      for(let c=0;c<3;c++){
-        const v=arr[r*3+c];
-        out+= v!==undefined ? '<td class="cn-opt">'+E(v)+'</td>' : '<td class="cn-opt"></td>';
-      }
-      out+='</tr>';
-    }
-    return out;
+  const T3=function(a,b,c){
+    return '<td class="cn-opt">'+E(a||'')+'</td>'
+         + '<td class="cn-opt">'+E(b||'')+'</td>'
+         + '<td class="cn-opt">'+E(c||'')+'</td>';
   };
-  h+='<div class="cn-taste">'
-   + '<div class="cn-tcol cn-w2"><div class="cn-th">선호스타일</div><table class="cn-tbl"><tbody>'+cell3(CN_STYLE,3)+'</tbody></table></div>'
-   + '<div class="cn-tcol"><div class="cn-th">선호색상</div><table class="cn-tbl"><tbody>'
-   +   '<tr><td class="cn-opt">'+E(CN_COLOR[0])+'</td><td class="cn-opt">'+E(CN_COLOR[1])+'</td></tr>'
-   +   '<tr><td class="cn-opt">'+E(CN_COLOR[2])+'</td><td class="cn-opt">'+E(CN_COLOR[3])+'</td></tr>'
-   +   '<tr><td class="cn-opt" colspan="2">'+E(CN_COLOR[4])+'</td></tr>'
-   +   '</tbody></table></div>'
-   + '<div class="cn-tcol"><div class="cn-th">선호소재</div><table class="cn-tbl"><tbody>'
-   +   '<tr><td class="cn-opt">'+E(CN_MAT[0])+'</td></tr>'
-   +   '<tr><td class="cn-opt">'+E(CN_MAT[1])+'</td></tr>'
-   +   '<tr><td class="cn-opt">'+E(CN_MAT[2])+' · '+E(CN_MAT[3])+'</td></tr>'
-   +   '</tbody></table></div>'
-   + '<div class="cn-tcol"><div class="cn-th">MEMO</div><div class="cn-memo"></div></div>'
-   + '</div>';
+  const T2=function(a,b){
+    return '<td class="cn-opt">'+E(a||'')+'</td>'
+         + '<td class="cn-opt">'+E(b||'')+'</td>';
+  };
+  h+='<table class="cn-tbl cn-taste"><tbody>'
+   + '<tr>'
+   +   '<th class="cn-th" colspan="3">선호스타일</th>'
+   +   '<th class="cn-th" colspan="2">선호색상</th>'
+   +   '<th class="cn-th">선호소재</th>'
+   +   '<th class="cn-th cn-mm" rowspan="4">MEMO</th>'
+   + '</tr>'
+   + '<tr>'+T3(CN_STYLE[0],CN_STYLE[1],CN_STYLE[2])+T2(CN_COLOR[0],CN_COLOR[1])
+   +   '<td class="cn-opt">'+E(CN_MAT[0])+'</td></tr>'
+   + '<tr>'+T3(CN_STYLE[3],CN_STYLE[4],CN_STYLE[5])+T2(CN_COLOR[2],CN_COLOR[3])
+   +   '<td class="cn-opt">'+E(CN_MAT[1])+'</td></tr>'
+   + '<tr>'+T3(CN_STYLE[6],CN_STYLE[7],'')
+   +   '<td class="cn-opt" colspan="2">'+E(CN_COLOR[4])+'</td>'
+   +   '<td class="cn-opt">'+E(CN_MAT[2])+'</td></tr>'
+   + '</tbody></table>';
 
   /* 5·6 */
   h+='<div class="cn-two">'
@@ -12519,8 +12521,8 @@ function _qzHangul(n){
   return '일금 '+out+'원정';
 }
 
-/* ── 을지 (공종별 요약) ───────────────────── */
-/* 공종은 목록에서만 고릅니다 — 직접 적을 수 없습니다 */
+/* ── 을지 (공정별 요약) ───────────────────── */
+/* 공정은 목록에서만 고릅니다 — 직접 적을 수 없습니다 */
 function qzCatPick(si,gi){
   const q=_qtCurQ(si); if(!q||!q.groups[gi]) return;
   const cur=procName(q.groups[gi].cat||'');
@@ -12529,8 +12531,8 @@ function qzCatPick(si,gi){
   const box=document.createElement('div');
   box.id='qzc'; box.className='qm';
   box.innerHTML='<div class="qm-box qzc-box">'
-    + '<div class="qm-h"><div class="qm-t">어느 공종입니까?</div>'
-    +   '<div class="qm-d">이미 쓰고 계신 공종은 흐리게 보입니다.</div></div>'
+    + '<div class="qm-h"><div class="qm-t">어느 공정입니까?</div>'
+    +   '<div class="qm-d">이미 쓰고 계신 공정은 흐리게 보입니다.</div></div>'
     + '<div class="qzc-list">'
     +   QT_ORDER.map(function(c){
           const on=(c===cur), dim=(!on && used[c]);
@@ -12616,18 +12618,18 @@ function qzEulHtml(si,q){
   const groups=(q&&q.groups)||[];
   if(!groups.length){
     return '<div class="qs-empty">'
-      + '<div class="qs-empty-t">아직 공종이 없습니다</div>'
+      + '<div class="qs-empty-t">아직 공정이 없습니다</div>'
       + '<div class="qs-empty-d">어떤 공사를 하시는지 고르시면 표가 만들어집니다.</div>'
-      + '<button class="qs-empty-b" onclick="qtPickOpen('+si+')">＋ 공종 고르기</button>'
+      + '<button class="qs-empty-b" onclick="qtPickOpen('+si+')">＋ 공정 고르기</button>'
       + '</div>';
   }
   const det=qzOn(q,'det');
   let h='<div class="qz-eul">';
   h+='<div class="qz-tbl">'
-    + '<div class="qz-hd"><span class="z1">No</span><span class="z2">공 &nbsp;종</span>'
+    + '<div class="qz-hd"><span class="z1">No</span><span class="z2">공 &nbsp;정</span>'
     +   '<span class="z3">내용 · 비고</span><span class="z4">금 &nbsp;액</span><span class="z5"></span></div>';
   groups.forEach(function(g,gi){
-    const cat=procName(g.cat||'')||'공종';
+    const cat=procName(g.cat||'')||'공정';
     const col=_qtDotColor(si,g.cat)||'#8a94a6';
     const hasItem=((g.items||[]).some(function(it){
       return _n(it&&it.q)||_n(it&&it.p)||_n(it&&it.mat)||_n(it&&it.lab)||String((it&&it.n)||'').trim();
@@ -12636,7 +12638,7 @@ function qzEulHtml(si,q){
     h+='<div class="qz-row">'
       + '<span class="z1">'+(gi+1)+'</span>'
       + '<span class="z2"><span class="qz-dot" style="background:'+col+'"></span>'
-      +   '<button class="qz-cat" onclick="qzCatPick('+si+','+gi+')" title="공종 바꾸기">'
+      +   '<button class="qz-cat" onclick="qzCatPick('+si+','+gi+')" title="공정 바꾸기">'
       +     esc(cat)+'<em>▾</em></button></span>'
       + '<span class="z3"><input class="qz-memo" value="'+esc(g.memo||'')+'"'
       +   ' placeholder="예) 천장 전체 철거 후 노출천장" spellcheck="false"'
@@ -12659,7 +12661,7 @@ function qzEulHtml(si,q){
   });
   h+='</div>';
   h+='<div class="qs-tools">'
-    + '<button class="qs-tool" onclick="qtPickOpen('+si+')">＋ 공종 고치기</button>'
+    + '<button class="qs-tool" onclick="qtPickOpen('+si+')">＋ 공정 고치기</button>'
     + '<button class="qs-tool" onclick="qtSortGroups('+si+')">공사 차례대로</button>'
     + '</div>';
   h+='</div>';
@@ -12682,15 +12684,15 @@ function qzDetHtml(si,q){
   const groups=(q&&q.groups)||[];
   const mn=qzOn(q,'mn');
   if(!groups.length){
-    return '<div class="qs-empty"><div class="qs-empty-t">먼저 공종을 고르십시오</div>'
-      + '<button class="qs-empty-b" onclick="qtPickOpen('+si+')">＋ 공종 고르기</button></div>';
+    return '<div class="qs-empty"><div class="qs-empty-t">먼저 공정을 고르십시오</div>'
+      + '<button class="qs-empty-b" onclick="qtPickOpen('+si+')">＋ 공정 고르기</button></div>';
   }
   let h='<div class="qz-det">';
   h+='<label class="qz-sw"><input type="checkbox"'+(mn?' checked':'')+' onchange="qzToggle('+si+',\'mn\')">'
     + '<span>재료비 · 노무비 나눠 적기</span>'
     + '<em>'+(mn?'수량 × 재료비 + 수량 × 노무비':'수량 × 단가')+'</em></label>';
   groups.forEach(function(g,gi){
-    const cat=procName(g.cat||'')||'공종';
+    const cat=procName(g.cat||'')||'공정';
     const col=_qtDotColor(si,g.cat)||'#8a94a6';
     h+='<div class="qz-gb" id="qz-g-'+si+'-'+gi+'">'
       + '<div class="qz-gh"><span class="qz-dot" style="background:'+col+'"></span>'
@@ -12850,7 +12852,7 @@ function renderQuoteView(si){
     + '<button class="qt-b" onclick="qtToSchedule('+si+')">📅 일정표에 넣기</button>'
     + (canSeeSpend() ? '<button class="qt-b" onclick="qtToBudget('+si+')">지출 예산으로 넣기</button>' : '')
     + '<button class="qt-b" onclick="qtDup('+si+')">이 견적 복제</button>'
-    + '<button class="qt-b" onclick="qtDel('+si+')">견적 지우기</button>'
+    + '<button class="qt-b d" onclick="qtDel('+si+')">견적 지우기</button>'
     + '</div>';
 
   const note='<div class="qt-note">금액 칸은 <b>수량 × 단가</b> 로 저절로 계산됩니다. 공정 이름은 눌러서 바로 고치실 수 있고, 묶음 오른쪽 <b>+ 줄</b> 로 항목을 늘리시면 됩니다. <b>부가세</b>는 합계 옆 단추로 넣거나 뺄 수 있습니다. 감리비·단수조정은 아직 없습니다 — 필요하시면 말씀해 주세요.</div>';
