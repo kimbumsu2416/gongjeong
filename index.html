@@ -1523,6 +1523,228 @@ body.printing .no-print{display:none!important}
 .pn-note-h b{color:#4F46E5}
 
 
+
+/* ══════════ 견적서 ══════════ */
+.eq-wrap{display:flex;flex-direction:column;gap:14px}
+
+/* 현장 고르기 */
+.eq-sites{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.eq-site{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;font-family:inherit;
+  color:#5f6b7c;background:#fff;border:1px solid #dfe5ee;border-radius:9px;padding:8px 13px;cursor:pointer}
+.eq-site:hover{border-color:#a8b1be}
+.eq-site.on{border-color:#12141C;background:#12141C;color:#fff}
+.eq-sdot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.eq-site em{font-style:normal;font-size:11px;font-weight:800;color:#a8b1be;
+  background:#f2f5fa;border-radius:20px;padding:1px 6px}
+.eq-site.on em{color:#fff;background:rgba(255,255,255,.18)}
+
+/* 위 줄 */
+.eq-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eq-name{font-size:20px;font-weight:800;color:#12141C;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
+.eq-name em{font-style:normal;font-size:11.5px;font-weight:700;color:#8a94a6;background:#fff;
+  border:1px solid #dfe5ee;border-radius:20px;padding:4px 10px}
+.eq-tabs{display:flex;gap:4px}
+.eq-tab{font-size:12.5px;font-weight:700;font-family:inherit;color:#8a94a6;background:#fff;
+  border:1px solid #dfe5ee;border-radius:8px;padding:7px 12px;cursor:pointer}
+.eq-tab.on{border-color:#2f9e5e;background:#f2fbf6;color:#1f6b45;font-weight:800}
+.eq-acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.eq-b{font-size:12.5px;font-weight:700;font-family:inherit;color:#3d4757;background:#fff;
+  border:1px solid #dfe5ee;border-radius:9px;padding:9px 14px;cursor:pointer;white-space:nowrap}
+.eq-b:hover{border-color:#a8b1be}
+.eq-b.p{background:#2f9e5e;border-color:#2f9e5e;color:#fff;font-weight:800}
+.eq-b.p:hover{background:#278a51}
+.eq-b.d{color:#DC2626;border-color:#f0d5d2}
+.eq-b.d:hover{background:#DC2626;border-color:#DC2626;color:#fff}
+
+/* 머리 정보 */
+.eq-fold{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-family:inherit;
+  background:#fff;border:1px solid #dfe5ee;border-radius:11px;padding:13px 16px;cursor:pointer;
+  font-size:13px;color:#5f6b7c;flex-wrap:wrap}
+.eq-fold:hover{border-color:#a8b1be}
+.eq-fold b{color:#12141C;font-weight:700}
+.eq-fold-l.dim{color:#c8d0da}
+.eq-fold-s{color:#a8b1be;font-size:12.5px}
+.eq-fold-a{margin-left:auto;font-size:11.5px;color:#c8d0da}
+.eq-head{background:#fff;border:1px solid #dfe5ee;border-radius:12px;padding:16px 18px}
+.eq-head-h{display:flex;align-items:center;margin-bottom:12px;font-size:13px;font-weight:800;color:#12141C}
+.eq-head-x{margin-left:auto;font-size:11.5px;font-weight:700;font-family:inherit;color:#8a94a6;
+  background:transparent;border:none;cursor:pointer}
+.eq-fs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.eq-f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.eq-f.w2{grid-column:span 2}
+.eq-f.w4{grid-column:1/-1}
+.eq-f span{font-size:11.5px;font-weight:700;color:#8a94a6}
+.eq-f input,.eq-f select{font-size:13.5px;padding:9px 11px;border:1.5px solid #e6ecf4;border-radius:8px;
+  font-family:inherit;color:#12141C;outline:none;background:#fff;width:100%}
+.eq-f input:focus,.eq-f select:focus{border-color:#2f9e5e}
+.eq-head-n{margin-top:12px;font-size:11.5px;color:#a8b1be}
+.eq-head-n b{color:#5f6b7c}
+
+/* 공정 표 */
+.eq-tbl{background:#fff;border:1px solid #dfe5ee;border-radius:13px;overflow:hidden}
+.eq-hd,.eq-row{display:grid;grid-template-columns:34px minmax(150px,1fr) minmax(200px,1.5fr) 140px 84px}
+.eq-hd{background:#f4f7fb;border-bottom:1.5px solid #dfe5ee}
+.eq-hd>span{font-size:11.5px;font-weight:800;color:#4a5568;padding:11px 9px}
+.eq-hd .c3{text-align:right}
+.eq-row{align-items:center;border-bottom:1px solid #f2f5fa;transition:background .12s}
+.eq-row:hover{background:#fafbfd}
+.eq-row.open{background:#f7fdf9;border-bottom:none}
+.eq-row>span{display:flex;align-items:center;min-height:48px;padding:0 8px;min-width:0}
+.eq-tw{width:24px;height:24px;border:none;background:transparent;cursor:pointer;color:#a8b1be;
+  font-size:11px;font-family:inherit;border-radius:6px}
+.eq-tw:hover{background:#eef1f6;color:#12141C}
+.eq-row .c1{gap:7px}
+.eq-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.eq-cat{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:6px;font-size:14.5px;
+  font-weight:700;color:#12141C;font-family:inherit;text-align:left;background:transparent;
+  border:1.5px solid transparent;border-radius:7px;padding:6px 8px;cursor:pointer}
+.eq-cat:hover{background:#f2f5fa;border-color:#e6ecf4}
+.eq-cat em{margin-left:auto;font-style:normal;font-size:10px;color:#c8d0da}
+.eq-n{font-size:10.5px;font-weight:800;color:#8a94a6;background:#eef1f6;border-radius:20px;padding:2px 7px}
+.eq-memo{width:100%;font-size:13.5px;color:#3d4757;border:1.5px solid transparent;border-radius:7px;
+  padding:8px 10px;font-family:inherit;background:transparent;outline:none}
+.eq-memo:hover{background:#f8fafc}
+.eq-memo:focus{border-color:#2f9e5e;background:#fff}
+.eq-memo::placeholder{color:#c8d0da}
+.eq-row .c3{justify-content:flex-end}
+.eq-lump{width:100%;text-align:right;font-size:15.5px;font-weight:800;color:#12141C;
+  border:1.5px solid transparent;border-radius:7px;padding:8px 10px;font-family:inherit;
+  background:transparent;outline:none;font-variant-numeric:tabular-nums}
+.eq-lump:hover{background:#f8fafc}
+.eq-lump:focus{border-color:#2f9e5e;background:#fff}
+.eq-lump::placeholder{color:#c8d0da;font-weight:400}
+.eq-auto{font-size:15.5px;font-weight:800;color:#1f6b45;padding:8px 10px;font-family:inherit;
+  background:transparent;border:none;cursor:pointer;font-variant-numeric:tabular-nums;border-radius:7px}
+.eq-auto:hover{background:#eef7f2}
+.eq-row .c4{gap:1px;justify-content:flex-end}
+.eq-mv,.eq-x{width:23px;height:23px;border:none;background:transparent;color:#ccd4de;font-size:11px;
+  cursor:pointer;font-family:inherit;border-radius:6px;flex:0 0 auto}
+.eq-mv:hover{background:#eef1f6;color:#12141C}
+.eq-x:hover{background:#fdeceb;color:#DC2626}
+.eq-brk{display:flex;gap:12px;padding:0 8px 9px 200px;border-bottom:1px solid #f2f5fa;
+  font-size:11px;color:#a8b1be;flex-wrap:wrap}
+.eq-row.open + .eq-brk{border-bottom:none;background:#f7fdf9;padding-bottom:6px}
+
+/* 펼친 세부 */
+.eq-det{background:#f7fdf9;border-bottom:1px solid #f2f5fa;padding:4px 14px 14px 40px}
+.eq-opt{display:flex;gap:18px;flex-wrap:wrap;padding:6px 0 10px}
+.eq-oc{display:flex;align-items:center;gap:6px;font-size:12px;color:#5f6b7c;cursor:pointer}
+.eq-oc input[type=checkbox]{width:15px;height:15px;accent-color:#2f9e5e;cursor:pointer}
+.eq-or{width:44px;text-align:center;font-size:12px;padding:4px 5px;border:1px solid #dfe5ee;
+  border-radius:6px;font-family:inherit;outline:none}
+.eq-or:focus{border-color:#2f9e5e}
+.eq-oc em{font-style:normal;font-size:11px;color:#a8b1be}
+.eq-dtbl{overflow-x:auto}
+.eq-dh,.eq-dr,.eq-dsum,.eq-dadd{display:grid;
+  grid-template-columns:minmax(120px,1.3fr) minmax(96px,1fr) 54px 52px 92px 100px 26px;
+  align-items:center;gap:2px;min-width:560px}
+.eq-dtbl.mn .eq-dh,.eq-dtbl.mn .eq-dr,.eq-dtbl.mn .eq-dsum,.eq-dtbl.mn .eq-dadd{
+  grid-template-columns:minmax(110px,1.2fr) minmax(88px,.9fr) 50px 48px 84px 84px 84px 84px 96px 26px;
+  min-width:840px}
+.eq-dh>span{font-size:10.5px;font-weight:800;color:#8a94a6;padding:6px 5px 5px;
+  border-bottom:1px solid #eef1f6;white-space:nowrap}
+.eq-dh .d3,.eq-dh .d4{text-align:center}
+.eq-dh .d5,.eq-dh .d5b,.eq-dh .d6,.eq-dh .d6b,.eq-dh .d7{text-align:right}
+.eq-dr>span{display:flex;align-items:center;min-height:36px;min-width:0}
+.eq-in{width:100%;font-size:13px;padding:7px 9px;border:1.5px solid #e6ecf4;border-radius:7px;
+  font-family:inherit;color:#12141C;outline:none;background:#fff}
+.eq-in:focus{border-color:#2f9e5e;box-shadow:0 0 0 2px rgba(47,158,94,.12)}
+.eq-in.num{text-align:right;font-variant-numeric:tabular-nums}
+.eq-in.ctr{text-align:center}
+.eq-in::placeholder{color:#c8d0da}
+.eq-dr .d6,.eq-dr .d6b,.eq-dr .d7{justify-content:flex-end;padding-right:6px;font-variant-numeric:tabular-nums}
+.eq-dr .sm{font-size:12px;color:#8a94a6}
+.eq-dr .d7{font-size:13.5px;font-weight:700;color:#12141C}
+.eq-dnone{padding:14px 0;text-align:center;font-size:12.5px;color:#c8d0da}
+.eq-dsum{border-top:1.5px solid #e6ecf4;margin-top:4px;padding-top:8px}
+.eq-dsum .ds-k{grid-column:1/4;font-size:12.5px;font-weight:800;color:#8a94a6;padding-left:6px}
+.eq-dsum .ds-v,.eq-dsum .ds-t{justify-content:flex-end;padding-right:6px;display:flex;align-items:center;
+  font-variant-numeric:tabular-nums}
+.eq-dsum .ds-v{font-size:12.5px;font-weight:700;color:#5f6b7c}
+.eq-dsum .ds-t{font-size:14px;font-weight:800;color:#12141C}
+.eq-dadd{padding-top:6px;font-size:11.5px;color:#8a94a6}
+.eq-dadd>span:first-child{grid-column:1/4;padding-left:6px}
+.eq-dadd b{color:#5f6b7c;font-weight:700}
+.eq-dadd .ds-t2{grid-column:-2/-1;justify-content:flex-end;display:flex;padding-right:6px;
+  font-size:14.5px;font-weight:800;color:#1f6b45;font-variant-numeric:tabular-nums}
+.eq-add{margin-top:9px;font-size:12.5px;font-weight:800;font-family:inherit;color:#1f6b45;
+  background:#fff;border:1px dashed #cfe9db;border-radius:8px;padding:8px 15px;cursor:pointer}
+.eq-add:hover{background:#eef7f2;border-style:solid}
+
+/* 아래 단추 */
+.eq-tools{display:flex;gap:8px;flex-wrap:wrap}
+.eq-tool{font-size:12.5px;font-weight:700;font-family:inherit;color:#3d4757;background:#fff;
+  border:1px solid #dfe5ee;border-radius:9px;padding:9px 14px;cursor:pointer}
+.eq-tool:hover{border-color:#2f9e5e;color:#1f6b45;background:#f7fdf9}
+
+/* 합계 */
+.eq-sum{background:#fff;border:1px solid #dfe5ee;border-radius:13px;overflow:hidden;max-width:520px;margin-left:auto}
+.eq-sr{display:flex;align-items:center;padding:12px 18px;font-size:13.5px;border-bottom:1px solid #f4f7fb}
+.eq-sr:last-child{border-bottom:none}
+.eq-sr .k{color:#5f6b7c;display:flex;align-items:center;gap:8px}
+.eq-sr .v{margin-left:auto;font-weight:700;color:#12141C;font-variant-numeric:tabular-nums}
+.eq-sr.opt{background:#fafbfd}
+.eq-sr.opt.off .v{color:#c8d0da}
+.eq-sr.mid{background:#f4f7fb;font-weight:700}
+.eq-sr.mid .k{color:#12141C;font-weight:700}
+.eq-sr.tot{background:#12141C;padding:16px 18px}
+.eq-sr.tot .k{color:rgba(255,255,255,.65);font-weight:700}
+.eq-sr.tot .v{color:#fff;font-size:22px;font-weight:800}
+.eq-chk{display:flex;align-items:center;gap:6px;cursor:pointer}
+.eq-chk input{width:15px;height:15px;accent-color:#2f9e5e;cursor:pointer}
+.eq-rate{width:44px;text-align:center;font-size:12.5px;padding:4px 5px;border:1px solid #dfe5ee;
+  border-radius:6px;font-family:inherit;outline:none}
+.eq-rate:focus{border-color:#2f9e5e}
+.eq-sr em{font-style:normal;font-size:11.5px;color:#a8b1be}
+.eq-adjk{font-weight:700;color:#5f6b7c}
+.eq-adjn{font-size:11px;color:#c8d0da}
+.eq-adj{width:130px;text-align:right;font-size:13.5px;font-weight:700;padding:6px 9px;
+  border:1.5px solid #e6ecf4;border-radius:7px;font-family:inherit;outline:none;
+  font-variant-numeric:tabular-nums}
+.eq-adj:focus{border-color:#2f9e5e}
+.eq-cfg{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:#5f6b7c}
+
+/* 아직 없을 때 */
+.eq-none{background:#fff;border:1px dashed #dfe5ee;border-radius:14px;padding:52px 20px;text-align:center}
+.eq-none.sm{padding:34px 20px}
+.eq-none-t{font-size:16.5px;font-weight:800;color:#12141C;margin-bottom:8px}
+.eq-none-d{font-size:13px;color:#8a94a6;margin-bottom:20px;line-height:1.8}
+.eq-none-b{font-size:14px;font-weight:800;font-family:inherit;color:#fff;background:#2f9e5e;
+  border:none;border-radius:11px;padding:13px 24px;cursor:pointer;box-shadow:0 3px 9px rgba(47,158,94,.26)}
+.eq-none-b:hover{background:#278a51}
+
+/* 고르기 창 */
+.eqp-box,.eqc-box{max-width:470px}
+.eqp-list{max-height:56vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:2px}
+.eqp-r{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:inherit;
+  background:#fff;border:1px solid #e6ecf4;border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .12s}
+.eqp-r:hover{border-color:#2f9e5e;background:#f7fdf9}
+.eqp-r.on{border-color:#2f9e5e;background:#f2fbf6}
+.eqp-r.dim{opacity:.45}
+.eqp-r.dim:hover{opacity:.85}
+.eqp-ck{flex:0 0 auto;width:20px;height:20px;border:1.5px solid #cfd7e3;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.eqp-r.on .eqp-ck{background:#2f9e5e;border-color:#2f9e5e}
+.eqp-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%}
+.eqp-t{flex:1 1 auto;min-width:0;font-size:14px;font-weight:700;color:#12141C;
+  display:flex;flex-direction:column;gap:2px}
+.eqp-t em{font-style:normal;font-size:11.5px;font-weight:400;color:#a8b1be;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eqp-u{flex:0 0 auto;font-style:normal;font-size:11px;color:#a8b1be}
+
+@media(max-width:900px){
+  .eq-fs{grid-template-columns:1fr 1fr}
+  .eq-f.w2,.eq-f.w4{grid-column:1/-1}
+  .eq-hd{display:none}
+  .eq-row{grid-template-columns:34px 1fr 84px;grid-template-areas:"a b e" "c c c" "d d d";padding:6px 0}
+  .eq-row .c0{grid-area:a}.eq-row .c1{grid-area:b}.eq-row .c2{grid-area:c;min-height:40px}
+  .eq-row .c3{grid-area:d;justify-content:flex-start;min-height:40px}.eq-row .c4{grid-area:e}
+  .eq-lump,.eq-auto{text-align:left}
+  .eq-brk{padding-left:42px}
+  .eq-det{padding:4px 8px 12px}
+  .eq-sum{max-width:none}
+  .eq-acts{width:100%;margin-left:0}
+}
 /* ── 준비물 바로 열기 (휴대폰) ─────────────── */
 .pn-fab{display:none;position:fixed;right:16px;bottom:20px;z-index:9990;
   width:54px;height:54px;border-radius:50%;border:none;background:#2f9e5e;color:#fff;
@@ -6740,7 +6962,6 @@ function setTab(newTab, mode){
 
   // 공정을 안 고르고 나가면 방금 만든 빈 프로젝트는 없앤다
   if(typeof _qtDropTemp==='function' && _qtTempSi!==null){
-    qmClose(true);
   }
   // 숫자로 들어와도 문자열로 통일 (탭 강조 비교가 문자열 기준)
   if(newTab!=='all' && newTab!=='contacts') newTab=String(newTab);
@@ -6772,6 +6993,9 @@ function renderTabsPro(){
   const guideOnP = S.tab==='guide';
   h+=`<button class="ah-tab${guideOnP?' on':''}" onclick="setTab('guide')" style="${guideOnP?'border-top-color:#4F46E5':''}">가이드</button>`;
   h+=`<button class="ah-tab${allOn?' on':''}" onclick="setTab('all')" style="${allOn?'border-top-color:#12141C':''}">프로젝트 통합</button>`;
+
+  const eqOn = S.tab==='quote';
+  h+=`<button class="ah-tab${eqOn?' on':''}" onclick="setTab('quote')" style="${eqOn?'border-top-color:#2f9e5e':''}">견적서</button>`;
 
   h+=`<button class="ah-tab${membersOn?' on':''}" onclick="setTab('members')" style="${membersOn?'border-top-color:#00868A':''}">팀 관리</button>`;
 
@@ -9832,7 +10056,7 @@ function renderQuoteStart(){
     +     '<div class="qs-ct">견적서부터</div>'
     +     '<div class="qs-cd"><b>얼마 드는지</b>부터 잡고 싶을 때</div>'
     +     '<div class="qs-flow">공정 고르기 → 금액 적기 → 일정표 자동</div>'
-    +     '<button class="qs-go" onclick="qtStartNew()">견적서 만들기</button>'
+    +     '<button class="qs-go" onclick="setTab(\'quote\')">견적서 만들기</button>'
     +     '<div class="qs-who">공사를 맡기시는 분 · 견적을 내는 분</div>'
     +   '</div>'
     /* ② 일정표부터 */
@@ -9841,7 +10065,7 @@ function renderQuoteStart(){
     +     '<div class="qs-ct">일정표부터</div>'
     +     '<div class="qs-cd"><b>언제 뭘 하는지</b>부터 잡고 싶을 때</div>'
     +     '<div class="qs-flow">공사 종류 고르기 → 작업이 저절로 채워짐</div>'
-    +     '<button class="qs-go alt" onclick="schedStart()">일정표 만들기</button>'
+    +     '<button class="qs-go alt" onclick="startProcTemplate(0)">일정표 만들기</button>'
     +     '<div class="qs-who">공정을 잘 모르셔도 됩니다</div>'
     +   '</div>'
     + '</div>'
@@ -9849,47 +10073,8 @@ function renderQuoteStart(){
     + '</div></div>';
 }
 /* ── 일정표부터 시작 — 공사 종류만 고르면 작업이 채워집니다 ── */
-function schedStart(){
-  const list=(typeof PROC_TEMPLATES!=='undefined'?PROC_TEMPLATES:[])
-    .filter(function(t){ return t.key!=='blank' && (isSelf()? !!t.self : !t.self); });
-  qmClose(true);
-  const box=document.createElement('div');
-  box.id='qm'; box.className='qm';
-  box.innerHTML='<div class="qm-box st-box">'
-    + '<div class="qm-h"><div class="qm-t">어떤 공사인가요?</div>'
-    +   '<div class="qm-d">고르시면 그 공사에 <b>흔히 들어가는 작업</b>이 일정표에 한 번에 채워집니다. 나중에 빼거나 더할 수 있습니다.</div></div>'
-    + '<div class="st-list">'
-    +   list.map(function(t){
-          return '<button type="button" class="st-c" onclick="schedPick(\''+gbQ(t.key)+'\')">'
-            + '<span class="st-l">'+esc(t.label)+'</span>'
-            + '<span class="st-d">'+esc(t.desc||'')+'</span>'
-            + '<span class="st-p">'+esc((t.procs||[]).filter(Boolean).join(' · '))+'</span>'
-            + '</button>';
-        }).join('')
-    + '</div>'
-    + '<div class="qm-f"><div class="qm-f-d">고른 뒤에 얼마든지 고칠 수 있습니다</div>'
-    +   '<button class="qt-b" onclick="qmClose()">닫기</button>'
-    +   '<button class="qt-b" onclick="schedPick(\'\')">직접 적겠습니다</button></div></div>';
-  box.onclick=function(ev){ if(ev.target===box) qmClose(); };
-  document.body.appendChild(box);
-}
-function schedPick(key){
-  const t=(typeof PROC_TEMPLATES!=='undefined'?PROC_TEMPLATES:[]).find(function(x){ return x.key===key; });
-  const procs=(t&&t.procs)?t.procs.filter(Boolean).slice():[];
-  qmClose(true); _qtTempSi=null;
-  if(!Array.isArray(S.sites)) S.sites=[];
-  S.sites.push({
-    name:'', addr:'', pw:'', key:'', memo:'',
-    procs: procs.length?procs:[...DEFAULT_PROCS],
-    procColors:{}, newProcName:'', selectedProcs:[], cells:{},
-    ldMig:'v3', ledger:[], quotes:[], budget:'', procAuto:true
-  });
-  const si=S.sites.length-1;
-  persist();
-  S.tab=String(si); _ledgerTab=si;
-  renderTabs(); dnRerender();
-  showToast(procs.length ? (procs.length+'개 작업으로 일정표를 만들었습니다') : '빈 일정표를 만들었습니다');
-}
+
+
 
 /* 견적을 만들면서 프로젝트도 함께 만듭니다 */
 let _qtTempSi=null;   /* 견적서 만들기로 방금 만든 프로젝트 (아직 확정 전) */
@@ -10115,7 +10300,7 @@ function qmPaint(){
     ? (_qmPick.length+'개 공정으로 '+(_qmMode==='add'?'더하기':'만들기'))
     : (_qmMode==='add'?'더하기':'견적 만들기');
 }
-function qmSkip(){ const si=_qmSi; qmClose(true); _qtTempSi=null; qtCreate(si,[]); }
+
 
 
 /* ── 그리기 ── */
@@ -12301,6 +12486,711 @@ function openAddWith(k){
   pickTpl(k);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   견적서 — 자료 구조와 셈
+     견적 하나 = { 머리 정보, 공정 목록, 옵션 }
+     공정 하나 = { 이름, 한 줄 설명, 세부 줄들, 소모잡자재·공구손료 }
+     세부 한 줄 = { 품명, 규격, 단위, 수량, 재료비 단가, 노무비 단가 }
+   ══════════════════════════════════════════════════════════════ */
+
+/* 실제 공사가 흘러가는 차례 */
+const EQ_ORDER = [
+  '준비·가설','철거','골조·구조','설비·배관','전기','통신·소방','공조·환기',
+  '미장·조적','방수·단열','창호(샷시)','목공','타일','도장·필름','도배',
+  '바닥재','석재','유리·거울','욕실','주방·가구','조명','금속·철물',
+  '사인·간판','청소·준공'
+];
+/* 처음 잡히는 값 — 견적마다 고치실 수 있습니다 */
+const EQ_DEF = { sub:2, tool:3, ovh:5, prof:5 };   /* 소모잡자재 · 공구손료 · 공과잡비 · 기업이윤 (%) */
+
+function _eqList(si){
+  const s=S.sites[si]; if(!s) return [];
+  if(!Array.isArray(s.quotes)) s.quotes=[];
+  return s.quotes;
+}
+function _eqCur(si){
+  const l=_eqList(si);
+  if(!l.length) return null;
+  const id=_eqCurId[si];
+  return l.find(function(q){ return q.id===id; }) || l[0];
+}
+let _eqCurId={};
+function _eqId(){ return 'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* ── 새 견적 ───────────────────────────────── */
+function eqNew(si){
+  const st=S.sites[si]||{};
+  const l=_eqList(si);
+  const q={
+    id:_eqId(),
+    title:(l.length?(l.length+1)+'차':'1차'),
+    date:_ymdToday(),
+    to:String(st.client||'').trim(),
+    toTel:String(st.clientTel||'').trim(),
+    toAddr:String(st.addr||'').trim(),
+    name:String(st.name||'').trim(),
+    status:'작성 중',
+    notes:'VAT 별도 · 견적 외 공사 별도',
+    useMN:true,                       /* 재료비·노무비 나눠 적기 */
+    useSub:true, useTool:true,        /* 소모잡자재비 · 공구손료 */
+    subRate:EQ_DEF.sub, toolRate:EQ_DEF.tool,
+    useOvh:true, ovhRate:EQ_DEF.ovh,
+    useProf:true, profRate:EQ_DEF.prof,
+    useVat:true,
+    adjust:'',                        /* 사장님이 직접 넣는 조정액 */
+    groups:[]
+  };
+  l.push(q); _eqCurId[si]=q.id;
+  eqSave(); dnRerender();
+  setTimeout(function(){ eqPickOpen(si); },80);
+}
+function eqSel(si,id){ _eqCurId[si]=id; dnRerender(); }
+function eqSave(){ persist(); }
+
+async function eqDel(si){
+  const q=_eqCur(si); if(!q) return;
+  const ok=await askConfirm('견적을 지울까요?','**'+esc(q.title||'')+'** 을 지웁니다. 되돌릴 수 없습니다.','지우기',true);
+  if(!ok) return;
+  const l=_eqList(si);
+  const i=l.findIndex(function(x){ return x.id===q.id; });
+  if(i>=0) l.splice(i,1);
+  _eqCurId[si] = l.length ? l[0].id : null;
+  eqSave(); dnRerender();
+  showToast('지웠습니다');
+}
+function eqDup(si){
+  const q=_eqCur(si); if(!q) return;
+  const c=JSON.parse(JSON.stringify(q));
+  c.id=_eqId();
+  c.title=(_eqList(si).length+1)+'차';
+  c.date=_ymdToday(); c.status='작성 중';
+  _eqList(si).push(c); _eqCurId[si]=c.id;
+  eqSave(); dnRerender();
+  showToast('복제했습니다');
+}
+
+/* ── 셈 ───────────────────────────────────── */
+/* 마이너스까지 읽는 숫자 변환 */
+function _eqNum(v){
+  const s=String(v===undefined||v===null?'':v).trim();
+  if(!s) return 0;
+  const neg=s.charAt(0)==='-';
+  const d=s.replace(/[^0-9.]/g,'');
+  const n=parseFloat(d)||0;
+  return neg?-n:n;
+}
+
+function _eqRow(it){                       /* 세부 한 줄 */
+  const q=_n(it&&it.q)||0;
+  return { mat: Math.round(q*(_n(it&&it.mat)||0)),
+           lab: Math.round(q*(_n(it&&it.lab)||0)) };
+}
+function _eqRowSum(it){ const r=_eqRow(it); return r.mat+r.lab; }
+/* 공정 하나 — 세부 줄 합 + 소모잡자재비 + 공구손료 */
+function _eqGroup(q,g){
+  let mat=0, lab=0;
+  ((g&&g.items)||[]).forEach(function(it){ const r=_eqRow(it); mat+=r.mat; lab+=r.lab; });
+  const hasItem = ((g&&g.items)||[]).some(function(it){
+    return _n(it&&it.q)||_n(it&&it.mat)||_n(it&&it.lab)||String((it&&it.n)||'').trim();
+  });
+  if(!hasItem){                            /* 세부가 없으면 직접 적으신 금액 */
+    const lump=_n(g&&g.lump)||0;
+    return { mat:0, lab:0, sub:0, tool:0, total:lump, lump:true };
+  }
+  const sr = (g&&g.subOff) ? 0 : (_n(g&&g.subRate) || _n(q&&q.subRate) || 0);
+  const tr = (g&&g.toolOff) ? 0 : (_n(g&&g.toolRate) || _n(q&&q.toolRate) || 0);
+  const sub  = (q&&q.useSub)  ? Math.round(mat*sr/100) : 0;
+  const tool = (q&&q.useTool) ? Math.round(lab*tr/100) : 0;
+  return { mat:mat, lab:lab, sub:sub, tool:tool, total:mat+lab+sub+tool, lump:false };
+}
+function _eqGroupTotal(q,g){ return _eqGroup(q,g).total; }
+/* 견적 전체 */
+function _eqFig(q){
+  let direct=0, mat=0, lab=0;
+  ((q&&q.groups)||[]).forEach(function(g){
+    const r=_eqGroup(q,g);
+    direct+=r.total; mat+=r.mat+r.sub; lab+=r.lab+r.tool;
+  });
+  const ovh  = (q&&q.useOvh)  ? Math.round(direct*(_n(q.ovhRate)||0)/100)  : 0;
+  const prof = (q&&q.useProf) ? Math.round(direct*(_n(q.profRate)||0)/100) : 0;
+  const indirect = ovh+prof;
+  const adj = _eqNum(q&&q.adjust);          /* 사장님이 넣는 조정액 (마이너스도 됩니다) */
+  const supply = direct+indirect+adj;
+  const vat = (q&&q.useVat) ? Math.round(supply*0.1) : 0;
+  return { direct:direct, mat:mat, lab:lab, ovh:ovh, prof:prof, indirect:indirect,
+           adj:adj, supply:supply, vat:vat, total:supply+vat };
+}
+function _eqTotal(q){ return _eqFig(q).total; }
+
+/* ── 고치기 ───────────────────────────────── */
+function eqUp(si,f,v){ const q=_eqCur(si); if(!q) return; q[f]=v; eqSave(); eqSoft(si); }
+function eqToggle(si,f){
+  const q=_eqCur(si); if(!q) return;
+  q[f]=!q[f]; eqSave(); dnRerender();
+}
+function eqRate(si,f,el){
+  const q=_eqCur(si); if(!q) return;
+  const d=String(el.value||'').replace(/[^0-9.]/g,'');
+  q[f]=d; eqSave(); eqSoft(si);
+}
+function eqAdjIn(si,el){
+  const q=_eqCur(si); if(!q) return;
+  const raw=String(el.value||'');
+  const neg=raw.trim().charAt(0)==='-';
+  const d=raw.replace(/[^0-9]/g,'');
+  el.value = d ? ((neg?'-':'')+Number(d).toLocaleString('ko-KR')) : '';
+  q.adjust = d ? ((neg?'-':'')+d) : '';
+  eqSave(); eqSoft(si);
+}
+/* 공정 */
+function eqGroupMemo(si,gi,v){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  q.groups[gi].memo=v;
+  clearTimeout(window._eqT); window._eqT=setTimeout(eqSave,400);
+}
+function eqLumpIn(si,gi,el){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  const d=String(el.value||'').replace(/[^0-9]/g,'');
+  el.value = d ? Number(d).toLocaleString('ko-KR') : '';
+  q.groups[gi].lump=d;
+  eqSave(); eqSoft(si);
+}
+function eqMove(si,gi,dir){
+  const q=_eqCur(si); if(!q) return;
+  const j=gi+dir; if(j<0||j>=q.groups.length) return;
+  const t=q.groups[gi]; q.groups[gi]=q.groups[j]; q.groups[j]=t;
+  const a=_eqOpen[si+'_'+gi], b=_eqOpen[si+'_'+j];
+  _eqOpen[si+'_'+gi]=b; _eqOpen[si+'_'+j]=a;
+  eqSave(); dnRerender();
+}
+async function eqDelGroup(si,gi){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  const nm=procName(q.groups[gi].cat||'');
+  const ok=await askConfirm('이 공정을 뺄까요?','**'+esc(nm)+'** 과 그 안 세부 줄이 모두 없어집니다.','빼기',true);
+  if(!ok) return;
+  q.groups.splice(gi,1); _eqOpen={};
+  eqSave(); dnRerender();
+}
+function eqSort(si){
+  const q=_eqCur(si); if(!q) return;
+  q.groups.sort(function(a,b){
+    const ia=EQ_ORDER.indexOf(procName(a.cat||'')), ib=EQ_ORDER.indexOf(procName(b.cat||''));
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  });
+  _eqOpen={}; eqSave(); dnRerender();
+  showToast('공사 차례대로 정리했습니다');
+}
+/* 세부 줄 */
+function eqAddItem(si,gi){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  if(!Array.isArray(q.groups[gi].items)) q.groups[gi].items=[];
+  q.groups[gi].items.push({n:'',spec:'',u:'',q:'',mat:'',lab:''});
+  _eqOpen[si+'_'+gi]=true;
+  eqSave(); dnRerender();
+  setTimeout(function(){
+    const rows=document.querySelectorAll('#eq-g-'+si+'-'+gi+' .eq-dr');
+    const last=rows[rows.length-1];
+    const inp=last?last.querySelector('input'):null;
+    if(inp) inp.focus();
+  },60);
+}
+function eqDelItem(si,gi,ii){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  q.groups[gi].items.splice(ii,1);
+  eqSave(); dnRerender();
+}
+function eqItemUp(si,gi,ii,f,v){
+  const q=_eqCur(si); if(!q||!q.groups[gi]||!q.groups[gi].items[ii]) return;
+  q.groups[gi].items[ii][f]=v;
+  clearTimeout(window._eqT2); window._eqT2=setTimeout(eqSave,400);
+  eqRowRefresh(si,gi,ii);
+}
+function eqPriceIn(si,gi,ii,f,el){
+  const d=String(el.value||'').replace(/[^0-9]/g,'');
+  el.value = d ? Number(d).toLocaleString('ko-KR') : '';
+  eqItemUp(si,gi,ii,f,d);
+}
+/* 숫자만 다시 그립니다 — 커서가 안 날아갑니다 */
+function eqRowRefresh(si,gi,ii){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  const g=q.groups[gi], it=g.items[ii];
+  const r=_eqRow(it);
+  const set=function(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('eq-m-'+si+'-'+gi+'-'+ii, r.mat?r.mat.toLocaleString():'—');
+  set('eq-l-'+si+'-'+gi+'-'+ii, r.lab?r.lab.toLocaleString():'—');
+  set('eq-t-'+si+'-'+gi+'-'+ii, (r.mat+r.lab)?(r.mat+r.lab).toLocaleString():'—');
+  eqSoft(si);
+}
+/* 합계 줄만 갈아 끼웁니다 */
+function eqSoft(si){
+  const q=_eqCur(si); if(!q) return;
+  const f=_eqFig(q);
+  const set=function(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('eq-direct-'+si, f.direct.toLocaleString());
+  set('eq-ovh-'+si,    f.ovh.toLocaleString());
+  set('eq-prof-'+si,   f.prof.toLocaleString());
+  set('eq-supply-'+si, f.supply.toLocaleString());
+  set('eq-vat-'+si,    f.vat.toLocaleString());
+  set('eq-total-'+si, '₩'+f.total.toLocaleString());
+  /* 공정별 금액 */
+  (q.groups||[]).forEach(function(g,gi){
+    const e=document.getElementById('eq-gs-'+si+'-'+gi);
+    if(e) e.textContent=_eqGroupTotal(q,g).toLocaleString();
+    const d=document.getElementById('eq-gd-'+si+'-'+gi);
+    if(d){
+      const r=_eqGroup(q,g);
+      d.innerHTML = r.lump ? '' :
+        '<span>재료 '+r.mat.toLocaleString()+'</span><span>노무 '+r.lab.toLocaleString()+'</span>'
+        + (r.sub?'<span>잡자재 '+r.sub.toLocaleString()+'</span>':'')
+        + (r.tool?'<span>공구 '+r.tool.toLocaleString()+'</span>':'');
+    }
+  });
+  /* 위쪽 견적 탭 금액 */
+  const t=document.getElementById('eq-tab-'+si+'-'+q.id);
+  if(t) t.textContent='₩'+f.total.toLocaleString();
+}
+
+/* ── 펼침 ─────────────────────────────────── */
+let _eqOpen={};
+function eqOpen(si,gi){ return !!_eqOpen[si+'_'+gi]; }
+function eqFold(si,gi){
+  const k=si+'_'+gi;
+  _eqOpen[k]=!_eqOpen[k];
+  dnRerender();
+}
+/* 머리 정보 펼침 */
+let _eqHead={};
+function eqHeadFold(si){ _eqHead[si]=!_eqHead[si]; dnRerender(); }
+
+/* ══════════════════════════════════════════════════════════════
+   견적서 화면 — 한 줄에 한 공정. 필요한 줄만 펼칩니다.
+   ══════════════════════════════════════════════════════════════ */
+/* 견적서 탭 — 현장을 고르고 그 현장 견적을 봅니다 */
+let _eqSi=0;
+function eqGoSite(si){ _eqSi=si; dnRerender(); }
+function eqTabHtml(si){
+  let h='<div>';
+  if((S.sites||[]).length>1){
+    h+='<div class="eq-sites">'
+      + S.sites.map(function(s,i){
+          const nm=String(s.name||'').trim()||('프로젝트 '+(i+1));
+          const col=(typeof SITE_COLORS!=='undefined')?SITE_COLORS[i%SITE_COLORS.length]:'#8a94a6';
+          const n=(_eqList(i)||[]).length;
+          return '<button class="eq-site'+(i===si?' on':'')+'" onclick="eqGoSite('+i+')">'
+            + '<span class="eq-sdot" style="background:'+col+'"></span>'+esc(nm)
+            + (n?'<em>'+n+'</em>':'')+'</button>';
+        }).join('')
+      + '</div>';
+  }
+  h+=renderQuote(si)+'</div>';
+  return h;
+}
+
+function renderQuote(si){
+  const list=_eqList(si);
+  const q=_eqCur(si);
+  const st=S.sites[si]||{};
+
+  /* 아직 견적이 없을 때 */
+  if(!q){
+    return '<div class="eq-wrap"><div class="eq-none">'
+      + '<div class="eq-none-t">아직 견적서가 없습니다</div>'
+      + '<div class="eq-none-d">공정을 고르시면 표가 만들어집니다.<br>금액만 적으셔도 견적서가 됩니다.</div>'
+      + '<button class="eq-none-b" onclick="eqNew('+si+')">＋ 견적서 만들기</button>'
+      + '</div></div>';
+  }
+
+  const f=_eqFig(q);
+  let h='<div class="eq-wrap">';
+
+  /* ── 위 줄 ── */
+  h+='<div class="eq-top">'
+    + '<span class="eq-name">'+esc(String(q.name||st.name||'').trim()||'견적서')
+    +   '<em>'+esc(q.title||'')+' · '+esc(q.status||'작성 중')+'</em></span>';
+  if(list.length>1){
+    h+='<span class="eq-tabs">'
+      + list.map(function(x){
+          return '<button class="eq-tab'+(x.id===q.id?' on':'')+'" onclick="eqSel('+si+',\''+gbQ(x.id)+'\')">'
+            + esc(x.title||'견적')+'</button>';
+        }).join('')
+      + '</span>';
+  }
+  h+='<span class="eq-acts">'
+    + '<button class="eq-b" onclick="eqPickOpen('+si+')">＋ 공정</button>'
+    + '<button class="eq-b p" onclick="eqPrintOpen('+si+')">📄 PDF · 인쇄</button>'
+    + '<button class="eq-b" onclick="eqNew('+si+')">새 견적</button>'
+    + '<button class="eq-b" onclick="eqDup('+si+')">복제</button>'
+    + '<button class="eq-b d" onclick="eqDel('+si+')">지우기</button>'
+    + '</span></div>';
+
+  /* ── 머리 정보 (접힘) ── */
+  h+=eqHeadHtml(si,q);
+
+  /* ── 공정 표 ── */
+  if(!(q.groups||[]).length){
+    h+='<div class="eq-none sm">'
+      + '<div class="eq-none-t">공정을 고르십시오</div>'
+      + '<button class="eq-none-b" onclick="eqPickOpen('+si+')">＋ 공정 고르기</button></div>';
+  } else {
+    h+='<div class="eq-tbl">'
+      + '<div class="eq-hd"><span class="c0"></span><span class="c1">공 정</span>'
+      +   '<span class="c2">내용 · 비고</span><span class="c3">금 액</span><span class="c4"></span></div>';
+    (q.groups||[]).forEach(function(g,gi){ h+=eqGroupHtml(si,q,g,gi); });
+    h+='</div>';
+    h+='<div class="eq-tools">'
+      + '<button class="eq-tool" onclick="eqPickOpen('+si+')">＋ 공정 고치기</button>'
+      + '<button class="eq-tool" onclick="eqSort('+si+')">공사 차례대로</button>'
+      + '</div>';
+  }
+
+  /* ── 합계 ── */
+  h+=eqSumHtml(si,q,f);
+  h+='<datalist id="eq-units">'
+    + ((typeof GB_UNITS!=='undefined'?GB_UNITS:['식','㎡','m','개','EA','LOT','대','명','조','장'])
+        .map(function(u){ return '<option value="'+esc(u)+'">'; }).join(''))
+    + '</datalist>';
+  h+='</div>';
+  return h;
+}
+
+/* ── 머리 정보 ─────────────────────────────── */
+function eqHeadHtml(si,q){
+  const co=S.company||{};
+  const open=!!_eqHead[si];
+  if(!open){
+    const bits=[];
+    if(String(q.to||'').trim())     bits.push('<b>'+esc(q.to)+'</b>');
+    if(String(q.toTel||'').trim())  bits.push(esc(q.toTel));
+    if(String(q.toAddr||'').trim()) bits.push(esc(q.toAddr));
+    const mine=[];
+    if(String(co.name||'').trim())  mine.push('<b>'+esc(co.name)+'</b>');
+    if(String(co.bizno||'').trim()) mine.push(esc(co.bizno));
+    return '<button class="eq-fold" onclick="eqHeadFold('+si+')">'
+      + (bits.length?'<span class="eq-fold-l">'+bits.join(' · ')+'</span>'
+                    :'<span class="eq-fold-l dim">받는 분을 적어 주세요</span>')
+      + (mine.length?'<span class="eq-fold-s">공급자 '+mine.join(' ')+'</span>':'')
+      + '<span class="eq-fold-a">▾ 눌러서 고치기</span></button>';
+  }
+  const F=function(k,lab,ph,w){
+    return '<label class="eq-f'+(w?' w'+w:'')+'"><span>'+esc(lab)+'</span>'
+      + '<input value="'+esc(q[k]||'')+'" placeholder="'+esc(ph||'')+'" spellcheck="false"'
+      + (k==='toTel'?' inputmode="tel" oninput="telIn(this,function(v){eqUp('+si+',\''+k+'\',v);})"'
+                   :' oninput="eqUp('+si+',\''+k+'\',this.value)"')
+      + '></label>';
+  };
+  return '<div class="eq-head">'
+    + '<div class="eq-head-h"><span>견적서 정보</span>'
+    +   '<button class="eq-head-x" onclick="eqHeadFold('+si+')">▴ 접기</button></div>'
+    + '<div class="eq-fs">'
+    +   F('name','공사명','예) 방배동 빌라 리모델링',2)
+    +   F('to','받는 분','고객 성함 · 상호')
+    +   F('toTel','연락처','01012345678')
+    +   F('toAddr','현장 주소','견적서에 들어갑니다',2)
+    +   F('date','견적일자','2026-08-20')
+    +   '<label class="eq-f"><span>상태</span><select onchange="eqUp('+si+',\'status\',this.value)">'
+    +     ['작성 중','발송','확정','보류'].map(function(s){
+            return '<option'+(q.status===s?' selected':'')+'>'+s+'</option>'; }).join('')
+    +   '</select></label>'
+    +   '<label class="eq-f w4"><span>특기사항</span>'
+    +     '<input value="'+esc(q.notes||'')+'" placeholder="예) VAT 별도 · 견적 외 공사 별도 (· 로 구분)"'
+    +     ' spellcheck="false" oninput="eqUp('+si+',\'notes\',this.value)"></label>'
+    + '</div>'
+    + '<div class="eq-head-n">공급자 정보는 <b>팀 관리 → 견적서 정보</b>에서 한 번만 적으시면 됩니다.</div>'
+    + '</div>';
+}
+
+/* ── 공정 한 줄 ────────────────────────────── */
+function eqGroupHtml(si,q,g,gi){
+  const cat=procName(g.cat||'')||'공정';
+  const col=(typeof gbColor==='function')?gbColor(cat):'#8a94a6';
+  const r=_eqGroup(q,g);
+  const open=eqOpen(si,gi);
+  const nItem=((g.items||[]).filter(function(it){ return String((it&&it.n)||'').trim(); })).length;
+
+  let h='<div class="eq-row'+(open?' open':'')+'">'
+    + '<span class="c0"><button class="eq-tw" onclick="eqFold('+si+','+gi+')" title="'+(open?'접기':'세부 펼치기')+'">'
+    +   (open?'▾':'▸')+'</button></span>'
+    + '<span class="c1"><span class="eq-dot" style="background:'+col+'"></span>'
+    +   '<button class="eq-cat" onclick="eqCatPick('+si+','+gi+')" title="공정 바꾸기">'+esc(cat)+'<em>▾</em></button>'
+    +   (nItem?'<span class="eq-n">'+nItem+'</span>':'')+'</span>'
+    + '<span class="c2"><input class="eq-memo" value="'+esc(g.memo||'')+'"'
+    +   ' placeholder="예) 천장 전체 철거 후 노출천장" spellcheck="false"'
+    +   ' onkeydown="eqNav(this,event)" oninput="eqGroupMemo('+si+','+gi+',this.value)"></span>'
+    + '<span class="c3">'
+    +   (r.lump
+        ? '<input class="eq-lump" value="'+(_n(g.lump)?_n(g.lump).toLocaleString():'')+'" placeholder="0"'
+          + ' inputmode="numeric" onkeydown="eqNav(this,event)" onfocus="this.select()"'
+          + ' oninput="eqLumpIn('+si+','+gi+',this)">'
+        : '<button class="eq-auto" id="eq-gs-'+si+'-'+gi+'" onclick="eqFold('+si+','+gi+')"'
+          + ' title="세부를 더한 금액입니다">'+r.total.toLocaleString()+'</button>')
+    + '</span>'
+    + '<span class="c4">'
+    +   '<button class="eq-mv" onclick="eqMove('+si+','+gi+',-1)" title="위로">↑</button>'
+    +   '<button class="eq-mv" onclick="eqMove('+si+','+gi+',1)" title="아래로">↓</button>'
+    +   '<button class="eq-x" onclick="eqDelGroup('+si+','+gi+')" title="빼기">✕</button>'
+    + '</span></div>';
+
+  /* 금액을 쪼갠 것 — 세부가 있을 때만 */
+  if(!r.lump){
+    h+='<div class="eq-brk" id="eq-gd-'+si+'-'+gi+'">'
+      + '<span>재료 '+r.mat.toLocaleString()+'</span><span>노무 '+r.lab.toLocaleString()+'</span>'
+      + (r.sub?'<span>잡자재 '+r.sub.toLocaleString()+'</span>':'')
+      + (r.tool?'<span>공구 '+r.tool.toLocaleString()+'</span>':'')
+      + '</div>';
+  }
+
+  if(open) h+=eqDetHtml(si,q,g,gi);
+  return h;
+}
+
+/* ── 펼친 세부 ─────────────────────────────── */
+function eqDetHtml(si,q,g,gi){
+  const mn=!!q.useMN;
+  const items=(g.items||[]);
+  let h='<div class="eq-det" id="eq-g-'+si+'-'+gi+'">';
+  /* 이 공정만의 설정 */
+  h+='<div class="eq-opt">'
+    + (q.useSub
+      ? '<label class="eq-oc"><input type="checkbox"'+(g.subOff?'':' checked')
+        + ' onchange="eqGroupOpt('+si+','+gi+',\'subOff\')"><span>소모잡자재비</span>'
+        + '<input class="eq-or" value="'+esc(g.subRate!==undefined&&g.subRate!==''?g.subRate:(q.subRate||''))+'"'
+        + ' inputmode="decimal" oninput="eqGroupRate('+si+','+gi+',\'subRate\',this)"><em>% · 재료비의</em></label>' : '')
+    + (q.useTool
+      ? '<label class="eq-oc"><input type="checkbox"'+(g.toolOff?'':' checked')
+        + ' onchange="eqGroupOpt('+si+','+gi+',\'toolOff\')"><span>공구손료</span>'
+        + '<input class="eq-or" value="'+esc(g.toolRate!==undefined&&g.toolRate!==''?g.toolRate:(q.toolRate||''))+'"'
+        + ' inputmode="decimal" oninput="eqGroupRate('+si+','+gi+',\'toolRate\',this)"><em>% · 노무비의</em></label>' : '')
+    + '</div>';
+
+  h+='<div class="eq-dtbl'+(mn?' mn':'')+'">'
+    + '<div class="eq-dh"><span class="d1">품 &nbsp;명</span><span class="d2">규 &nbsp;격</span>'
+    +   '<span class="d3">단위</span><span class="d4">수량</span>'
+    +   (mn ? '<span class="d5">재료 단가</span><span class="d5b">노무 단가</span>'
+             + '<span class="d6">재료비</span><span class="d6b">노무비</span>'
+          : '<span class="d5">단 &nbsp;가</span>')
+    +   '<span class="d7">금 &nbsp;액</span><span class="d8"></span></div>';
+  if(!items.length){
+    h+='<div class="eq-dnone">아직 없습니다. 아래에서 줄을 더하십시오.</div>';
+  }
+  items.forEach(function(it,ii){ h+=eqDetRow(si,gi,ii,it,mn); });
+  /* 소계 */
+  if(items.length){
+    const r=_eqGroup(q,g);
+    h+='<div class="eq-dsum">'
+      + '<span class="ds-k">소 &nbsp;계</span>'
+      + (mn ? '<span class="ds-v">'+r.mat.toLocaleString()+'</span>'
+            + '<span class="ds-v">'+r.lab.toLocaleString()+'</span>' : '')
+      + '<span class="ds-t">'+(r.mat+r.lab).toLocaleString()+'</span></div>';
+    if(r.sub||r.tool){
+      h+='<div class="eq-dadd">'
+        + (r.sub?'<span>소모잡자재비 <b>'+r.sub.toLocaleString()+'</b></span>':'')
+        + (r.tool?'<span>공구손료 <b>'+r.tool.toLocaleString()+'</b></span>':'')
+        + '<span class="ds-t2">'+r.total.toLocaleString()+'</span></div>';
+    }
+  }
+  h+='</div>';
+  h+='<button class="eq-add" onclick="eqAddItem('+si+','+gi+')">＋ 줄 추가</button>';
+  h+='</div>';
+  return h;
+}
+function eqDetRow(si,gi,ii,it,mn){
+  const r=_eqRow(it);
+  const num=function(v){ return _n(v)?_n(v).toLocaleString():''; };
+  let h='<div class="eq-dr">'
+    + '<span class="d1"><input class="eq-in" value="'+esc((it&&it.n)||'')+'" placeholder="품명" spellcheck="false"'
+    +   ' onkeydown="eqNav(this,event)" oninput="eqItemUp('+si+','+gi+','+ii+',\'n\',this.value)"></span>'
+    + '<span class="d2"><input class="eq-in" value="'+esc((it&&it.spec)||'')+'" placeholder="규격·자재" spellcheck="false"'
+    +   ' onkeydown="eqNav(this,event)" oninput="eqItemUp('+si+','+gi+','+ii+',\'spec\',this.value)"></span>'
+    + '<span class="d3"><input class="eq-in ctr" data-dl="eq-units" value="'+esc((it&&it.u)||'')+'" placeholder="단위" spellcheck="false"'
+    +   ' onkeydown="eqNav(this,event)" oninput="eqItemUp('+si+','+gi+','+ii+',\'u\',this.value)"></span>'
+    + '<span class="d4"><input class="eq-in num" value="'+esc((it&&it.q)||'')+'" placeholder="0" inputmode="decimal"'
+    +   ' onkeydown="eqNav(this,event)" onfocus="this.select()" oninput="eqItemUp('+si+','+gi+','+ii+',\'q\',this.value)"></span>';
+  if(mn){
+    h+= '<span class="d5"><input class="eq-in num" value="'+num(it&&it.mat)+'" placeholder="0" inputmode="numeric"'
+      +   ' onkeydown="eqNav(this,event)" onfocus="this.select()" oninput="eqPriceIn('+si+','+gi+','+ii+',\'mat\',this)"></span>'
+      + '<span class="d5b"><input class="eq-in num" value="'+num(it&&it.lab)+'" placeholder="0" inputmode="numeric"'
+      +   ' onkeydown="eqNav(this,event)" onfocus="this.select()" oninput="eqPriceIn('+si+','+gi+','+ii+',\'lab\',this)"></span>'
+      + '<span class="d6 sm" id="eq-m-'+si+'-'+gi+'-'+ii+'">'+(r.mat?r.mat.toLocaleString():'—')+'</span>'
+      + '<span class="d6b sm" id="eq-l-'+si+'-'+gi+'-'+ii+'">'+(r.lab?r.lab.toLocaleString():'—')+'</span>';
+  } else {
+    h+= '<span class="d5"><input class="eq-in num" value="'+num(it&&it.mat)+'" placeholder="0" inputmode="numeric"'
+      +   ' onkeydown="eqNav(this,event)" onfocus="this.select()" oninput="eqPriceIn('+si+','+gi+','+ii+',\'mat\',this)"></span>';
+  }
+  h+= '<span class="d7" id="eq-t-'+si+'-'+gi+'-'+ii+'">'+((r.mat+r.lab)?(r.mat+r.lab).toLocaleString():'—')+'</span>'
+    + '<span class="d8"><button class="eq-x" onclick="eqDelItem('+si+','+gi+','+ii+')" title="줄 빼기">✕</button></span>'
+    + '</div>';
+  return h;
+}
+function eqGroupOpt(si,gi,f){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  q.groups[gi][f]=!q.groups[gi][f];
+  eqSave(); dnRerender();
+}
+function eqGroupRate(si,gi,f,el){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  const d=String(el.value||'').replace(/[^0-9.]/g,'');
+  el.value=d; q.groups[gi][f]=d;
+  clearTimeout(window._eqT3); window._eqT3=setTimeout(eqSave,400);
+  eqSoft(si);
+}
+
+/* ── 합계 ─────────────────────────────────── */
+function eqSumHtml(si,q,f){
+  const opt=function(on,tog,lab,rateF,rate,id,val){
+    return '<div class="eq-sr opt'+(on?'':' off')+'">'
+      + '<span class="k"><label class="eq-chk"><input type="checkbox"'+(on?' checked':'')
+      +   ' onchange="eqToggle('+si+',\''+tog+'\')"><span>'+esc(lab)+'</span></label>'
+      + (rateF?'<input class="eq-rate" value="'+esc(rate||'')+'" inputmode="decimal"'
+              + ' oninput="eqRate('+si+',\''+rateF+'\',this)"><em>%</em>':'')
+      + '</span><span class="v" id="'+id+'">'+val.toLocaleString()+'</span></div>';
+  };
+  let h='<div class="eq-sum">';
+  h+='<div class="eq-sr"><span class="k">직접공사비</span>'
+    + '<span class="v" id="eq-direct-'+si+'">'+f.direct.toLocaleString()+'</span></div>';
+  h+=opt(!!q.useOvh,'useOvh','공과잡비','ovhRate',q.ovhRate,'eq-ovh-'+si,f.ovh);
+  h+=opt(!!q.useProf,'useProf','기업이윤','profRate',q.profRate,'eq-prof-'+si,f.prof);
+  /* 조정액 */
+  h+='<div class="eq-sr opt"><span class="k"><span class="eq-adjk">조정액</span>'
+    + '<em class="eq-adjn">깎거나 올리실 금액 (예: -272,544)</em></span>'
+    + '<span class="v"><input class="eq-adj" value="'+esc(_eqNum(q.adjust)?_eqNum(q.adjust).toLocaleString():'')+'"'
+    + ' placeholder="0" inputmode="numeric" oninput="eqAdjIn('+si+',this)"></span></div>';
+  h+='<div class="eq-sr mid"><span class="k">공급가액</span>'
+    + '<span class="v" id="eq-supply-'+si+'">'+f.supply.toLocaleString()+'</span></div>';
+  h+=opt(!!q.useVat,'useVat','부가세 10%',null,null,'eq-vat-'+si,f.vat);
+  h+='<div class="eq-sr tot"><span class="k">합 &nbsp;계</span>'
+    + '<span class="v" id="eq-total-'+si+'">₩'+f.total.toLocaleString()+'</span></div>';
+  h+='</div>';
+  /* 아래 설정 */
+  h+='<div class="eq-cfg">'
+    + '<label class="eq-chk"><input type="checkbox"'+(q.useMN?' checked':'')
+    +   ' onchange="eqToggle('+si+',\'useMN\')"><span>재료비 · 노무비 나눠 적기</span></label>'
+    + '<label class="eq-chk"><input type="checkbox"'+(q.useSub?' checked':'')
+    +   ' onchange="eqToggle('+si+',\'useSub\')"><span>소모잡자재비</span></label>'
+    + '<label class="eq-chk"><input type="checkbox"'+(q.useTool?' checked':'')
+    +   ' onchange="eqToggle('+si+',\'useTool\')"><span>공구손료</span></label>'
+    + '</div>';
+  return h;
+}
+
+/* ── 공정 고르기 ───────────────────────────── */
+let _eqPickSi=null, _eqPick=[];
+function eqPickOpen(si){
+  const q=_eqCur(si);
+  if(!q){ eqNew(si); return; }
+  _eqPickSi=si;
+  _eqPick=((q.groups)||[]).map(function(g){ return procName(g.cat||''); });
+  eqPickClose();
+  const box=document.createElement('div');
+  box.id='eqp'; box.className='qm';
+  box.innerHTML='<div class="qm-box eqp-box">'
+    + '<div class="qm-h"><div class="qm-t">어떤 공사를 하십니까?</div>'
+    +   '<div class="qm-d">고르시면 <b>공사 차례대로</b> 표가 만들어집니다.</div></div>'
+    + '<div class="eqp-list" id="eqp-list">'+eqPickRows()+'</div>'
+    + '<div class="qm-f"><div class="qm-f-d" id="eqp-n">'+_eqPick.length+'개 고름</div>'
+    +   '<button class="eq-b" onclick="eqPickClose()">닫기</button>'
+    +   '<button class="eq-b p" onclick="eqPickDone()">표 만들기</button></div></div>';
+  box.onclick=function(ev){ if(ev.target===box) eqPickClose(); };
+  document.body.appendChild(box);
+}
+function eqPickClose(){ const b=document.getElementById('eqp'); if(b) b.remove(); }
+function eqPickRows(){
+  const known={};
+  (typeof PROC_LIB!=='undefined'?PROC_LIB:[]).forEach(function(p){ known[p.cat]=p; });
+  return EQ_ORDER.map(function(cat){
+    const p=known[cat];
+    const on=_eqPick.indexOf(cat)>=0;
+    const sub=p&&p.sub ? p.sub.slice(0,4).join(' · ') : '';
+    const col=(typeof gbColor==='function')?gbColor(cat):'#8a94a6';
+    return '<button type="button" class="eqp-r'+(on?' on':'')+'" onclick="eqPickToggle(\''+gbQ(cat)+'\')">'
+      + '<span class="eqp-ck">'+(on?'✓':'')+'</span>'
+      + '<span class="eqp-dot" style="background:'+col+'"></span>'
+      + '<span class="eqp-t">'+esc(cat)+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></button>';
+  }).join('');
+}
+function eqPickToggle(cat){
+  const i=_eqPick.indexOf(cat);
+  if(i>=0) _eqPick.splice(i,1); else _eqPick.push(cat);
+  const l=document.getElementById('eqp-list'); if(l) l.innerHTML=eqPickRows();
+  const n=document.getElementById('eqp-n'); if(n) n.textContent=_eqPick.length+'개 고름';
+}
+function eqPickDone(){
+  const si=_eqPickSi, q=_eqCur(si);
+  if(!q){ eqPickClose(); return; }
+  const cur={}; (q.groups||[]).forEach(function(g){ cur[procName(g.cat||'')]=g; });
+  const next=[];
+  EQ_ORDER.forEach(function(cat){
+    if(_eqPick.indexOf(cat)<0) return;
+    next.push(cur[cat] || {cat:cat, items:[], lump:'', memo:''});
+  });
+  (q.groups||[]).forEach(function(g){
+    if(EQ_ORDER.indexOf(procName(g.cat||''))<0) next.push(g);
+  });
+  q.groups=next; _eqOpen={};
+  eqPickClose(); eqSave(); dnRerender();
+  showToast(next.length+'개 공정으로 표를 만들었습니다');
+}
+/* 공정 하나 바꾸기 */
+function eqCatPick(si,gi){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  const cur=procName(q.groups[gi].cat||'');
+  const used={};
+  (q.groups||[]).forEach(function(g,i){ if(i!==gi) used[procName(g.cat||'')]=1; });
+  eqCatClose();
+  const box=document.createElement('div');
+  box.id='eqc'; box.className='qm';
+  box.innerHTML='<div class="qm-box eqc-box">'
+    + '<div class="qm-h"><div class="qm-t">어느 공정입니까?</div>'
+    +   '<div class="qm-d">이미 쓰고 계신 공정은 흐리게 보입니다.</div></div>'
+    + '<div class="eqp-list">'
+    +   EQ_ORDER.map(function(c){
+          const on=(c===cur), dim=(!on&&used[c]);
+          const col=(typeof gbColor==='function')?gbColor(c):'#8a94a6';
+          return '<button type="button" class="eqp-r'+(on?' on':'')+(dim?' dim':'')+'"'
+            + ' onclick="eqCatSet('+si+','+gi+',\''+gbQ(c)+'\')">'
+            + '<span class="eqp-ck">'+(on?'✓':'')+'</span>'
+            + '<span class="eqp-dot" style="background:'+col+'"></span>'
+            + '<span class="eqp-t">'+esc(c)+'</span>'
+            + (dim?'<em class="eqp-u">쓰는 중</em>':'')+'</button>';
+        }).join('')
+    + '</div>'
+    + '<div class="qm-f"><button class="eq-b" onclick="eqCatClose()">닫기</button></div></div>';
+  box.onclick=function(ev){ if(ev.target===box) eqCatClose(); };
+  document.body.appendChild(box);
+}
+function eqCatClose(){ const b=document.getElementById('eqc'); if(b) b.remove(); }
+function eqCatSet(si,gi,cat){
+  const q=_eqCur(si); if(!q||!q.groups[gi]) return;
+  q.groups[gi].cat=cat;
+  eqCatClose(); eqSave(); dnRerender();
+}
+
+/* ── 키보드로 다니기 ───────────────────────── */
+function eqNav(el,e){
+  const k=e.key;
+  if(k!=='Enter' && k!=='ArrowDown' && k!=='ArrowUp') return;
+  if(e.isComposing) return;
+  const wrap=el.closest('.eq-tbl'); if(!wrap) return;
+  const row=el.closest('.eq-row')||el.closest('.eq-dr'); if(!row) return;
+  const cell=el.parentElement;
+  const ci=[...row.children].indexOf(cell);
+  const rows=[...wrap.querySelectorAll('.eq-row, .eq-dr')];
+  let ri=rows.indexOf(row);
+  const dir = (k==='ArrowUp'||(k==='Enter'&&e.shiftKey)) ? -1 : 1;
+  if(k!=='Enter' && !el.classList.contains('num') && !el.classList.contains('eq-lump')) return;
+  e.preventDefault();
+  while(true){
+    ri+=dir;
+    if(ri<0||ri>=rows.length){ el.blur(); return; }
+    const c=rows[ri].children[ci];
+    let t=c&&c.querySelector?c.querySelector('input'):null;
+    if(!t) t=rows[ri].querySelector('input');
+    if(t){ t.focus(); if(t.select) t.select(); return; }
+  }
+}
+
+/* 인쇄는 다음 단계에서 만듭니다 */
+function eqPrintOpen(si){ showToast('인쇄는 다음에 만들겠습니다'); }
+
 function renderMain(){
   const y=S.year,m=S.month,days=daysInMonth(y,m),cw=calcCellW();
 
@@ -12315,6 +13205,11 @@ function renderMain(){
   if(S.tab==='inquiries') return renderInquiriesTab();
   if(S.tab==='memo') return renderDailyNote();
   if(S.tab==='guide') return renderGuidePage();
+  if(S.tab==='quote'){
+    if(!S.sites.length) return renderEmptyState();
+    const si = (typeof _eqSi==='number' && S.sites[_eqSi]) ? _eqSi : 0;
+    return eqTabHtml(si);
+  }
 
 
   // 프로젝트가 하나도 없으면 안내 화면
@@ -13652,13 +14547,6 @@ function renderSiteProcPanel(si){
   } else {
     if(isSelf()) btnHtml+=`<button class="proc-tool-btn primary" onclick="startProcTemplate(${si})">✨ 추천 공정</button>`;
     btnHtml+=`<button class="proc-tool-btn primary" onclick="tkOpen(${si})">＋ 자주 쓰는 작업</button>`;
-    if(typeof _qtHasQuote==='function' && _qtHasQuote(si)){
-      if(_qtAutoOn(si))
-        btnHtml+=`<span class="qa-on" title="일정표를 직접 손보시면 자동 잇기가 멈춥니다">🔗 견적서와 이어짐<button class="qa-x" onclick="qtAutoOff(${si});renderAll()" title="자동 잇기 끄기">✕</button></span>`;
-      else
-        btnHtml+=`<button class="proc-tool-btn" onclick="qtAutoOn(${si})">🔗 견적서와 다시 잇기</button>`;
-      btnHtml+=`<button class="proc-tool-btn" onclick="procFromQuote(${si})">📄 견적서에서 가져오기</button>`;
-    }
     btnHtml+=`<button class="proc-tool-btn" onclick="enterSelectMode(${si})">☑ 골라 삭제</button>`;
     btnHtml+=`<button class="proc-tool-btn danger" onclick="deleteAllProcs(${si})">전체 삭제</button>`;
   }
@@ -14857,7 +15745,6 @@ function rerenderProcPanel(si){
 }
 
 async function deleteSelected(si){
-  if(typeof qtAutoOff==="function") qtAutoOff(si);
   const s=S.sites[si];
   if(!s.selectedProcs||s.selectedProcs.length===0)return;
   if(s.procs.length-s.selectedProcs.length<1){alert('작업은 최소 1개 이상 필요합니다.');return;}
@@ -14945,7 +15832,6 @@ function shiftProcColors(si,removedIdx){
   });
 }
 async function deleteSiteProc(si,pi){
-  if(typeof qtAutoOff==="function") qtAutoOff(si);
   if(S.sites[si].procs.length<=1){alert('작업은 최소 1개 이상 필요합니다.');return;}
   if(!(await askConfirm(`"${S.sites[si].procs[pi]}" 작업을 삭제하면 해당 작업의 모든 기록이 지워집니다.`)))return;
   const cells=S.sites[si].cells;
