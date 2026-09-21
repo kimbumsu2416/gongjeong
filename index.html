@@ -1566,9 +1566,13 @@ body.printing .no-print{display:none!important}
 .eq-fold-s{color:#a8b1be;font-size:12.5px}
 .eq-fold-a{margin-left:auto;font-size:11.5px;color:#c8d0da}
 .eq-head{background:#fff;border:1px solid #dfe5ee;border-radius:12px;padding:16px 18px}
-.eq-head-h{display:flex;align-items:center;margin-bottom:12px;font-size:13px;font-weight:800;color:#12141C}
-.eq-head-x{margin-left:auto;font-size:11.5px;font-weight:700;font-family:inherit;color:#8a94a6;
-  background:transparent;border:none;cursor:pointer}
+.eq-head{padding-top:0}
+.eq-head-h{display:flex;align-items:center;width:calc(100% + 36px);margin:0 -18px 12px;padding:14px 18px;
+  font-size:13px;font-weight:800;color:#12141C;font-family:inherit;text-align:left;
+  background:transparent;border:none;border-bottom:1px solid #f2f5fa;border-radius:12px 12px 0 0;cursor:pointer}
+.eq-head-h:hover{background:#f8fafc}
+.eq-head-x{margin-left:auto;font-size:11.5px;font-weight:700;color:#8a94a6}
+.eq-head-h:hover .eq-head-x{color:#12141C}
 .eq-fs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .eq-f{display:flex;flex-direction:column;gap:4px;min-width:0}
 .eq-f.w2{grid-column:span 2}
@@ -12879,8 +12883,8 @@ function eqHeadHtml(si,q){
       + '></label>';
   };
   return '<div class="eq-head">'
-    + '<div class="eq-head-h"><span>견적서 정보</span>'
-    +   '<button class="eq-head-x" onclick="eqHeadFold('+si+')">▴ 접기</button></div>'
+    + '<button class="eq-head-h" onclick="eqHeadFold('+si+')" title="눌러서 접기">'
+    +   '<span>견적서 정보</span><span class="eq-head-x">▴ 접기</span></button>'
     + '<div class="eq-fs">'
     +   F('name','공사명','예) 방배동 빌라 리모델링',2)
     +   F('to','받는 분','고객 성함 · 상호')
