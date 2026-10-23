@@ -3822,6 +3822,22 @@ textarea.tm-input{resize:vertical;min-height:100px;line-height:1.7}
 /* ══════════ 로고 ══════════ */
 .lg-svg{flex-shrink:0;display:block}
 
+/* ══════ E7 로고 락업 — 괘선 / DARIM / 괘선+추 ══════
+   .e7 의 font-size 하나로 전체 크기가 따라옵니다 */
+.e7{display:inline-flex;flex-direction:column;align-items:stretch;gap:.34em;
+  line-height:1;color:inherit;flex-shrink:0}
+.e7-r{display:block;height:.07em;min-height:1.5px;background:currentColor;
+  border-radius:2px;flex:1 1 auto}
+.e7-w{font-family:var(--mono);font-weight:500;font-size:1em;letter-spacing:.3em;
+  padding-left:.3em;text-align:center;white-space:nowrap;color:inherit}
+.e7-b{display:flex;align-items:center;gap:.24em}
+.e7-d{width:.42em;height:.6em;display:block;flex:0 0 auto}
+.e7-xs{font-size:8px}
+.e7-sm{font-size:12px}
+.e7-md{font-size:13.5px}
+.e7-lg{font-size:34px}
+@media(max-width:560px){.e7-lg{font-size:25px}}
+
 /* 앱 헤더 */
 .ah-brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0;background:transparent;border:none;padding:0;cursor:pointer;font-family:inherit}
 .ah-brand .lg-svg{width:30px;height:30px;color:#fff}
@@ -5765,8 +5781,7 @@ tr.divider td{background:#EEF0F3!important}
 <div id="gate" style="position:fixed;inset:0;z-index:2147483647;background:#0E1420;display:flex;align-items:center;justify-content:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Malgun Gothic','Apple SD Gothic Neo',sans-serif">
   <div style="width:100%;max-width:340px;text-align:center">
     <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:22px">
-      <svg width="34" height="34" viewBox="0 0 30 30"><rect width="30" height="30" rx="7" fill="#182234"/><rect x="5" y="7" width="20" height="2.3" rx="1.15" fill="#fff" opacity=".9"/><path d="M15 11.4 L19 15.4 L15 19.4 L11 15.4 Z" fill="#4F46E5"/><rect x="5" y="21.4" width="20" height="2.3" rx="1.15" fill="#fff" opacity=".9"/></svg>
-      <span style="color:#fff;font-size:22px;font-weight:800;letter-spacing:-.5px">다림</span>
+      <span class="e7 e7-md" style="color:#fff"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
     </div>
     <div style="color:#cbd5e1;font-size:15px;font-weight:600;margin-bottom:6px">준비 중인 페이지입니다</div>
     <div style="color:#7b8798;font-size:13px;line-height:1.6;margin-bottom:20px">접근 암호를 입력해 주세요.</div>
@@ -5815,26 +5830,29 @@ tr.divider td{background:#EEF0F3!important}
   background:radial-gradient(circle, rgba(79,70,229,.28) 0%, rgba(79,70,229,0) 68%);
   opacity:0;transition:opacity .8s ease}
 #intro-glow.on{opacity:1}
-#intro-stage{position:relative;z-index:1;display:flex;flex-direction:row;align-items:center;gap:clamp(18px,3.4vmin,34px)}
-#intro-txt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;
-  opacity:0;transform:translateX(-12px);transition:opacity .34s ease, transform .44s cubic-bezier(.2,1.25,.3,1)}
+#intro-stage{position:relative;z-index:1;display:flex;flex-direction:column;
+  align-items:stretch;gap:clamp(12px,2.2vmin,20px);width:clamp(210px,36vmin,340px)}
+#intro-txt{display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:translateY(10px);transition:opacity .34s ease, transform .44s cubic-bezier(.2,1.25,.3,1)}
 #intro-txt.in{opacity:1;transform:none}
-@media(max-width:520px){#intro-stage{gap:16px}}
 #intro-stage.pulse{animation:introPulse .5s cubic-bezier(.2,1.3,.3,1)}
 @keyframes introPulse{0%{transform:scale(1)}40%{transform:scale(1.045)}100%{transform:scale(1)}}
-#intro-logo{width:clamp(120px,20vmin,168px);height:auto;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
-#intro-logo .ib{opacity:0;transform:scale(1.6);transform-origin:center;
+.intro-rule{height:clamp(4px,.75vmin,7px);border-radius:4px;background:#ffffff;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))}
+.intro-base{position:relative;display:block}
+.intro-baserow{display:flex;align-items:center}
+.intro-baserow .intro-rule{flex:1 1 auto}
+.intro-gapspace{flex:0 0 auto;width:clamp(30px,5.2vmin,50px)}
+.intro-bobwrap{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;pointer-events:none}
+.intro-bob{width:clamp(18px,3.3vmin,31px);height:auto;display:block}
+#intro-stage .ib{opacity:0;transform:scale(1.6);transform-origin:center;
   transition:opacity .2s ease, transform .42s cubic-bezier(.16,1.35,.3,1)}
-/* 앱 로고와 같은 짙기 — 첫 막대 .95, 가운데 .55, 아래 파랑 */
-#intro-logo .ib1.in{opacity:.95;transform:scale(1)}
-#intro-logo .ib2.in{opacity:.55;transform:scale(1)}
-#intro-logo .ib3.in{opacity:1;transform:scale(1)}
-#intro-word{font-size:clamp(34px,6.6vmin,58px);font-weight:900;letter-spacing:-.03em;line-height:1;display:flex}
-#intro-word span{display:inline-block}
-#intro-word .iw1{color:#fff}
-#intro-word .iw2{color:#6366F1}
-#intro-sub{font-family:'IBM Plex Mono',monospace;font-size:clamp(9px,1.6vmin,12px);letter-spacing:.42em;
-  color:rgba(255,255,255,.5)}
+#intro-stage .ib1.in{opacity:.92;transform:scale(1)}
+#intro-stage .ib2.in{opacity:.92;transform:scale(1)}
+#intro-stage .ib3.in{opacity:1;transform:scale(1)}
+#intro-word{font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:clamp(17px,3.1vmin,28px);font-weight:500;letter-spacing:.3em;padding-left:.3em;
+  line-height:1;color:#fff;text-align:center}
 #intro-hint{position:absolute;bottom:11%;z-index:2;color:rgba(255,255,255,.62);font-size:13px;letter-spacing:.01em;
   opacity:0;transition:opacity .4s ease}
 #intro-hint.show{opacity:1;animation:introHint 1.5s ease-in-out infinite}
@@ -5843,14 +5861,11 @@ tr.divider td{background:#EEF0F3!important}
 <div id="intro" aria-hidden="true">
   <div id="intro-glow"></div>
   <div id="intro-stage">
-    <svg id="intro-logo" viewBox="0 0 132 132" fill="none" aria-hidden="true">
-      <rect class="ib ib1" x="9" y="18.5" width="114" height="11.4" rx="5.7" fill="#ffffff" opacity=".9"/>
-      <path class="ib ib2" d="M66 39.6 L88 66 L66 92.4 L44 66 Z" fill="#4F46E5"/>
-      <rect class="ib ib3" x="9" y="102.1" width="114" height="11.4" rx="5.7" fill="#ffffff" opacity=".9"/>
-    </svg>
-    <div id="intro-txt">
-      <div id="intro-word"><span class="iw1">다</span><span class="iw2">림</span></div>
-      <div id="intro-sub">DARIM</div>
+    <div class="ib ib1 intro-rule"></div>
+    <div id="intro-txt"><div id="intro-word">DARIM</div></div>
+    <div class="intro-base">
+      <div class="ib ib2 intro-baserow"><div class="intro-rule"></div><div class="intro-gapspace"></div><div class="intro-rule"></div></div>
+      <div class="intro-bobwrap"><svg class="ib ib3 intro-bob" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg></div>
     </div>
   </div>
   <div id="intro-hint">🔊 화면을 눌러 시작</div>
@@ -5872,7 +5887,6 @@ tr.divider td{background:#EEF0F3!important}
   var stage=document.getElementById('intro-stage');
   var hint=document.getElementById('intro-hint');
   var bars=[].slice.call(intro.querySelectorAll('.ib'));
-  var w1=intro.querySelector('.iw1'), w2=intro.querySelector('.iw2');
   /* 사운드 타격 지점(초)에 맞춘 모션 큐 — 타·타·타 → 워드마크 → 마무리 */
   var txt=document.getElementById('intro-txt');
   /* 음원에서 재어 낸 강조음에 하나씩 맞춤
@@ -5938,11 +5952,7 @@ tr.divider td{background:#EEF0F3!important}
   <header class="topbar">
     <div class="shell topbar-in">
       <button class="mark" onclick="goHome()" aria-label="다림 홈으로">
-        <svg class="lg-svg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>
-        <span class="mark-txt">
-          <span class="mark-name">다<em>림</em></span>
-          <span class="mark-sub">DARIM</span>
-        </span>
+        <span class="e7 e7-md"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
       </button>
       <nav class="nav">
         <button class="nav-link" onclick="scrollToSec('product')">화면</button>
@@ -5957,13 +5967,7 @@ tr.divider td{background:#EEF0F3!important}
   <div class="shell hero-in">
    <div class="hero-l">
     <div class="hero-lockup">
-      <svg class="lg-big" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-        <rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/>
-      </svg>
-      <div class="hero-wm">
-        <div class="hero-wm-kr">다<em>림</em></div>
-        <div class="hero-wm-en">DARIM</div>
-      </div>
+      <span class="e7 e7-lg"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
     </div>
     <p class="hero-eng">One schedule, every site, in real time.</p>
 
@@ -6000,7 +6004,7 @@ tr.divider td{background:#EEF0F3!important}
 <div class="appshot rise">
   <div class="as-head">
     <div class="as-head-top">
-      <div class="as-brand"><svg class="lg-svg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg><span class="as-txt"><span class="as-name">다<em>림</em></span><span class="as-eng">DARIM</span></span></div>
+      <div class="as-brand"><span class="e7 e7-sm"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span></div>
       <div class="as-right"><span class="as-sync"><i></i>팀 공유 중</span><span class="as-team">대한인테리어</span><span class="as-code">634F64</span></div>
     </div>
     <div class="as-nav">
@@ -6242,8 +6246,7 @@ tr.divider td{background:#EEF0F3!important}
     <!-- 3단: 브랜드 -->
     <div class="foot-bot">
       <div class="foot-brand">
-        <svg class="lg-svg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>
-        <span class="foot-name">다<em>림</em></span>
+        <span class="e7 e7-md"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
       </div>
       <span class="foot-eng">© 2026 DARIM. All rights reserved.</span>
     </div>
@@ -6262,11 +6265,7 @@ tr.divider td{background:#EEF0F3!important}
     <!-- 1단: 브랜드 · 팀 · 계정 -->
     <div class="apphead-top">
       <button class="ah-brand" onclick="goHome()" aria-label="다림 홈으로">
-        <svg class="lg-svg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>
-        <span class="ah-txt">
-          <span class="ah-name">다<em>림</em></span>
-          <span class="ah-eng">DARIM</span>
-        </span>
+        <span class="e7 e7-sm"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
       </button>
       <div class="ah-right">
         <span class="ah-sync"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">연결 중...</span></span>
@@ -8167,8 +8166,7 @@ function renderLegalPage(){
     <header class="lp-head">
       <div class="lp-head-in">
         <button class="lp-mark" onclick="goHome()" aria-label="다림 홈으로">
-          <svg class="lg-svg" viewBox="0 0 30 30" fill="none"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>
-          <span class="lp-name">다<em>림</em></span>
+          <span class="e7 e7-sm"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
         </button>
         <button class="lp-back" onclick="closeLegal()">← 돌아가기</button>
       </div>
@@ -11581,7 +11579,7 @@ function buildPrintArea(){
   }
 
   h+=`<div class="pp-foot">
-    <span class="pp-by"><svg class="pp-by-lg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>www.gongjeongon.com</span>
+    <span class="pp-by"><span class="e7 e7-xs"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>www.gongjeongon.com</span>
     <span>${esc(title)} · ${y}.${String(m).padStart(2,'0')}${who?` · 출력자 ${esc(who)}`:''}</span>
   </div>`;
 
@@ -12006,8 +12004,7 @@ async function renderInbox(){
     <div class="inbox-bar">
       <div class="inbox-left">
         <button class="lp-mark" onclick="goHome()" aria-label="다림 홈으로">
-          <svg class="lg-svg" viewBox="0 0 30 30" fill="none"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>
-          <span class="lp-name">다<em>림</em></span>
+          <span class="e7 e7-sm"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
         </button>
         <button class="inbox-back" onclick="closeInbox()">← 팀 선택</button>
       </div>
@@ -16571,8 +16568,7 @@ function authShell(inner, lite, wide){
       <button class="ov-x" onclick="closeAuth()" aria-label="닫기">&times;</button>
 
       <div class="ov-brand">
-        <svg class="lg-svg" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg>
-        <span class="ov-name">다<em>림</em></span>
+        <span class="e7 e7-md"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span>
       </div>
 
       <div class="ov-body">${inner}</div>
@@ -16670,7 +16666,7 @@ function renderAuth(){
   /* ── 비밀번호 찾기 전용 화면 (이메일만 입력) ── */
   if(_authTab==='reset'){
     el.innerHTML=authShell(`
-      <div class="na-brand"><svg class="na-logo" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg><span class="na-wm">다<em>림</em></span></div>
+      <div class="na-brand"><span class="e7 e7-sm"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span></div>
       <div class="na-title">비밀번호 찾기</div>
       <div class="na-sub">가입하신 이메일 주소로 비밀번호를 새로 설정할 수 있는 링크를 보내드립니다.</div>
 
@@ -16690,7 +16686,7 @@ function renderAuth(){
   const isLogin=_authTab==='login';
   const pwField=(id,ph,ac)=>`<span class="pw-wrap"><input id="${id}" class="na-in" type="password" placeholder="${ph}" autocomplete="${ac}"><button type="button" class="pw-eye" onclick="togglePwField(this)" aria-label="비밀번호 표시">${PW_EYE_SVG}</button></span>`;
   el.innerHTML=authShell(`
-    <div class="na-brand"><svg class="na-logo" viewBox="0 0 30 30" fill="none" aria-hidden="true"><rect x="2" y="4.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/><path d="M15 9 L20 15 L15 21 L10 15 Z" fill="#4F46E5"/><rect x="2" y="23.2" width="26" height="2.6" rx="1.3" fill="currentColor" opacity=".9"/></svg><span class="na-wm">다<em>림</em></span></div>
+    <div class="na-brand"><span class="e7 e7-sm"><span class="e7-r"></span><span class="e7-w">DARIM</span><span class="e7-b"><span class="e7-r"></span><svg class="e7-d" viewBox="0 0 20 30" fill="none" aria-hidden="true"><path d="M10 1 L17 10 L10 29 L3 10 Z" fill="#4F46E5"/></svg><span class="e7-r"></span></span></span></div>
     <div class="na-title">${isLogin?'로그인':'이메일 회원가입'}</div>
     <div class="na-sub">${isLogin?'현장 공정을 팀 전체가 같은 화면에서 관리하세요.':'가입하고 현장 공정을 팀과 실시간으로 공유하세요.'}</div>
 
